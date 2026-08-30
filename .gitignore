@@ -1,0 +1,16 @@
+# .NET
+WebApp/bin/
+WebApp/obj/
+*.user
+.vs/
+*.suo
+
+# Android
+MobileApp/build/
+MobileApp/.gradle/
+MobileApp/local.properties
+MobileApp/.idea/
+*.iml
+*.apk
+*.aab
+.DS_Store

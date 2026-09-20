@@ -52,6 +52,90 @@ body {
             color: #C9D6E8 !important;
         }
 
+.hero-banner {
+    background: linear-gradient(135deg, var(--rb-navy) 0%, var(--rb-navy-light) 100%);
+    color: #fff;
+    padding: 2.5rem 2rem;
+    border-radius: 0.5rem;
+}
+
+    .hero-banner h1 {
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+    }
+
+.stat-card {
+    background: #fff;
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,.08);
+    padding: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+    .stat-card i {
+        font-size: 2rem;
+        color: var(--rb-navy);
+    }
+
+    .stat-card h3 {
+        margin: 0;
+    }
+
+    .stat-card span {
+        color: #6c757d;
+        font-size: 0.9rem;
+    }
+
+.quick-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.quick-action-btn {
+    background: #fff;
+    border: 1px solid #e3e6eb;
+    border-radius: 0.5rem;
+    padding: 0.9rem 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    color: var(--rb-navy);
+    text-decoration: none;
+    font-weight: 500;
+    transition: background 0.15s ease;
+}
+
+    .quick-action-btn:hover {
+        background: #EEF2F8;
+        color: var(--rb-navy);
+    }
+
+    .quick-action-btn i {
+        font-size: 1.2rem;
+    }
+
+.panel {
+    background: #fff;
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,.08);
+    padding: 1.25rem;
+}
+
+    .panel h5 {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .panel ul {
+        margin-bottom: 0;
+        padding-left: 1.1rem;
+    }
+
 .btn-rosebank {
     background-color: var(--rb-navy);
     color: #fff;

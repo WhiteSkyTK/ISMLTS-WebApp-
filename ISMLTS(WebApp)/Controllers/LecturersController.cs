@@ -1,150 +1,84 @@
-
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using ISMLTS_WebApp_.Models;
-using ISMLTS_WebApp_.Data;
+using ISMLTS_WebApp_.Repositories;
 
-public class LecturersController : Controller
+namespace ISMLTS_WebApp_.Controllers
 {
-    private readonly ApplicationDbContext _context;
-
-    public LecturersController(ApplicationDbContext context)
+    public class LecturersController : Controller
     {
-        _context = context;
-    }
+        private readonly ILecturerRepository _lecturerRepository;
 
-    // GET: LECTURERS
-    public async Task<IActionResult> Index()    
-    {
-        return View(await _context.Lecturers.ToListAsync());
-    }
-
-    // GET: LECTURERS/Details/5
-    public async Task<IActionResult> Details(int? lecturerid)
-    {
-        if (lecturerid == null)
+        public LecturersController(ILecturerRepository lecturerRepository)
         {
-            return NotFound();
+            _lecturerRepository = lecturerRepository;
         }
 
-        var lecturer = await _context.Lecturers
-            .FirstOrDefaultAsync(m => m.LecturerId == lecturerid);
-        if (lecturer == null)
+        public async Task<IActionResult> Index() => View(await _lecturerRepository.GetAllAsync());
+
+        public async Task<IActionResult> Details(int id)
         {
-            return NotFound();
+            var lecturer = await _lecturerRepository.GetByIdAsync(id);
+            if (lecturer == null) return NotFound();
+            return View(lecturer);
         }
 
-        return View(lecturer);
-    }
+        public IActionResult Create() => View();
 
-    // GET: LECTURERS/Create
-    public IActionResult Create()
-    {
-        return View();
-    }
-
-    // POST: LECTURERS/Create
-    // To protect from overposting attacks, enable the specific properties you want to bind to.
-    // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create([Bind("LecturerId,FullName,Email,PasswordHash,Modules")] Lecturer lecturer)
-    {
-        if (ModelState.IsValid)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create([Bind("FullName,Email")] Lecturer lecturer, string password)
         {
-            _context.Add(lecturer);
-            await _context.SaveChangesAsync();
+            if (!ModelState.IsValid) return View(lecturer);
+
+            lecturer.PasswordHash = BCrypt.Net.BCrypt.HashPassword(password);
+            await _lecturerRepository.AddAsync(lecturer);
+            await _lecturerRepository.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
-        return View(lecturer);
-    }
 
-    // GET: LECTURERS/Edit/5
-    public async Task<IActionResult> Edit(int? lecturerid)
-    {
-        if (lecturerid == null)
+        public async Task<IActionResult> Edit(int id)
         {
-            return NotFound();
+            var lecturer = await _lecturerRepository.GetByIdAsync(id);
+            if (lecturer == null) return NotFound();
+            return View(lecturer);
         }
 
-        var lecturer = await _context.Lecturers.FindAsync(lecturerid);
-        if (lecturer == null)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, [Bind("LecturerId,FullName,Email")] Lecturer input)
         {
-            return NotFound();
-        }
-        return View(lecturer);
-    }
+            if (id != input.LecturerId) return NotFound();
+            if (!ModelState.IsValid) return View(input);
 
-    // POST: LECTURERS/Edit/5
-    // To protect from overposting attacks, enable the specific properties you want to bind to.
-    // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int? lecturerid, [Bind("LecturerId,FullName,Email,PasswordHash,Modules")] Lecturer lecturer)
-    {
-        if (lecturerid != lecturer.LecturerId)
-        {
-            return NotFound();
+            var lecturer = await _lecturerRepository.GetByIdAsync(id);
+            if (lecturer == null) return NotFound();
+
+            lecturer.FullName = input.FullName;
+            lecturer.Email = input.Email;
+
+            _lecturerRepository.Update(lecturer);
+            await _lecturerRepository.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
         }
 
-        if (ModelState.IsValid)
+        public async Task<IActionResult> Delete(int id)
         {
-            try
+            var lecturer = await _lecturerRepository.GetByIdAsync(id);
+            if (lecturer == null) return NotFound();
+            return View(lecturer);
+        }
+
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            var lecturer = await _lecturerRepository.GetByIdAsync(id);
+            if (lecturer != null)
             {
-                _context.Update(lecturer);
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!LecturerExists(lecturer.LecturerId))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                _lecturerRepository.Delete(lecturer);
+                await _lecturerRepository.SaveChangesAsync();
             }
             return RedirectToAction(nameof(Index));
         }
-        return View(lecturer);
-    }
-
-    // GET: LECTURERS/Delete/5
-    public async Task<IActionResult> Delete(int? lecturerid)
-    {
-        if (lecturerid == null)
-        {
-            return NotFound();
-        }
-
-        var lecturer = await _context.Lecturers
-            .FirstOrDefaultAsync(m => m.LecturerId == lecturerid);
-        if (lecturer == null)
-        {
-            return NotFound();
-        }
-
-        return View(lecturer);
-    }
-
-    // POST: LECTURERS/Delete/5
-    [HttpPost, ActionName("Delete")]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> DeleteConfirmed(int? lecturerid)
-    {
-        var lecturer = await _context.Lecturers.FindAsync(lecturerid);
-        if (lecturer != null)
-        {
-            _context.Lecturers.Remove(lecturer);
-        }
-
-        await _context.SaveChangesAsync();
-        return RedirectToAction(nameof(Index));
-    }
-
-    private bool LecturerExists(int? lecturerid)
-    {
-        return _context.Lecturers.Any(e => e.LecturerId == lecturerid);
     }
 }

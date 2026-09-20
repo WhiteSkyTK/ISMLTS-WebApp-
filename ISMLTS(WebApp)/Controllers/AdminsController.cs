@@ -1,150 +1,84 @@
-
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using ISMLTS_WebApp_.Models;
-using ISMLTS_WebApp_.Data;
+using ISMLTS_WebApp_.Repositories;
 
-public class AdminsController : Controller
+namespace ISMLTS_WebApp_.Controllers
 {
-    private readonly ApplicationDbContext _context;
-
-    public AdminsController(ApplicationDbContext context)
+    public class AdminsController : Controller
     {
-        _context = context;
-    }
+        private readonly IAdminRepository _adminRepository;
 
-    // GET: ADMINS
-    public async Task<IActionResult> Index()    
-    {
-        return View(await _context.Admins.ToListAsync());
-    }
-
-    // GET: ADMINS/Details/5
-    public async Task<IActionResult> Details(int? adminid)
-    {
-        if (adminid == null)
+        public AdminsController(IAdminRepository adminRepository)
         {
-            return NotFound();
+            _adminRepository = adminRepository;
         }
 
-        var admin = await _context.Admins
-            .FirstOrDefaultAsync(m => m.AdminId == adminid);
-        if (admin == null)
+        public async Task<IActionResult> Index() => View(await _adminRepository.GetAllAsync());
+
+        public async Task<IActionResult> Details(int id)
         {
-            return NotFound();
+            var admin = await _adminRepository.GetByIdAsync(id);
+            if (admin == null) return NotFound();
+            return View(admin);
         }
 
-        return View(admin);
-    }
+        public IActionResult Create() => View();
 
-    // GET: ADMINS/Create
-    public IActionResult Create()
-    {
-        return View();
-    }
-
-    // POST: ADMINS/Create
-    // To protect from overposting attacks, enable the specific properties you want to bind to.
-    // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create([Bind("AdminId,Username,PasswordHash,Role")] Admin admin)
-    {
-        if (ModelState.IsValid)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create([Bind("Username,Role")] Admin admin, string password)
         {
-            _context.Add(admin);
-            await _context.SaveChangesAsync();
+            if (!ModelState.IsValid) return View(admin);
+
+            admin.PasswordHash = BCrypt.Net.BCrypt.HashPassword(password);
+            await _adminRepository.AddAsync(admin);
+            await _adminRepository.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
-        return View(admin);
-    }
 
-    // GET: ADMINS/Edit/5
-    public async Task<IActionResult> Edit(int? adminid)
-    {
-        if (adminid == null)
+        public async Task<IActionResult> Edit(int id)
         {
-            return NotFound();
+            var admin = await _adminRepository.GetByIdAsync(id);
+            if (admin == null) return NotFound();
+            return View(admin);
         }
 
-        var admin = await _context.Admins.FindAsync(adminid);
-        if (admin == null)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, [Bind("AdminId,Username,Role")] Admin input)
         {
-            return NotFound();
-        }
-        return View(admin);
-    }
+            if (id != input.AdminId) return NotFound();
+            if (!ModelState.IsValid) return View(input);
 
-    // POST: ADMINS/Edit/5
-    // To protect from overposting attacks, enable the specific properties you want to bind to.
-    // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int? adminid, [Bind("AdminId,Username,PasswordHash,Role")] Admin admin)
-    {
-        if (adminid != admin.AdminId)
-        {
-            return NotFound();
+            var admin = await _adminRepository.GetByIdAsync(id);
+            if (admin == null) return NotFound();
+
+            admin.Username = input.Username;
+            admin.Role = input.Role;
+
+            _adminRepository.Update(admin);
+            await _adminRepository.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
         }
 
-        if (ModelState.IsValid)
+        public async Task<IActionResult> Delete(int id)
         {
-            try
+            var admin = await _adminRepository.GetByIdAsync(id);
+            if (admin == null) return NotFound();
+            return View(admin);
+        }
+
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            var admin = await _adminRepository.GetByIdAsync(id);
+            if (admin != null)
             {
-                _context.Update(admin);
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!AdminExists(admin.AdminId))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                _adminRepository.Delete(admin);
+                await _adminRepository.SaveChangesAsync();
             }
             return RedirectToAction(nameof(Index));
         }
-        return View(admin);
-    }
-
-    // GET: ADMINS/Delete/5
-    public async Task<IActionResult> Delete(int? adminid)
-    {
-        if (adminid == null)
-        {
-            return NotFound();
-        }
-
-        var admin = await _context.Admins
-            .FirstOrDefaultAsync(m => m.AdminId == adminid);
-        if (admin == null)
-        {
-            return NotFound();
-        }
-
-        return View(admin);
-    }
-
-    // POST: ADMINS/Delete/5
-    [HttpPost, ActionName("Delete")]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> DeleteConfirmed(int? adminid)
-    {
-        var admin = await _context.Admins.FindAsync(adminid);
-        if (admin != null)
-        {
-            _context.Admins.Remove(admin);
-        }
-
-        await _context.SaveChangesAsync();
-        return RedirectToAction(nameof(Index));
-    }
-
-    private bool AdminExists(int? adminid)
-    {
-        return _context.Admins.Any(e => e.AdminId == adminid);
     }
 }

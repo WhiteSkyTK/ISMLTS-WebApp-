@@ -1,8 +1,58 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model ISMLTS_WebApp_.Models.DashboardViewModel
+@{
+    ViewData["Title"] = "Dashboard";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<h2 class="mb-4">Welcome, @User.Identity?.Name</h2>
+
+@if (User.IsInRole("Admin"))
+{
+    <div class="row g-3 mb-4">
+        <div class="col-md-4"><div class="card p-3 text-center"><h3>@Model.TotalStudents</h3><span class="text-muted">Students</span></div></div>
+        <div class="col-md-4"><div class="card p-3 text-center"><h3>@Model.TotalLecturers</h3><span class="text-muted">Lecturers</span></div></div>
+        <div class="col-md-4"><div class="card p-3 text-center"><h3>@Model.TotalModules</h3><span class="text-muted">Modules</span></div></div>
+    </div>
+    <div class="d-flex gap-2">
+        <a asp-controller="Students" asp-action="Index" class="btn btn-rosebank">Manage Students</a>
+        <a asp-controller="Lecturers" asp-action="Index" class="btn btn-rosebank">Manage Lecturers</a>
+        <a asp-controller="Modules" asp-action="Index" class="btn btn-rosebank">Manage Modules</a>
+    </div>
+}
+
+@if (User.IsInRole("Lecturer"))
+{
+    <div class="row g-3">
+        <div class="col-md-6">
+            <div class="card p-3">
+                <h5>Quick Actions</h5>
+                <a asp-controller="Announcements" asp-action="Create" class="btn btn-rosebank btn-sm mb-2">+ New Announcement</a>
+                <a asp-controller="Attendance" asp-action="Index" class="btn btn-rosebank btn-sm mb-2">Mark Register (QR)</a>
+                <a asp-controller="Marks" asp-action="Index" class="btn btn-rosebank btn-sm">Capture Marks</a>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card p-3">
+                <h5>Upcoming Due Dates You've Set</h5>
+                <ul class="mb-0">@foreach (var due in Model.UpcomingDueDates) {
+                <li>@due</li>
+            }
+</ul>
+        </div>
+    </div>
 </div>
+}
+
+@if (User.IsInRole("Student"))
+{
+    <div class="row g-3">
+        <div class="col-md-6"><div class="card p-3"><h5>Announcements</h5><ul class="mb-0">@foreach (var a in Model.Announcements) {
+        <li>@a</li>
+    }
+</ul></div></div>
+    <div class="col-md-6"><div class="card p-3"><h5>Due Soon</h5><ul class="mb-0">@foreach (var due in Model.UpcomingDueDates) {
+    <li>@due</li>
+        }
+</ul></div></div>
+    <div class="col-12"><a asp-controller="Attendance" asp-action="Scan" class="btn btn-rosebank">Scan Attendance QR</a></div>
+</div>
+}

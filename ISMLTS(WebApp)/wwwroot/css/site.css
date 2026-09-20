@@ -29,3 +29,46 @@ body {
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
   text-align: start;
 }
+
+:root {
+    --rb-navy: #14274E;
+    --rb-navy-light: #1F3B6E;
+}
+
+body {
+    background-color: #F5F7FA;
+}
+
+.navbar-rosebank {
+    background-color: var(--rb-navy);
+}
+
+    .navbar-rosebank .nav-link,
+    .navbar-rosebank .navbar-brand {
+        color: #ffffff !important;
+    }
+
+        .navbar-rosebank .nav-link:hover {
+            color: #C9D6E8 !important;
+        }
+
+.btn-rosebank {
+    background-color: var(--rb-navy);
+    color: #fff;
+    border: none;
+}
+
+    .btn-rosebank:hover {
+        background-color: var(--rb-navy-light);
+        color: #fff;
+    }
+
+.card {
+    border: none;
+    box-shadow: 0 1px 3px rgba(0,0,0,.08);
+}
+
+footer {
+    background-color: var(--rb-navy);
+    color: #fff;
+}

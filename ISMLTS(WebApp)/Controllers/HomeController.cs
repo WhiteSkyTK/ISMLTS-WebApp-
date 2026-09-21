@@ -26,7 +26,7 @@ namespace ISMLTS_WebApp_.Controllers
             _logger = logger;
         }
 
-        [Authorize]
+        //[Authorize]
         public async Task<IActionResult> Index()
         {
             var model = new DashboardViewModel();

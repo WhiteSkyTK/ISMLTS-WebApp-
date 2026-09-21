@@ -1,4 +1,4 @@
-ï»¿@model ISMLTS_WebApp_.Models.DashboardViewModel
+@model ISMLTS_WebApp_.Models.DashboardViewModel
 @{
     ViewData["Title"] = "Dashboard";
 }
@@ -29,7 +29,7 @@
         <ul class="mb-0">
             @foreach (var t in Model.UpcomingTasks)
             {
-                <li><span class="badge task-badge task-@t.Type.ToLower()">@t.Type</span> @t.Title â€” @t.DueDate.ToString("ddd, dd MMM")</li>
+                <li><span class="badge task-badge task-@t.Type.ToLower()">@t.Type</span> @t.Title — @t.DueDate.ToString("ddd, dd MMM")</li>
             }
         </ul>
     </div>
@@ -67,7 +67,7 @@
                     <ul class="mb-0">
                         @foreach (var t in Model.UpcomingTasks)
                         {
-                            <li><span class="badge task-badge task-@t.Type.ToLower()">@t.Type</span> @t.Title â€” due @t.DueDate.ToString("ddd, dd MMM")</li>
+                            <li><span class="badge task-badge task-@t.Type.ToLower()">@t.Type</span> @t.Title — due @t.DueDate.ToString("ddd, dd MMM")</li>
                         }
                     </ul>
                 </div>
@@ -95,7 +95,7 @@
                             <div class="mb-2">@c.Name</div>
                             <div class="small text-muted">
                                 <i class="bi bi-star-fill text-warning"></i> @c.Rating.ToString("0.0")
-                                &nbsp;Â·&nbsp; <i class="bi bi-chat-dots"></i> @c.DiscussionCount discussing
+                                &nbsp;·&nbsp; <i class="bi bi-chat-dots"></i> @c.DiscussionCount discussing
                             </div>
                         </div>
                     </div>

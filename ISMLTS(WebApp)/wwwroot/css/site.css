@@ -1,42 +1,36 @@
 html {
-  font-size: 14px;
+    font-size: 14px;
+    position: relative;
+    min-height: 100%;
 }
 
 @media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
-}
-
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
-}
-
-html {
-  position: relative;
-  min-height: 100%;
+    html {
+        font-size: 16px;
+    }
 }
 
 body {
-  margin-bottom: 60px;
+    margin-bottom: 60px;
+    background-color: #F5F7FA;
+}
+
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+    box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
 }
 
 .form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
-  color: var(--bs-secondary-color);
-  text-align: end;
+    color: var(--bs-secondary-color);
+    text-align: end;
 }
 
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
-  text-align: start;
+    text-align: start;
 }
 
 :root {
     --rb-navy: #14274E;
     --rb-navy-light: #1F3B6E;
-}
-
-body {
-    background-color: #F5F7FA;
 }
 
 .navbar-rosebank {
@@ -51,6 +45,27 @@ body {
         .navbar-rosebank .nav-link:hover {
             color: #C9D6E8 !important;
         }
+
+.btn-rosebank {
+    background-color: var(--rb-navy);
+    color: #fff;
+    border: none;
+}
+
+    .btn-rosebank:hover {
+        background-color: var(--rb-navy-light);
+        color: #fff;
+    }
+
+.card {
+    border: none;
+    box-shadow: 0 1px 3px rgba(0,0,0,.08);
+}
+
+footer {
+    background-color: var(--rb-navy);
+    color: #fff;
+}
 
 .hero-banner {
     background: linear-gradient(135deg, var(--rb-navy) 0%, var(--rb-navy-light) 100%);
@@ -136,23 +151,142 @@ body {
         padding-left: 1.1rem;
     }
 
-.btn-rosebank {
-    background-color: var(--rb-navy);
+.notif-badge {
+    position: absolute;
+    top: 2px;
+    right: -4px;
+    background: #dc3545;
     color: #fff;
-    border: none;
+    font-size: 0.65rem;
+    border-radius: 50%;
+    padding: 1px 5px;
 }
 
-    .btn-rosebank:hover {
-        background-color: var(--rb-navy-light);
+.notif-dropdown {
+    width: 300px;
+}
+
+.nav-tabs-sm .nav-link {
+    padding: 0.3rem 0.6rem;
+    font-size: 0.8rem;
+}
+
+.nav-pills-sm .nav-link {
+    padding: 0.25rem 0.6rem;
+    font-size: 0.8rem;
+}
+
+.avatar-initials {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: #fff;
+    color: var(--rb-navy);
+    font-weight: 600;
+    font-size: 0.85rem;
+}
+
+.module-switcher {
+    background: rgba(255,255,255,.15);
+    color: #fff;
+    border: 1px solid rgba(255,255,255,.3);
+}
+
+    .module-switcher:hover {
+        background: rgba(255,255,255,.25);
         color: #fff;
     }
 
-.card {
-    border: none;
-    box-shadow: 0 1px 3px rgba(0,0,0,.08);
+.icon-nav-row {
+    background: #fff;
+    border-bottom: 1px solid #e3e6eb;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem;
 }
 
-footer {
-    background-color: var(--rb-navy);
+    .icon-nav-row a {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.2rem;
+        padding: 0.6rem 1rem;
+        color: var(--rb-navy);
+        text-decoration: none;
+        font-size: 0.75rem;
+    }
+
+        .icon-nav-row a:hover {
+            background: #F5F7FA;
+        }
+
+    .icon-nav-row i {
+        font-size: 1.2rem;
+    }
+
+@media (max-width: 576px) {
+    .icon-nav-row a span {
+        display: none;
+    }
+
+    .icon-nav-row a {
+        padding: 0.5rem 0.7rem;
+    }
+}
+
+.listen-btn {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: rgba(255,255,255,.2);
+    color: #fff;
+    border: 1px solid rgba(255,255,255,.4);
+}
+
+    .listen-btn:hover {
+        background: rgba(255,255,255,.3);
+        color: #fff;
+    }
+
+.task-badge {
+    font-size: 0.7rem;
     color: #fff;
 }
+
+.task-ice {
+    background: #0d6efd;
+}
+
+.task-quiz {
+    background: #fd7e14;
+}
+
+.task-poe {
+    background: #6f42c1;
+}
+
+.task-project {
+    background: #198754;
+}
+
+.course-card {
+    border: 1px solid #e3e6eb;
+    border-radius: 0.5rem;
+    padding: 0.9rem;
+    height: 100%;
+}
+
+.pin-btn {
+    background: none;
+    border: none;
+    color: #adb5bd;
+    padding: 0;
+}
+
+    .pin-btn:hover, .bi-pin-angle-fill {
+        color: var(--rb-navy);
+    }

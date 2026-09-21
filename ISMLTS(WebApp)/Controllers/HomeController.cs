@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ISMLTS_WebApp_.Models;
@@ -37,16 +38,36 @@ namespace ISMLTS_WebApp_.Controllers
                 model.TotalModules = (await _moduleRepository.GetAllAsync()).Count();
             }
 
-            // Placeholder until Announcement/Task/Quiz models exist
+            if (User.IsInRole("Student"))
+            {
+                var idClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                var student = idClaim != null && int.TryParse(idClaim, out var sid)
+                    ? await _studentRepository.GetByIdWithModulesAsync(sid)
+                    : null;
+
+                // Rating/DiscussionCount are placeholders until Review/Discussion models exist
+                model.Courses = student?.Modules.Select(m => new CourseCard
+                {
+                    ModuleId = m.ModuleId,
+                    Code = m.Code,
+                    Name = m.Name,
+                    IsCurrentSemester = true,
+                    Rating = 4.3,
+                    DiscussionCount = 6
+                }).ToList() ?? new List<CourseCard>();
+            }
+
+            // Placeholder until Announcement/ICE/Quiz/POE models exist
             model.Announcements = new List<string>
             {
                 "POE submission window opens Monday",
                 "Quiz 2 covers weeks 3-5"
             };
-            model.UpcomingDueDates = new List<string>
+            model.UpcomingTasks = new List<UpcomingTask>
             {
-                "ICE Task 3 - due Fri",
-                "POE Part 1 - due next Wed"
+                new() { Title = "ICE Task 3", Type = "ICE", DueDate = DateTime.Today.AddDays(2) },
+                new() { Title = "Quiz 2", Type = "Quiz", DueDate = DateTime.Today.AddDays(4) },
+                new() { Title = "POE Part 1", Type = "POE", DueDate = DateTime.Today.AddDays(9) },
             };
 
             return View(model);

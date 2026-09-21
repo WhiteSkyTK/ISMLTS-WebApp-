@@ -1,0 +1,26 @@
+﻿@model ISMLTS_WebApp_.Models.EnrolmentViewModel
+@{
+    ViewData["Title"] = "Enrol Students";
+}
+
+<h1>Enrol Students — @Model.ModuleName</h1>
+<form asp-action="Enrol" asp-route-id="@Model.ModuleId" method="post">
+    <div class="panel mb-3" style="max-width:500px;">
+        @for (var i = 0; i < Model.Students.Count; i++)
+        {
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox"
+                       name="selectedStudentIds" value="@Model.Students[i].StudentId"
+                       id="student_@Model.Students[i].StudentId"
+                       checked="@Model.Students[i].IsEnrolled" />
+                <label class="form-check-label" for="student_@Model.Students[i].StudentId">@Model.Students[i].FullName</label>
+            </div>
+        }
+        @if (!Model.Students.Any())
+        {
+            <p class="text-muted mb-0">No students exist yet — add some under Students first.</p>
+        }
+    </div>
+    <button type="submit" class="btn btn-rosebank">Save Enrolment</button>
+    <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+</form>

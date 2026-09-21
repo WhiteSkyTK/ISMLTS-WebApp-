@@ -7,5 +7,8 @@ namespace ISMLTS_WebApp_.Repositories
     {
         Task<Module?> GetByCodeAsync(string code);
         Task<IEnumerable<Module>> GetByLecturerAsync(int lecturerId);
+
+        Task<IEnumerable<Module>> GetAllWithLecturerAsync();
+        Task<Module?> GetByIdWithDetailsAsync(int id);
     }
 }

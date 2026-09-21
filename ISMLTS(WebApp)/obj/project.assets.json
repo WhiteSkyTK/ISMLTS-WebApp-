@@ -1511,7 +1511,7 @@
       "Microsoft.EntityFrameworkCore.Analyzers/9.0.20": {
         "type": "package"
       },
-      "Microsoft.EntityFrameworkCore.Design/9.0.20": {
+      "Microsoft.EntityFrameworkCore.Design/9.0.15": {
         "type": "package",
         "dependencies": {
           "Humanizer.Core": "2.14.1",
@@ -1520,13 +1520,13 @@
           "Microsoft.CodeAnalysis.CSharp": "4.8.0",
           "Microsoft.CodeAnalysis.CSharp.Workspaces": "4.8.0",
           "Microsoft.CodeAnalysis.Workspaces.MSBuild": "4.8.0",
-          "Microsoft.EntityFrameworkCore.Relational": "9.0.20",
-          "Microsoft.Extensions.Caching.Memory": "9.0.20",
-          "Microsoft.Extensions.Configuration.Abstractions": "9.0.20",
-          "Microsoft.Extensions.DependencyModel": "9.0.20",
-          "Microsoft.Extensions.Logging": "9.0.20",
+          "Microsoft.EntityFrameworkCore.Relational": "9.0.15",
+          "Microsoft.Extensions.Caching.Memory": "9.0.15",
+          "Microsoft.Extensions.Configuration.Abstractions": "9.0.15",
+          "Microsoft.Extensions.DependencyModel": "9.0.15",
+          "Microsoft.Extensions.Logging": "9.0.15",
           "Mono.TextTemplating": "3.0.0",
-          "System.Text.Json": "9.0.20"
+          "System.Text.Json": "9.0.15"
         },
         "compile": {
           "lib/net8.0/Microsoft.EntityFrameworkCore.Design.dll": {
@@ -1582,10 +1582,16 @@
           }
         }
       },
-      "Microsoft.EntityFrameworkCore.Tools/9.0.20": {
+      "Microsoft.EntityFrameworkCore.Tools/10.0.12": {
         "type": "package",
         "dependencies": {
-          "Microsoft.EntityFrameworkCore.Design": "9.0.20"
+          "Microsoft.EntityFrameworkCore.Design": "9.0.15"
+        },
+        "compile": {
+          "lib/net9.0/_._": {}
+        },
+        "runtime": {
+          "lib/net9.0/_._": {}
         }
       },
       "Microsoft.Extensions.Caching.Abstractions/9.0.20": {
@@ -1684,7 +1690,7 @@
           "buildTransitive/net8.0/_._": {}
         }
       },
-      "Microsoft.Extensions.DependencyModel/9.0.20": {
+      "Microsoft.Extensions.DependencyModel/9.0.15": {
         "type": "package",
         "compile": {
           "lib/net9.0/Microsoft.Extensions.DependencyModel.dll": {
@@ -5472,10 +5478,10 @@
         "microsoft.entityframeworkcore.analyzers.nuspec"
       ]
     },
-    "Microsoft.EntityFrameworkCore.Design/9.0.20": {
-      "sha512": "6ys+wQciRl/WfPAOQ3hMUlCwp/ScbuiHA7f843Ax1PZolWUSaZMtYmb1ccgeyxTZ0Yolyz+OMjwtNhBp6gRJ8Q==",
+    "Microsoft.EntityFrameworkCore.Design/9.0.15": {
+      "sha512": "Q38R8kv3kScn8m02SSD3Clj4iD9ys+qtEm3BhM6VQUPeqkwwF26I4i9DQtouqmK8nzeL51409cEdDfmpo22NsA==",
       "type": "package",
-      "path": "microsoft.entityframeworkcore.design/9.0.20",
+      "path": "microsoft.entityframeworkcore.design/9.0.15",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
@@ -5484,7 +5490,7 @@
         "build/net8.0/Microsoft.EntityFrameworkCore.Design.props",
         "lib/net8.0/Microsoft.EntityFrameworkCore.Design.dll",
         "lib/net8.0/Microsoft.EntityFrameworkCore.Design.xml",
-        "microsoft.entityframeworkcore.design.9.0.20.nupkg.sha512",
+        "microsoft.entityframeworkcore.design.9.0.15.nupkg.sha512",
         "microsoft.entityframeworkcore.design.nuspec"
       ]
     },
@@ -5518,17 +5524,20 @@
         "microsoft.entityframeworkcore.sqlserver.nuspec"
       ]
     },
-    "Microsoft.EntityFrameworkCore.Tools/9.0.20": {
-      "sha512": "qjBrSZVPlUCUjVMBHPjoxCw+v9k40BgryAfR/RuoVzlINLY+Igo30t3h66alaTaMJXlHAPHTnsWRvjvAzWBY3A==",
+    "Microsoft.EntityFrameworkCore.Tools/10.0.12": {
+      "sha512": "WuU3838sw/6wAADnwhYRPpPlXaDriq7QmrP+x4L+3plXoWI+QMFWHGhYviDjGkwEZ0b2ybOxMUy86vrb0AL9QQ==",
       "type": "package",
-      "path": "microsoft.entityframeworkcore.tools/9.0.20",
+      "path": "microsoft.entityframeworkcore.tools/10.0.12",
       "hasTools": true,
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
         "Icon.png",
         "docs/PACKAGE.md",
-        "microsoft.entityframeworkcore.tools.9.0.20.nupkg.sha512",
+        "lib/net10.0/_._",
+        "lib/net8.0/_._",
+        "lib/net9.0/_._",
+        "microsoft.entityframeworkcore.tools.10.0.12.nupkg.sha512",
         "microsoft.entityframeworkcore.tools.nuspec",
         "tools/EntityFrameworkCore.PS2.psd1",
         "tools/EntityFrameworkCore.PS2.psm1",
@@ -5539,8 +5548,8 @@
         "tools/net472/any/ef.exe",
         "tools/net472/win-arm64/ef.exe",
         "tools/net472/win-x86/ef.exe",
-        "tools/netcoreapp2.0/any/ef.dll",
-        "tools/netcoreapp2.0/any/ef.runtimeconfig.json"
+        "tools/net8.0/any/ef.dll",
+        "tools/net8.0/any/ef.runtimeconfig.json"
       ]
     },
     "Microsoft.Extensions.Caching.Abstractions/9.0.20": {
@@ -5687,10 +5696,10 @@
         "useSharedDesignerContext.txt"
       ]
     },
-    "Microsoft.Extensions.DependencyModel/9.0.20": {
-      "sha512": "bhUlryY1AIFsB9kpR6/KMPWryLHoBPBpRSi79GQa4XVcYyW1PGA3Zi+rdu1wxJ5DWuA1Jr6DAVRgrgPnYOu8eg==",
+    "Microsoft.Extensions.DependencyModel/9.0.15": {
+      "sha512": "zt6n0QA6ufiSYJFURYCnQcOP48fRvmlLtbKwgAoPoBjuBGZ+2g+yhu3MRxOjfiA3iHpjlMoDJcNMOhRMVG64oQ==",
       "type": "package",
-      "path": "microsoft.extensions.dependencymodel/9.0.20",
+      "path": "microsoft.extensions.dependencymodel/9.0.15",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
@@ -5710,7 +5719,7 @@
         "lib/net9.0/Microsoft.Extensions.DependencyModel.xml",
         "lib/netstandard2.0/Microsoft.Extensions.DependencyModel.dll",
         "lib/netstandard2.0/Microsoft.Extensions.DependencyModel.xml",
-        "microsoft.extensions.dependencymodel.9.0.20.nupkg.sha512",
+        "microsoft.extensions.dependencymodel.9.0.15.nupkg.sha512",
         "microsoft.extensions.dependencymodel.nuspec",
         "useSharedDesignerContext.txt"
       ]
@@ -8219,7 +8228,7 @@
       "BCrypt.Net-Next >= 4.2.0",
       "Microsoft.EntityFrameworkCore >= 9.0.20",
       "Microsoft.EntityFrameworkCore.SqlServer >= 9.0.20",
-      "Microsoft.EntityFrameworkCore.Tools >= 9.0.20",
+      "Microsoft.EntityFrameworkCore.Tools >= 10.0.12",
       "Microsoft.VisualStudio.Web.CodeGeneration.Design >= 9.0.12"
     ]
   },
@@ -8289,7 +8298,7 @@
             "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
             "suppressParent": "All",
             "target": "Package",
-            "version": "[9.0.20, )"
+            "version": "[10.0.12, )"
           },
           "Microsoft.VisualStudio.Web.CodeGeneration.Design": {
             "target": "Package",

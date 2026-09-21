@@ -13,5 +13,11 @@ namespace ISMLTS_WebApp_.Repositories
 
         public async Task<IEnumerable<Module>> GetByLecturerAsync(int lecturerId) =>
             await _dbSet.Where(m => m.LecturerId == lecturerId).ToListAsync();
+
+        public async Task<IEnumerable<Module>> GetAllWithLecturerAsync() =>
+    await _dbSet.Include(m => m.Lecturer).ToListAsync();
+
+        public async Task<Module?> GetByIdWithDetailsAsync(int id) =>
+            await _dbSet.Include(m => m.Lecturer).Include(m => m.Students).FirstOrDefaultAsync(m => m.ModuleId == id);
     }
 }

@@ -11,7 +11,7 @@
           "BCrypt.Net-Next": "4.2.0",
           "Microsoft.EntityFrameworkCore": "9.0.20",
           "Microsoft.EntityFrameworkCore.SqlServer": "9.0.20",
-          "Microsoft.EntityFrameworkCore.Tools": "9.0.20",
+          "Microsoft.EntityFrameworkCore.Tools": "10.0.12",
           "Microsoft.VisualStudio.Web.CodeGeneration.Design": "9.0.12"
         },
         "runtime": {
@@ -1307,7 +1307,7 @@
           "Microsoft.CodeAnalysis.Common": "4.12.0",
           "Microsoft.CodeAnalysis.Features": "4.12.0",
           "Microsoft.CodeAnalysis.Workspaces.Common": "4.12.0",
-          "Microsoft.Extensions.DependencyModel": "9.0.20",
+          "Microsoft.Extensions.DependencyModel": "9.0.15",
           "Mono.TextTemplating": "3.0.0",
           "Newtonsoft.Json": "13.0.3",
           "NuGet.Packaging": "6.12.1",
@@ -1345,7 +1345,7 @@
         }
       },
       "Microsoft.EntityFrameworkCore.Analyzers/9.0.20": {},
-      "Microsoft.EntityFrameworkCore.Design/9.0.20": {
+      "Microsoft.EntityFrameworkCore.Design/9.0.15": {
         "dependencies": {
           "Humanizer.Core": "2.14.1",
           "Microsoft.Build.Framework": "17.11.48",
@@ -1356,15 +1356,15 @@
           "Microsoft.EntityFrameworkCore.Relational": "9.0.20",
           "Microsoft.Extensions.Caching.Memory": "9.0.20",
           "Microsoft.Extensions.Configuration.Abstractions": "9.0.20",
-          "Microsoft.Extensions.DependencyModel": "9.0.20",
+          "Microsoft.Extensions.DependencyModel": "9.0.15",
           "Microsoft.Extensions.Logging": "9.0.20",
           "Mono.TextTemplating": "3.0.0",
           "System.Text.Json": "9.0.20"
         },
         "runtime": {
           "lib/net8.0/Microsoft.EntityFrameworkCore.Design.dll": {
-            "assemblyVersion": "9.0.20.0",
-            "fileVersion": "9.0.2026.41306"
+            "assemblyVersion": "9.0.15.0",
+            "fileVersion": "9.0.1526.17602"
           }
         }
       },
@@ -1398,9 +1398,9 @@
           }
         }
       },
-      "Microsoft.EntityFrameworkCore.Tools/9.0.20": {
+      "Microsoft.EntityFrameworkCore.Tools/10.0.12": {
         "dependencies": {
-          "Microsoft.EntityFrameworkCore.Design": "9.0.20"
+          "Microsoft.EntityFrameworkCore.Design": "9.0.15"
         }
       },
       "Microsoft.Extensions.Caching.Abstractions/9.0.20": {
@@ -1459,11 +1459,11 @@
           }
         }
       },
-      "Microsoft.Extensions.DependencyModel/9.0.20": {
+      "Microsoft.Extensions.DependencyModel/9.0.15": {
         "runtime": {
           "lib/net9.0/Microsoft.Extensions.DependencyModel.dll": {
-            "assemblyVersion": "9.0.0.20",
-            "fileVersion": "9.0.2026.41315"
+            "assemblyVersion": "9.0.0.15",
+            "fileVersion": "9.0.1526.17522"
           }
         }
       },
@@ -1647,11 +1647,11 @@
           "Microsoft.CodeAnalysis.Workspaces.Common": "4.12.0",
           "Microsoft.CodeAnalysis.Workspaces.MSBuild": "4.12.0",
           "Microsoft.EntityFrameworkCore": "9.0.20",
-          "Microsoft.EntityFrameworkCore.Design": "9.0.20",
+          "Microsoft.EntityFrameworkCore.Design": "9.0.15",
           "Microsoft.Extensions.Caching.Memory": "9.0.20",
           "Microsoft.Extensions.Configuration.Abstractions": "9.0.20",
           "Microsoft.Extensions.DependencyInjection": "9.0.20",
-          "Microsoft.Extensions.DependencyModel": "9.0.20",
+          "Microsoft.Extensions.DependencyModel": "9.0.15",
           "Microsoft.Extensions.Logging": "9.0.20",
           "Microsoft.VisualStudio.Web.CodeGeneration.EntityFrameworkCore": "9.0.12",
           "Mono.TextTemplating": "3.0.0",
@@ -1681,7 +1681,7 @@
           "Microsoft.CodeAnalysis.Razor": "6.0.24",
           "Microsoft.CodeAnalysis.Workspaces.Common": "4.12.0",
           "Microsoft.Extensions.DependencyInjection": "9.0.20",
-          "Microsoft.Extensions.DependencyModel": "9.0.20",
+          "Microsoft.Extensions.DependencyModel": "9.0.15",
           "Microsoft.VisualStudio.Web.CodeGeneration.Templating": "9.0.12",
           "Mono.TextTemplating": "3.0.0",
           "Newtonsoft.Json": "13.0.3",
@@ -1714,11 +1714,11 @@
           "Microsoft.CodeAnalysis.Workspaces.MSBuild": "4.12.0",
           "Microsoft.DotNet.Scaffolding.Shared": "9.0.12",
           "Microsoft.EntityFrameworkCore": "9.0.20",
-          "Microsoft.EntityFrameworkCore.Design": "9.0.20",
+          "Microsoft.EntityFrameworkCore.Design": "9.0.15",
           "Microsoft.Extensions.Caching.Memory": "9.0.20",
           "Microsoft.Extensions.Configuration.Abstractions": "9.0.20",
           "Microsoft.Extensions.DependencyInjection": "9.0.20",
-          "Microsoft.Extensions.DependencyModel": "9.0.20",
+          "Microsoft.Extensions.DependencyModel": "9.0.15",
           "Microsoft.Extensions.Logging": "9.0.20",
           "Microsoft.VisualStudio.Web.CodeGenerators.Mvc": "9.0.12",
           "Mono.TextTemplating": "3.0.0",
@@ -1752,11 +1752,11 @@
           "Microsoft.CodeAnalysis.Workspaces.MSBuild": "4.12.0",
           "Microsoft.DotNet.Scaffolding.Shared": "9.0.12",
           "Microsoft.EntityFrameworkCore": "9.0.20",
-          "Microsoft.EntityFrameworkCore.Design": "9.0.20",
+          "Microsoft.EntityFrameworkCore.Design": "9.0.15",
           "Microsoft.Extensions.Caching.Memory": "9.0.20",
           "Microsoft.Extensions.Configuration.Abstractions": "9.0.20",
           "Microsoft.Extensions.DependencyInjection": "9.0.20",
-          "Microsoft.Extensions.DependencyModel": "9.0.20",
+          "Microsoft.Extensions.DependencyModel": "9.0.15",
           "Microsoft.Extensions.Logging": "9.0.20",
           "Microsoft.VisualStudio.Web.CodeGeneration.Core": "9.0.12",
           "Mono.TextTemplating": "3.0.0",
@@ -1785,7 +1785,7 @@
           "Microsoft.CodeAnalysis.Features": "4.12.0",
           "Microsoft.CodeAnalysis.Razor": "6.0.24",
           "Microsoft.CodeAnalysis.Workspaces.Common": "4.12.0",
-          "Microsoft.Extensions.DependencyModel": "9.0.20",
+          "Microsoft.Extensions.DependencyModel": "9.0.15",
           "Microsoft.VisualStudio.Web.CodeGeneration.Utils": "9.0.12",
           "Mono.TextTemplating": "3.0.0",
           "Newtonsoft.Json": "13.0.3",
@@ -1812,7 +1812,7 @@
           "Microsoft.CodeAnalysis.Features": "4.12.0",
           "Microsoft.CodeAnalysis.Workspaces.Common": "4.12.0",
           "Microsoft.DotNet.Scaffolding.Shared": "9.0.12",
-          "Microsoft.Extensions.DependencyModel": "9.0.20",
+          "Microsoft.Extensions.DependencyModel": "9.0.15",
           "Mono.TextTemplating": "3.0.0",
           "Newtonsoft.Json": "13.0.3",
           "NuGet.Packaging": "6.12.1",
@@ -1844,11 +1844,11 @@
           "Microsoft.CodeAnalysis.Workspaces.MSBuild": "4.12.0",
           "Microsoft.DotNet.Scaffolding.Shared": "9.0.12",
           "Microsoft.EntityFrameworkCore": "9.0.20",
-          "Microsoft.EntityFrameworkCore.Design": "9.0.20",
+          "Microsoft.EntityFrameworkCore.Design": "9.0.15",
           "Microsoft.Extensions.Caching.Memory": "9.0.20",
           "Microsoft.Extensions.Configuration.Abstractions": "9.0.20",
           "Microsoft.Extensions.DependencyInjection": "9.0.20",
-          "Microsoft.Extensions.DependencyModel": "9.0.20",
+          "Microsoft.Extensions.DependencyModel": "9.0.15",
           "Microsoft.Extensions.Logging": "9.0.20",
           "Microsoft.VisualStudio.Web.CodeGeneration": "9.0.12",
           "Mono.TextTemplating": "3.0.0",
@@ -2803,12 +2803,12 @@
       "path": "microsoft.entityframeworkcore.analyzers/9.0.20",
       "hashPath": "microsoft.entityframeworkcore.analyzers.9.0.20.nupkg.sha512"
     },
-    "Microsoft.EntityFrameworkCore.Design/9.0.20": {
+    "Microsoft.EntityFrameworkCore.Design/9.0.15": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-6ys+wQciRl/WfPAOQ3hMUlCwp/ScbuiHA7f843Ax1PZolWUSaZMtYmb1ccgeyxTZ0Yolyz+OMjwtNhBp6gRJ8Q==",
-      "path": "microsoft.entityframeworkcore.design/9.0.20",
-      "hashPath": "microsoft.entityframeworkcore.design.9.0.20.nupkg.sha512"
+      "sha512": "sha512-Q38R8kv3kScn8m02SSD3Clj4iD9ys+qtEm3BhM6VQUPeqkwwF26I4i9DQtouqmK8nzeL51409cEdDfmpo22NsA==",
+      "path": "microsoft.entityframeworkcore.design/9.0.15",
+      "hashPath": "microsoft.entityframeworkcore.design.9.0.15.nupkg.sha512"
     },
     "Microsoft.EntityFrameworkCore.Relational/9.0.20": {
       "type": "package",
@@ -2824,12 +2824,12 @@
       "path": "microsoft.entityframeworkcore.sqlserver/9.0.20",
       "hashPath": "microsoft.entityframeworkcore.sqlserver.9.0.20.nupkg.sha512"
     },
-    "Microsoft.EntityFrameworkCore.Tools/9.0.20": {
+    "Microsoft.EntityFrameworkCore.Tools/10.0.12": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-qjBrSZVPlUCUjVMBHPjoxCw+v9k40BgryAfR/RuoVzlINLY+Igo30t3h66alaTaMJXlHAPHTnsWRvjvAzWBY3A==",
-      "path": "microsoft.entityframeworkcore.tools/9.0.20",
-      "hashPath": "microsoft.entityframeworkcore.tools.9.0.20.nupkg.sha512"
+      "sha512": "sha512-WuU3838sw/6wAADnwhYRPpPlXaDriq7QmrP+x4L+3plXoWI+QMFWHGhYviDjGkwEZ0b2ybOxMUy86vrb0AL9QQ==",
+      "path": "microsoft.entityframeworkcore.tools/10.0.12",
+      "hashPath": "microsoft.entityframeworkcore.tools.10.0.12.nupkg.sha512"
     },
     "Microsoft.Extensions.Caching.Abstractions/9.0.20": {
       "type": "package",
@@ -2866,12 +2866,12 @@
       "path": "microsoft.extensions.dependencyinjection.abstractions/9.0.20",
       "hashPath": "microsoft.extensions.dependencyinjection.abstractions.9.0.20.nupkg.sha512"
     },
-    "Microsoft.Extensions.DependencyModel/9.0.20": {
+    "Microsoft.Extensions.DependencyModel/9.0.15": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-bhUlryY1AIFsB9kpR6/KMPWryLHoBPBpRSi79GQa4XVcYyW1PGA3Zi+rdu1wxJ5DWuA1Jr6DAVRgrgPnYOu8eg==",
-      "path": "microsoft.extensions.dependencymodel/9.0.20",
-      "hashPath": "microsoft.extensions.dependencymodel.9.0.20.nupkg.sha512"
+      "sha512": "sha512-zt6n0QA6ufiSYJFURYCnQcOP48fRvmlLtbKwgAoPoBjuBGZ+2g+yhu3MRxOjfiA3iHpjlMoDJcNMOhRMVG64oQ==",
+      "path": "microsoft.extensions.dependencymodel/9.0.15",
+      "hashPath": "microsoft.extensions.dependencymodel.9.0.15.nupkg.sha512"
     },
     "Microsoft.Extensions.Logging/9.0.20": {
       "type": "package",

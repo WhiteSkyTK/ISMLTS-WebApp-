@@ -12,6 +12,7 @@ namespace ISMLTS_WebApp_.Data
         public DbSet<Lecturer> Lecturers => Set<Lecturer>();
         public DbSet<Admin> Admins => Set<Admin>();
         public DbSet<Module> Modules => Set<Module>();
+        public DbSet<Course> Courses => Set<Course>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -45,6 +46,16 @@ namespace ISMLTS_WebApp_.Data
                 .HasMany(s => s.Modules)
                 .WithMany(m => m.Students)
                 .UsingEntity(j => j.ToTable("Enrolments"));
+
+            modelBuilder.Entity<Course>()
+                .HasIndex(c => c.Code)
+                .IsUnique();
+
+            modelBuilder.Entity<Course>()
+                .HasMany(c => c.Modules)
+                .WithOne(m => m.Course)
+                .HasForeignKey(m => m.CourseId)
+                .OnDelete(DeleteBehavior.SetNull);
         }
     }
 }

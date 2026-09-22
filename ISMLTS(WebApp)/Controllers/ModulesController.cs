@@ -9,15 +9,18 @@ namespace ISMLTS_WebApp_.Controllers
         private readonly IModuleRepository _moduleRepository;
         private readonly ILecturerRepository _lecturerRepository;
         private readonly IStudentRepository _studentRepository;
+        private readonly ICourseRepository _courseRepository;
 
         public ModulesController(
             IModuleRepository moduleRepository,
             ILecturerRepository lecturerRepository,
-            IStudentRepository studentRepository)
+            IStudentRepository studentRepository,
+            ICourseRepository courseRepository)
         {
             _moduleRepository = moduleRepository;
             _lecturerRepository = lecturerRepository;
             _studentRepository = studentRepository;
+            _courseRepository = courseRepository;
         }
 
         public async Task<IActionResult> Index() => View(await _moduleRepository.GetAllWithLecturerAsync());
@@ -31,17 +34,17 @@ namespace ISMLTS_WebApp_.Controllers
 
         public async Task<IActionResult> Create()
         {
-            await LoadLecturers();
+            await LoadFormData();
             return View();
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Code,Name,LecturerId")] Module module)
+        public async Task<IActionResult> Create([Bind("Code,Name,LecturerId,Term,CourseId")] Module module)
         {
             if (!ModelState.IsValid)
             {
-                await LoadLecturers();
+                await LoadFormData();
                 return View(module);
             }
             await _moduleRepository.AddAsync(module);
@@ -53,18 +56,18 @@ namespace ISMLTS_WebApp_.Controllers
         {
             var module = await _moduleRepository.GetByIdAsync(id);
             if (module == null) return NotFound();
-            await LoadLecturers();
+            await LoadFormData();
             return View(module);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ModuleId,Code,Name,LecturerId")] Module input)
+        public async Task<IActionResult> Edit(int id, [Bind("ModuleId,Code,Name,LecturerId,Term,CourseId")] Module input)
         {
             if (id != input.ModuleId) return NotFound();
             if (!ModelState.IsValid)
             {
-                await LoadLecturers();
+                await LoadFormData();
                 return View(input);
             }
 
@@ -74,6 +77,8 @@ namespace ISMLTS_WebApp_.Controllers
             module.Code = input.Code;
             module.Name = input.Name;
             module.LecturerId = input.LecturerId;
+            module.Term = input.Term;
+            module.CourseId = input.CourseId;
 
             _moduleRepository.Update(module);
             await _moduleRepository.SaveChangesAsync();
@@ -142,10 +147,12 @@ namespace ISMLTS_WebApp_.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        private async Task LoadLecturers()
+        private async Task LoadFormData()
         {
             ViewBag.Lecturers = (await _lecturerRepository.GetAllAsync())
                 .Select(l => new { l.LecturerId, l.FullName }).ToList();
+            ViewBag.Courses = (await _courseRepository.GetAllAsync())
+                .Select(c => new { c.CourseId, Display = $"{c.Code} - {c.Name}" }).ToList();
         }
     }
 }

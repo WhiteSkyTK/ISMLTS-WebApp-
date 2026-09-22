@@ -1,0 +1,21 @@
+﻿@model ISMLTS_WebApp_.Models.Course
+@{
+    ViewData["Title"] = "Course Details";
+}
+
+<h1>@Model.Code — @Model.Name</h1>
+<h5 class="mt-3">Modules</h5>
+<table class="table">
+    <thead><tr><th>Code</th><th>Name</th><th>Term</th></tr></thead>
+    <tbody>
+        @foreach (var m in Model.Modules)
+        {
+            <tr><td>@m.Code</td><td>@m.Name</td><td>@m.Term</td></tr>
+        }
+    </tbody>
+</table>
+@if (!Model.Modules.Any())
+{
+    <p class="text-muted">No modules assigned to this course yet — set the Course when creating/editing a Module.</p>
+}
+<a asp-action="Index">Back to List</a>

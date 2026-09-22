@@ -10,7 +10,7 @@ namespace ISMLTS_WebApp_.Models
         [Required, MaxLength(100)]
         public string Username { get; set; } = string.Empty;
 
-        [Required]
+        //[Required]
         public string PasswordHash { get; set; } = string.Empty;
 
         [Required, MaxLength(50)]

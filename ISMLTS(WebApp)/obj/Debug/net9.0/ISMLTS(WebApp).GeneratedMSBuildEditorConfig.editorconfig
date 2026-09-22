@@ -40,24 +40,44 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxMb2dpbi5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Admin/Create.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cQ3JlYXRlLmNzaHRtbA==
+[C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Admins/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5zXENyZWF0ZS5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Admin/Delete.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cRGVsZXRlLmNzaHRtbA==
+[C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Admins/Delete.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5zXERlbGV0ZS5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Admin/Details.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cRGV0YWlscy5jc2h0bWw=
+[C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Admins/Details.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5zXERldGFpbHMuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Admin/Edit.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cRWRpdC5jc2h0bWw=
+[C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Admins/Edit.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5zXEVkaXQuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Admin/Index.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cSW5kZXguY3NodG1s
+[C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Admins/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5zXEluZGV4LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Courses/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ291cnNlc1xDcmVhdGUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Courses/Delete.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ291cnNlc1xEZWxldGUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Courses/Details.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ291cnNlc1xEZXRhaWxzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Courses/Edit.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ291cnNlc1xFZGl0LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Courses/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ291cnNlc1xJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Home/Index.cshtml]
@@ -68,24 +88,24 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxQcml2YWN5LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Lecturer/Create.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTGVjdHVyZXJcQ3JlYXRlLmNzaHRtbA==
+[C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Lecturers/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTGVjdHVyZXJzXENyZWF0ZS5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Lecturer/Delete.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTGVjdHVyZXJcRGVsZXRlLmNzaHRtbA==
+[C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Lecturers/Delete.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTGVjdHVyZXJzXERlbGV0ZS5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Lecturer/Details.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTGVjdHVyZXJcRGV0YWlscy5jc2h0bWw=
+[C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Lecturers/Details.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTGVjdHVyZXJzXERldGFpbHMuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Lecturer/Edit.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTGVjdHVyZXJcRWRpdC5jc2h0bWw=
+[C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Lecturers/Edit.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTGVjdHVyZXJzXEVkaXQuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Lecturer/Index.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTGVjdHVyZXJcSW5kZXguY3NodG1s
+[C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Lecturers/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTGVjdHVyZXJzXEluZGV4LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Modules/Create.cshtml]

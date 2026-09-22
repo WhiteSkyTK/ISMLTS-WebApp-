@@ -31,6 +31,9 @@ namespace ISMLTS_WebApp_.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("FullName,Email,Programme")] Student student, string password)
         {
+            if (string.IsNullOrWhiteSpace(password))
+                ModelState.AddModelError(string.Empty, "Password is required.");
+
             if (!ModelState.IsValid) return View(student);
 
             student.PasswordHash = BCrypt.Net.BCrypt.HashPassword(password);

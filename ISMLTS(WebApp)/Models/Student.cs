@@ -16,7 +16,7 @@ namespace ISMLTS_WebApp_.Models
         [MaxLength(100)]
         public string? Programme { get; set; }
 
-        [Required]
+        //[Required]
         public string PasswordHash { get; set; } = string.Empty;
 
         // Navigation

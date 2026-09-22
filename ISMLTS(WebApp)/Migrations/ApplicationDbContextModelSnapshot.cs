@@ -51,6 +51,32 @@ namespace ISMLTS_WebApp_.Migrations
                     b.ToTable("Admins");
                 });
 
+            modelBuilder.Entity("ISMLTS_WebApp_.Models.Course", b =>
+                {
+                    b.Property<int>("CourseId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CourseId"));
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.HasKey("CourseId");
+
+                    b.HasIndex("Code")
+                        .IsUnique();
+
+                    b.ToTable("Courses");
+                });
+
             modelBuilder.Entity("ISMLTS_WebApp_.Models.Lecturer", b =>
                 {
                     b.Property<int>("LecturerId")
@@ -94,6 +120,9 @@ namespace ISMLTS_WebApp_.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
+                    b.Property<int?>("CourseId")
+                        .HasColumnType("int");
+
                     b.Property<int>("LecturerId")
                         .HasColumnType("int");
 
@@ -102,10 +131,17 @@ namespace ISMLTS_WebApp_.Migrations
                         .HasMaxLength(150)
                         .HasColumnType("nvarchar(150)");
 
+                    b.Property<string>("Term")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
                     b.HasKey("ModuleId");
 
                     b.HasIndex("Code")
                         .IsUnique();
+
+                    b.HasIndex("CourseId");
 
                     b.HasIndex("LecturerId");
 
@@ -163,11 +199,18 @@ namespace ISMLTS_WebApp_.Migrations
 
             modelBuilder.Entity("ISMLTS_WebApp_.Models.Module", b =>
                 {
+                    b.HasOne("ISMLTS_WebApp_.Models.Course", "Course")
+                        .WithMany("Modules")
+                        .HasForeignKey("CourseId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.HasOne("ISMLTS_WebApp_.Models.Lecturer", "Lecturer")
                         .WithMany("Modules")
                         .HasForeignKey("LecturerId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("Course");
 
                     b.Navigation("Lecturer");
                 });
@@ -185,6 +228,11 @@ namespace ISMLTS_WebApp_.Migrations
                         .HasForeignKey("StudentsStudentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("ISMLTS_WebApp_.Models.Course", b =>
+                {
+                    b.Navigation("Modules");
                 });
 
             modelBuilder.Entity("ISMLTS_WebApp_.Models.Lecturer", b =>

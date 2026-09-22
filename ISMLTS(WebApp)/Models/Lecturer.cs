@@ -13,7 +13,7 @@ namespace ISMLTS_WebApp_.Models
         [Required, EmailAddress, MaxLength(150)]
         public string Email { get; set; } = string.Empty;
 
-        [Required]
+        //[Required]
         public string PasswordHash { get; set; } = string.Empty;
 
         // Navigation

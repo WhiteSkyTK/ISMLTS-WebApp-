@@ -271,6 +271,7 @@ C:\Users\Student\source\repos\ISMLTS(WebApp)\ISMLTS(WebApp)\obj\Debug\net9.0\sco
 C:\Users\Student\source\repos\ISMLTS(WebApp)\ISMLTS(WebApp)\obj\Debug\net9.0\scopedcss\bundle\ISMLTS(WebApp).styles.css
 C:\Users\Student\source\repos\ISMLTS(WebApp)\ISMLTS(WebApp)\obj\Debug\net9.0\scopedcss\projectbundle\ISMLTS(WebApp).bundle.scp.css
 C:\Users\Student\source\repos\ISMLTS(WebApp)\ISMLTS(WebApp)\obj\Debug\net9.0\compressed\6oo2w69lrn-61n19gt1b8.gz
+C:\Users\Student\source\repos\ISMLTS(WebApp)\ISMLTS(WebApp)\obj\Debug\net9.0\compressed\vcmp48prvt-ru3cthgkp4.gz
 C:\Users\Student\source\repos\ISMLTS(WebApp)\ISMLTS(WebApp)\obj\Debug\net9.0\compressed\ijucah4z90-bqjiyaj88i.gz
 C:\Users\Student\source\repos\ISMLTS(WebApp)\ISMLTS(WebApp)\obj\Debug\net9.0\compressed\galwuzx7gk-c2jlpeoesf.gz
 C:\Users\Student\source\repos\ISMLTS(WebApp)\ISMLTS(WebApp)\obj\Debug\net9.0\compressed\8ayd5c574p-erw9l3u2r3.gz
@@ -343,5 +344,4 @@ C:\Users\Student\source\repos\ISMLTS(WebApp)\ISMLTS(WebApp)\obj\Debug\net9.0\ref
 C:\Users\Student\source\repos\ISMLTS(WebApp)\ISMLTS(WebApp)\obj\Debug\net9.0\ISMLTS(WebApp).pdb
 C:\Users\Student\source\repos\ISMLTS(WebApp)\ISMLTS(WebApp)\obj\Debug\net9.0\ISMLTS(WebApp).genruntimeconfig.cache
 C:\Users\Student\source\repos\ISMLTS(WebApp)\ISMLTS(WebApp)\obj\Debug\net9.0\ref\ISMLTS(WebApp).dll
-C:\Users\Student\source\repos\ISMLTS(WebApp)\ISMLTS(WebApp)\obj\Debug\net9.0\compressed\vcmp48prvt-ru3cthgkp4.gz
-C:\Users\Student\source\repos\ISMLTS(WebApp)\ISMLTS(WebApp)\obj\Debug\net9.0\compressed\7x5g0qedkz-2cv61rt0l2.gz
+C:\Users\Student\source\repos\ISMLTS(WebApp)\ISMLTS(WebApp)\obj\Debug\net9.0\compressed\7x5g0qedkz-te90157no5.gz

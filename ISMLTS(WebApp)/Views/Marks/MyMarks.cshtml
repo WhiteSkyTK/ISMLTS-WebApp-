@@ -1,0 +1,34 @@
+﻿@model List<ISMLTS_WebApp_.Models.MyModuleMarks>
+@{
+    ViewData["Title"] = "My Marks";
+}
+
+<h1>My Marks</h1>
+@foreach (var mod in Model)
+{
+    <div class="panel mb-3">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <h5 class="mb-0">@mod.ModuleDisplay</h5>
+            @if (mod.IsAtRisk)
+            {
+                <span class="badge bg-danger">At Risk</span>
+            }
+            else
+            {
+
+                <span class="badge bg-success">On Track</span>
+            }
+        </div>
+        <ul class="mb-1">
+            @foreach (var m in mod.Marks)
+            {
+                <li>@m.AssessmentName: @m.Score/@m.MaxScore (@m.Percentage%)</li>
+            }
+        </ul>
+        <div class="small text-muted">Average: @mod.AveragePercentage%</div>
+    </div>
+}
+@if (!Model.Any())
+{
+    <p class="text-muted">No marks captured yet.</p>
+}

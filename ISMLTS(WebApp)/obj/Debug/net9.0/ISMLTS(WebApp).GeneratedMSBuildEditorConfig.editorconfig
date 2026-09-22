@@ -108,6 +108,30 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTGVjdHVyZXJzXEluZGV4LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
+[C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Marks/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWFya3NcQ3JlYXRlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Marks/Delete.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWFya3NcRGVsZXRlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Marks/Edit.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWFya3NcRWRpdC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Marks/ForModule.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWFya3NcRm9yTW9kdWxlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Marks/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWFya3NcSW5kZXguY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Marks/MyMarks.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWFya3NcTXlNYXJrcy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Modules/Create.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTW9kdWxlc1xDcmVhdGUuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 

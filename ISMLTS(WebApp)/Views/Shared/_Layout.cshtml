@@ -50,6 +50,10 @@
                             <li class="nav-item"><a class="nav-link" asp-controller="Attendance" asp-action="Index">Attendance</a></li>
                             <li class="nav-item"><a class="nav-link" asp-controller="Tickets" asp-action="Index">Tickets</a></li>
                         }
+                        @if (User.IsInRole("Student"))
+                        {
+                            <li class="nav-item"><a class="nav-link" asp-controller="Marks" asp-action="MyMarks">My Marks</a></li>
+                        }
                     </ul>
 
                     @if (User.Identity != null && User.Identity.IsAuthenticated)

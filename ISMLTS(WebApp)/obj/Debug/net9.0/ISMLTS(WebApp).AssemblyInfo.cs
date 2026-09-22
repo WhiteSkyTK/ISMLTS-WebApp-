@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ISMLTS(WebApp)")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+530cc58b62f4703e77a7dc00a53ef799b9836f02")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+25c10a36e9af14577d70201c66310295e04203bd")]
 [assembly: System.Reflection.AssemblyProductAttribute("ISMLTS(WebApp)")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ISMLTS(WebApp)")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

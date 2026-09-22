@@ -1,0 +1,36 @@
+﻿@model ISMLTS_WebApp_.Models.Mark
+@{
+    ViewData["Title"] = "Add Mark";
+}
+
+<h1>Add Mark</h1>
+<p><strong>@ViewBag.StudentName</strong> — @ViewBag.ModuleDisplay</p>
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="All" class="text-danger"></div>
+            <input type="hidden" asp-for="StudentId" />
+            <input type="hidden" asp-for="ModuleId" />
+            <div class="form-group">
+                <label asp-for="AssessmentName" class="control-label">Assessment (e.g. ICE Task 1, Quiz 2, POE)</label>
+                <input asp-for="AssessmentName" class="form-control" />
+            </div>
+            <div class="form-group">
+                <label asp-for="Score" class="control-label"></label>
+                <input asp-for="Score" class="form-control" type="number" step="0.5" min="0" />
+            </div>
+            <div class="form-group">
+                <label asp-for="MaxScore" class="control-label"></label>
+                <input asp-for="MaxScore" class="form-control" type="number" step="0.5" min="0.5" value="100" />
+            </div>
+            <div class="form-group">
+                <label asp-for="DateCaptured" class="control-label"></label>
+                <input asp-for="DateCaptured" class="form-control" type="date" />
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save Mark" class="btn btn-rosebank" />
+            </div>
+        </form>
+    </div>
+</div>
+<div><a asp-action="ForModule" asp-route-moduleId="@Model.ModuleId">Back to Module Marks</a></div>

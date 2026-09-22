@@ -1,0 +1,56 @@
+﻿@model ISMLTS_WebApp_.Models.ModuleMarksViewModel
+@{
+    ViewData["Title"] = "Marks";
+}
+
+<h1>@Model.ModuleDisplay — Marks</h1>
+<a asp-action="Index" class="btn btn-outline-secondary btn-sm mb-3">&larr; All Modules</a>
+
+<table class="table align-middle">
+    <thead><tr><th>Student</th><th>Assessments</th><th>Average</th><th>Status</th><th></th></tr></thead>
+    <tbody>
+        @foreach (var row in Model.Rows)
+        {
+            <tr>
+                <td>@row.FullName</td>
+                <td>
+                    @if (!row.Marks.Any())
+                    {
+                        <span class="text-muted small">No marks yet</span>
+                    }
+                    else
+                    {
+                        foreach (var m in row.Marks)
+                        {
+                            <div class="small">
+                                @m.AssessmentName: @m.Score/@m.MaxScore (@m.Percentage%)
+                                <a asp-action="Edit" asp-route-id="@m.MarkId">edit</a> |
+                                <a asp-action="Delete" asp-route-id="@m.MarkId">delete</a>
+                            </div>
+                        }
+                    }
+                </td>
+                <td>@row.AveragePercentage%</td>
+                <td>
+                    @if (!row.Marks.Any())
+                    {
+                        <span class="badge bg-secondary">No Data</span>
+                    }
+                    else if (row.IsAtRisk)
+                    {
+                        <span class="badge bg-danger">At Risk</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-success">On Track</span>
+                    }
+                </td>
+                <td><a asp-action="Create" asp-route-moduleId="@Model.ModuleId" asp-route-studentId="@row.StudentId" class="btn btn-rosebank btn-sm">+ Add Mark</a></td>
+            </tr>
+        }
+    </tbody>
+</table>
+@if (!Model.Rows.Any())
+{
+    <p class="text-muted">No students enrolled in this module yet — enrol some under Modules first.</p>
+}

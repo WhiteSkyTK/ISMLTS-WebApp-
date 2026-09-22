@@ -13,7 +13,7 @@ namespace ISMLTS_WebApp_.Data
         public DbSet<Admin> Admins => Set<Admin>();
         public DbSet<Module> Modules => Set<Module>();
         public DbSet<Course> Courses => Set<Course>();
-
+        public DbSet<Mark> Marks => Set<Mark>();
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -56,6 +56,12 @@ namespace ISMLTS_WebApp_.Data
                 .WithOne(m => m.Course)
                 .HasForeignKey(m => m.CourseId)
                 .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<Mark>()
+                .HasOne(m => m.Student).WithMany().HasForeignKey(m => m.StudentId).OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Mark>()
+                .HasOne(m => m.Module).WithMany().HasForeignKey(m => m.ModuleId).OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

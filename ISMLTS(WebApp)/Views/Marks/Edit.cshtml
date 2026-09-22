@@ -1,0 +1,37 @@
+﻿@model ISMLTS_WebApp_.Models.Mark
+@{
+    ViewData["Title"] = "Edit Mark";
+}
+
+<h1>Edit Mark</h1>
+<p><strong>@Model.Student?.FullName</strong> — @Model.Module?.Code</p>
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit">
+            <div asp-validation-summary="All" class="text-danger"></div>
+            <input type="hidden" asp-for="MarkId" />
+            <input type="hidden" asp-for="StudentId" />
+            <input type="hidden" asp-for="ModuleId" />
+            <div class="form-group">
+                <label asp-for="AssessmentName" class="control-label"></label>
+                <input asp-for="AssessmentName" class="form-control" />
+            </div>
+            <div class="form-group">
+                <label asp-for="Score" class="control-label"></label>
+                <input asp-for="Score" class="form-control" type="number" step="0.5" min="0" />
+            </div>
+            <div class="form-group">
+                <label asp-for="MaxScore" class="control-label"></label>
+                <input asp-for="MaxScore" class="form-control" type="number" step="0.5" min="0.5" />
+            </div>
+            <div class="form-group">
+                <label asp-for="DateCaptured" class="control-label"></label>
+                <input asp-for="DateCaptured" class="form-control" type="date" />
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-rosebank" />
+            </div>
+        </form>
+    </div>
+</div>
+<div><a asp-action="ForModule" asp-route-moduleId="@Model.ModuleId">Back to Module Marks</a></div>

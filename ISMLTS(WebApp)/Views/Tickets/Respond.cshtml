@@ -1,0 +1,31 @@
+﻿@model ISMLTS_WebApp_.Models.Ticket
+@{
+    ViewData["Title"] = "Respond to Ticket";
+}
+
+<h1>@Model.Subject</h1>
+<p class="text-muted">@Model.Student?.FullName — @Model.Module?.Code — opened @Model.DateOpened.ToString("dd MMM yyyy, HH:mm")</p>
+<div class="panel mb-3" style="max-width:600px;"><p>@Model.Description</p></div>
+
+<div class="row">
+    <div class="col-md-5">
+        <form asp-action="Respond" asp-route-id="@Model.TicketId" method="post">
+            <div class="form-group">
+                <label for="status" class="control-label">Status</label>
+                <select id="status" name="status" class="form-control">
+                    <option value="Open" selected="@(Model.Status == "Open")">Open</option>
+                    <option value="In Progress" selected="@(Model.Status == "In Progress")">In Progress</option>
+                    <option value="Resolved" selected="@(Model.Status == "Resolved")">Resolved</option>
+                </select>
+            </div>
+            <div class="form-group mt-2">
+                <label for="lecturerResponse" class="control-label">Response</label>
+                <textarea id="lecturerResponse" name="lecturerResponse" class="form-control" rows="3">@Model.LecturerResponse</textarea>
+            </div>
+            <div class="form-group mt-2">
+                <input type="submit" value="Save" class="btn btn-rosebank" />
+            </div>
+        </form>
+    </div>
+</div>
+<a asp-action="Index">Back to Tickets</a>

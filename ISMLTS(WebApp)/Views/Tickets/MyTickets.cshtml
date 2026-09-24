@@ -1,0 +1,40 @@
+﻿@model IEnumerable<ISMLTS_WebApp_.Models.Ticket>
+@{
+    ViewData["Title"] = "My Tickets";
+}
+
+<h1>My Tickets</h1>
+<p><a asp-action="Create" class="btn btn-rosebank">+ Raise a Ticket</a></p>
+<table class="table">
+    <thead><tr><th>Module</th><th>Subject</th><th>Status</th><th>Response</th></tr></thead>
+    <tbody>
+        @foreach (var t in Model)
+        {
+            <tr>
+                <td>@t.Module?.Code</td>
+                <td>@t.Subject</td>
+                <td>
+                    @if (t.Status == "Open")
+                    {
+                        <span class="badge bg-danger">Open</span>
+                    }
+                    else if (t.Status == "In Progress")
+                    {
+
+                        <span class="badge bg-warning text-dark">In Progress</span>
+                    }
+                    else
+                    {
+
+                        <span class="badge bg-success">Resolved</span>
+                    }
+                </td>
+                <td>@(t.LecturerResponse ?? "—")</td>
+            </tr>
+        }
+    </tbody>
+</table>
+@if (!Model.Any())
+{
+    <p class="text-muted">No tickets raised yet.</p>
+}

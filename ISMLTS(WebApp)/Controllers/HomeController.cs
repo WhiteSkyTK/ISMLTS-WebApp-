@@ -1,6 +1,5 @@
 using System.Diagnostics;
 using System.Security.Claims;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ISMLTS_WebApp_.Models;
 using ISMLTS_WebApp_.Repositories;
@@ -12,24 +11,30 @@ namespace ISMLTS_WebApp_.Controllers
         private readonly IStudentRepository _studentRepository;
         private readonly ILecturerRepository _lecturerRepository;
         private readonly IModuleRepository _moduleRepository;
+        private readonly IAssessmentRepository _assessmentRepository;
         private readonly ILogger<HomeController> _logger;
 
         public HomeController(
             IStudentRepository studentRepository,
             ILecturerRepository lecturerRepository,
             IModuleRepository moduleRepository,
+            IAssessmentRepository assessmentRepository,
             ILogger<HomeController> logger)
         {
             _studentRepository = studentRepository;
             _lecturerRepository = lecturerRepository;
             _moduleRepository = moduleRepository;
+            _assessmentRepository = assessmentRepository;
             _logger = logger;
         }
 
-        //[Authorize]
+        // [Authorize] -- still commented out from earlier testing; re-enable when ready to demo/submit
         public async Task<IActionResult> Index()
         {
             var model = new DashboardViewModel();
+
+            var idClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            int.TryParse(idClaim, out var userId);
 
             if (User.IsInRole("Admin"))
             {
@@ -38,14 +43,11 @@ namespace ISMLTS_WebApp_.Controllers
                 model.TotalModules = (await _moduleRepository.GetAllAsync()).Count();
             }
 
+            Student? student = null;
             if (User.IsInRole("Student"))
             {
-                var idClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                var student = idClaim != null && int.TryParse(idClaim, out var sid)
-                    ? await _studentRepository.GetByIdWithModulesAsync(sid)
-                    : null;
+                student = idClaim != null ? await _studentRepository.GetByIdWithModulesAsync(userId) : null;
 
-                // Rating/DiscussionCount are placeholders until Review/Discussion models exist
                 model.Courses = student?.Modules.Select(m => new CourseCard
                 {
                     ModuleId = m.ModuleId,
@@ -57,18 +59,32 @@ namespace ISMLTS_WebApp_.Controllers
                 }).ToList() ?? new List<CourseCard>();
             }
 
-            // Placeholder until Announcement/ICE/Quiz/POE models exist
+            // Placeholder until an Announcement model exists
             model.Announcements = new List<string>
             {
                 "POE submission window opens Monday",
                 "Quiz 2 covers weeks 3-5"
             };
-            model.UpcomingTasks = new List<UpcomingTask>
+
+            if (User.IsInRole("Lecturer"))
             {
-                new() { Title = "ICE Task 3", Type = "ICE", DueDate = DateTime.Today.AddDays(2) },
-                new() { Title = "Quiz 2", Type = "Quiz", DueDate = DateTime.Today.AddDays(4) },
-                new() { Title = "POE Part 1", Type = "POE", DueDate = DateTime.Today.AddDays(9) },
-            };
+                var myModuleIds = (await _moduleRepository.GetByLecturerAsync(userId)).Select(m => m.ModuleId).ToHashSet();
+                model.UpcomingTasks = (await _assessmentRepository.GetUpcomingAsync(20))
+                    .Where(a => myModuleIds.Contains(a.ModuleId))
+                    .Take(5)
+                    .Select(a => new UpcomingTask { Title = a.Name, Type = a.Type, DueDate = a.DueDate })
+                    .ToList();
+            }
+
+            if (User.IsInRole("Student"))
+            {
+                var myModuleIds = student?.Modules.Select(m => m.ModuleId).ToHashSet() ?? new HashSet<int>();
+                model.UpcomingTasks = (await _assessmentRepository.GetUpcomingAsync(20))
+                    .Where(a => myModuleIds.Contains(a.ModuleId))
+                    .Take(5)
+                    .Select(a => new UpcomingTask { Title = a.Name, Type = a.Type, DueDate = a.DueDate })
+                    .ToList();
+            }
 
             return View(model);
         }

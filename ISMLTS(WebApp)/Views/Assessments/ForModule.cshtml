@@ -1,0 +1,31 @@
+﻿@model IEnumerable<ISMLTS_WebApp_.Models.Assessment>
+@{
+    ViewData["Title"] = "Assessments";
+}
+
+<h1>@ViewBag.ModuleDisplay — Assessments</h1>
+<a asp-action="Index" class="btn btn-outline-secondary btn-sm mb-3">&larr; All Modules</a>
+<p><a asp-action="Create" asp-route-moduleId="@ViewBag.ModuleId" class="btn btn-rosebank">+ Add Assessment</a></p>
+
+<table class="table">
+    <thead><tr><th>Name</th><th>Type</th><th>Due Date</th><th></th></tr></thead>
+    <tbody>
+        @foreach (var a in Model)
+        {
+            <tr>
+                <td>@a.Name</td>
+                <td><span class="badge task-badge task-@a.Type.ToLower()">@a.Type</span></td>
+                <td>@a.DueDate.ToString("ddd, dd MMM yyyy")</td>
+                <td>
+                    <a asp-action="Submissions" asp-route-id="@a.AssessmentId">View Submissions</a> |
+                    <a asp-action="Edit" asp-route-id="@a.AssessmentId">Edit</a> |
+                    <a asp-action="Delete" asp-route-id="@a.AssessmentId">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+@if (!Model.Any())
+{
+    <p class="text-muted">No assessments for this module yet.</p>
+}

@@ -1,0 +1,22 @@
+﻿@model ISMLTS_WebApp_.Models.Submission
+@{
+    ViewData["Title"] = "Submit";
+}
+
+<h1>@ViewBag.AssessmentDisplay</h1>
+<p class="text-muted">Due @(((DateTime)ViewBag.DueDate).ToString("ddd, dd MMM yyyy"))</p>
+
+<div class="row">
+    <div class="col-md-5">
+        <form asp-action="Submit" asp-route-id="@Model.AssessmentId" method="post">
+            <div class="form-group">
+                <label for="link" class="control-label">Link to your work (GitHub, Drive, etc.)</label>
+                <input id="link" name="link" class="form-control" value="@Model.Link" placeholder="https://..." />
+            </div>
+            <div class="form-group mt-2">
+                <input type="submit" value="Submit" class="btn btn-rosebank" />
+            </div>
+        </form>
+    </div>
+</div>
+<div class="mt-2"><a asp-action="MyAssessments">Back to My Assessments</a></div>

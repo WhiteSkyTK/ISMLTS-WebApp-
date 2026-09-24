@@ -1,0 +1,20 @@
+﻿@model ISMLTS_WebApp_.Models.Assessment
+@{
+    ViewData["Title"] = "Delete Assessment";
+}
+
+<h1>Delete Assessment</h1>
+<h3>Are you sure? (Any student submissions for this assessment go too.)</h3>
+<dl class="row">
+    <dt class="col-sm-2">Module</dt>
+    <dd class="col-sm-10">@Model.Module?.Code</dd>
+    <dt class="col-sm-2">Name</dt>
+    <dd class="col-sm-10">@Model.Name</dd>
+    <dt class="col-sm-2">Due Date</dt>
+    <dd class="col-sm-10">@Model.DueDate.ToString("dd MMM yyyy")</dd>
+</dl>
+<form asp-action="Delete">
+    <input type="hidden" asp-for="AssessmentId" />
+    <input type="submit" value="Delete" class="btn btn-danger" /> |
+    <a asp-action="ForModule" asp-route-moduleId="@Model.ModuleId">Back</a>
+</form>

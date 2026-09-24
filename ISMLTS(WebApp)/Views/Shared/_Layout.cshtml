@@ -22,14 +22,7 @@
 
                 @if (User.Identity != null && User.Identity.IsAuthenticated && User.IsInRole("Student"))
                 {
-                    <div class="dropdown d-none d-md-block ms-3">
-                        <button class="btn btn-sm module-switcher dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                            <i class="bi bi-journal-bookmark"></i> Modules
-                        </button>
-                        <ul class="dropdown-menu">
-                            <li><span class="dropdown-item-text text-muted small">Your enrolled modules will list here</span></li>
-                        </ul>
-                    </div>
+                    @await Component.InvokeAsync("ModuleSwitcher")
                 }
 
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse">
@@ -47,12 +40,14 @@
                         @if (User.IsInRole("Lecturer"))
                         {
                             <li class="nav-item"><a class="nav-link" asp-controller="Marks" asp-action="Index">Marks</a></li>
+                            <li class="nav-item"><a class="nav-link" asp-controller="Assessments" asp-action="Index">Assessments</a></li>
                             <li class="nav-item"><a class="nav-link" asp-controller="Attendance" asp-action="Index">Attendance</a></li>
                             <li class="nav-item"><a class="nav-link" asp-controller="Tickets" asp-action="Index">Tickets</a></li>
                         }
                         @if (User.IsInRole("Student"))
                         {
                             <li class="nav-item"><a class="nav-link" asp-controller="Marks" asp-action="MyMarks">My Marks</a></li>
+                            <li class="nav-item"><a class="nav-link" asp-controller="Assessments" asp-action="MyAssessments">My Assessments</a></li>
                         }
                     </ul>
 
@@ -60,24 +55,7 @@
                     {
                         <ul class="navbar-nav align-items-center">
                             <li class="nav-item dropdown">
-                                <a class="nav-link position-relative" href="#" data-bs-toggle="dropdown">
-                                    <i class="bi bi-bell-fill fs-5"></i>
-                                </a>
-                                <div class="dropdown-menu dropdown-menu-end notif-dropdown p-2">
-                                    <ul class="nav nav-tabs nav-tabs-sm">
-                                        <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#notifMessages">Messages</button></li>
-                                        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#notifAnnouncements">Announcements</button></li>
-                                        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#notifUpdates">Updates</button></li>
-                                    </ul>
-                                    <div class="tab-content p-2">
-                                        <div class="tab-pane fade show active" id="notifMessages"><p class="small text-muted mb-0">No new messages.</p></div>
-                                        <div class="tab-pane fade" id="notifAnnouncements">
-                                            <p class="small mb-1">POE submission window opens Monday</p>
-                                            <p class="small mb-0">Quiz 2 covers weeks 3-5</p>
-                                        </div>
-                                        <div class="tab-pane fade" id="notifUpdates"><p class="small text-muted mb-0">No system updates.</p></div>
-                                    </div>
-                                </div>
+                                @await Component.InvokeAsync("NotificationBell")
                             </li>
                             <li class="nav-item dropdown ms-2">
                                 <a class="nav-link" href="#" data-bs-toggle="dropdown">

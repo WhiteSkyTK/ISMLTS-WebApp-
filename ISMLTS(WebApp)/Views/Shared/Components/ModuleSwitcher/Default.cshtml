@@ -1,0 +1,20 @@
+﻿@model List<ISMLTS_WebApp_.Models.Module>
+
+<div class="dropdown d-none d-md-block ms-3">
+    <button class="btn btn-sm module-switcher dropdown-toggle" type="button" data-bs-toggle="dropdown">
+        <i class="bi bi-journal-bookmark"></i> Modules
+    </button>
+    <ul class="dropdown-menu">
+        @if (!Model.Any())
+        {
+            <li><span class="dropdown-item-text text-muted small">Not enrolled in any modules yet</span></li>
+        }
+        else
+        {
+            foreach (var m in Model)
+            {
+                <li><a class="dropdown-item" asp-controller="Assessments" asp-action="MyAssessments">@m.Code — @m.Name</a></li>
+            }
+        }
+    </ul>
+</div>

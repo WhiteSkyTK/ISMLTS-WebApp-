@@ -14,6 +14,8 @@ namespace ISMLTS_WebApp_.Data
         public DbSet<Module> Modules => Set<Module>();
         public DbSet<Course> Courses => Set<Course>();
         public DbSet<Mark> Marks => Set<Mark>();
+        public DbSet<Assessment> Assessments => Set<Assessment>();
+        public DbSet<Submission> Submissions => Set<Submission>();
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -62,6 +64,19 @@ namespace ISMLTS_WebApp_.Data
 
             modelBuilder.Entity<Mark>()
                 .HasOne(m => m.Module).WithMany().HasForeignKey(m => m.ModuleId).OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Assessment>()
+                .HasOne(a => a.Module).WithMany().HasForeignKey(a => a.ModuleId).OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Submission>()
+                .HasOne(s => s.Assessment).WithMany().HasForeignKey(s => s.AssessmentId).OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Submission>()
+                .HasOne(s => s.Student).WithMany().HasForeignKey(s => s.StudentId).OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Submission>()
+                .HasIndex(s => new { s.AssessmentId, s.StudentId })
+                .IsUnique();
         }
     }
 }

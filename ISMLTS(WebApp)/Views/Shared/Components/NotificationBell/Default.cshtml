@@ -1,0 +1,25 @@
+﻿@model List<string>
+
+<a class="nav-link position-relative" href="#" data-bs-toggle="dropdown">
+    <i class="bi bi-bell-fill fs-5"></i>
+    @if (Model.Any())
+    {
+        <span class="notif-badge">@Model.Count</span>
+    }
+</a>
+<div class="dropdown-menu dropdown-menu-end notif-dropdown p-2">
+    <div class="p-2">
+        <h6 class="small text-muted">Assessments due soon</h6>
+        @if (!Model.Any())
+        {
+            <p class="small text-muted mb-0">Nothing due soon.</p>
+        }
+        else
+        {
+            foreach (var item in Model)
+            {
+                <p class="small mb-1">@item</p>
+            }
+        }
+    </div>
+</div>

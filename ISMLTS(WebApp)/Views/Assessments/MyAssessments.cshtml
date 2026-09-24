@@ -1,0 +1,40 @@
+﻿@model List<ISMLTS_WebApp_.Models.MyAssessmentRow>
+@{
+    ViewData["Title"] = "My Assessments";
+}
+
+<h1>My Assessments</h1>
+<table class="table">
+    <thead><tr><th>Assessment</th><th>Type</th><th>Due</th><th>Status</th><th></th></tr></thead>
+    <tbody>
+        @foreach (var r in Model)
+        {
+            <tr>
+                <td>@r.Name</td>
+                <td><span class="badge task-badge task-@r.Type.ToLower()">@r.Type</span></td>
+                <td>@r.DueDate.ToString("ddd, dd MMM")</td>
+                <td>
+                    @if (r.Status == "Not Submitted")
+                    {
+                        <span class="badge bg-secondary">Not Submitted</span>
+                    }
+                    else if (r.Status == "Late")
+                    {
+
+                        <span class="badge bg-danger">Late</span>
+                    }
+                    else
+                    {
+
+                        <span class="badge bg-success">Submitted</span>
+                    }
+                </td>
+                <td><a asp-action="Submit" asp-route-id="@r.AssessmentId" class="btn btn-rosebank btn-sm">@(r.Status == "Not Submitted" ? "Submit" : "Update Submission")</a></td>
+            </tr>
+        }
+    </tbody>
+</table>
+@if (!Model.Any())
+{
+    <p class="text-muted">No assessments yet.</p>
+}

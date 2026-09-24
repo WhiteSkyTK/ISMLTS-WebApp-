@@ -23,6 +23,8 @@ builder.Services.AddScoped<IModuleRepository, ModuleRepository>();
 builder.Services.AddScoped<IAdminRepository, AdminRepository>();
 builder.Services.AddScoped<ICourseRepository, CourseRepository>();
 builder.Services.AddScoped<IMarkRepository, MarkRepository>();
+builder.Services.AddScoped<IAssessmentRepository, AssessmentRepository>();
+builder.Services.AddScoped<ISubmissionRepository, SubmissionRepository>();
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())

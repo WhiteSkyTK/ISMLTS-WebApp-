@@ -345,3 +345,5 @@ C:\Users\Student\source\repos\ISMLTS(WebApp)\ISMLTS(WebApp)\obj\Debug\net9.0\ISM
 C:\Users\Student\source\repos\ISMLTS(WebApp)\ISMLTS(WebApp)\obj\Debug\net9.0\ISMLTS(WebApp).genruntimeconfig.cache
 C:\Users\Student\source\repos\ISMLTS(WebApp)\ISMLTS(WebApp)\obj\Debug\net9.0\ref\ISMLTS(WebApp).dll
 C:\Users\Student\source\repos\ISMLTS(WebApp)\ISMLTS(WebApp)\obj\Debug\net9.0\compressed\7x5g0qedkz-te90157no5.gz
+C:\Users\Student\source\repos\ISMLTS(WebApp)\ISMLTS(WebApp)\obj\Debug\net9.0\compressed\vz79q42caf-g1p55rks6n.gz
+C:\Users\Student\source\repos\ISMLTS(WebApp)\ISMLTS(WebApp)\obj\Debug\net9.0\compressed\orql4u1fjp-f7cvp8f2hu.gz

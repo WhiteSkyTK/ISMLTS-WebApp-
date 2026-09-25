@@ -28,9 +28,10 @@ namespace ISMLTS_WebApp_.Controllers
             _logger = logger;
         }
 
-        // [Authorize] -- still commented out from earlier testing; re-enable when ready to demo/submit
         public async Task<IActionResult> Index()
         {
+            if (User.Identity?.IsAuthenticated != true) return View("Landing");
+
             var model = new DashboardViewModel();
 
             var idClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;

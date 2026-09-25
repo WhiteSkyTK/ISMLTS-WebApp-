@@ -1,0 +1,141 @@
+﻿@{
+    ViewData["Title"] = "Welcome";
+    ViewData["FullWidth"] = true;
+
+    // Speeds are strings so the server culture can't format them with a decimal comma.
+    (string Icon, string Speed)[] heroIcons =
+    {
+        ("bi-book", "0.35"), ("bi-mortarboard", "0.2"), ("bi-lightbulb", "0.5"),
+        ("bi-laptop", "0.25"), ("bi-pencil", "0.6"), ("bi-journal-bookmark", "0.4")
+    };
+    (string Icon, string Speed)[] decoIcons = { ("bi-book-half", "0.3"), ("bi-journal-text", "0.15"), ("bi-bookmark-star", "0.45") };
+    (string Icon, string Title, string Text)[] offers =
+    {
+        ("bi-award", "Higher Certificates", "A focused first step into higher education and the world of work."),
+        ("bi-journal-bookmark", "Diplomas", "Career-ready qualifications built around applied industry skills."),
+        ("bi-mortarboard", "Degrees", "Deeper academic study that opens the door to further qualifications."),
+        ("bi-stars", "Advanced Diplomas", "Focused specialisation after a diploma or degree, like Application Development (NQF 7).")
+    };
+    (string Icon, string Title, string Text)[] features =
+    {
+        ("bi-graph-up-arrow", "Early risk alerts", "Averages below 50% are flagged, so support starts before it's too late."),
+        ("bi-qr-code-scan", "Smart attendance", "Scan the lecture QR code, verified against the campus network."),
+        ("bi-journal-check", "Assessments", "See what's due, submit your work and track every deadline."),
+        ("bi-chat-dots", "Support tickets", "Ask your lecturer a question and follow it until it's resolved.")
+    };
+    string[] campuses = { "Bloemfontein", "Braamfontein", "Cape Town", "Durban", "Mbombela", "Nelson Mandela Bay", "Polokwane", "Pretoria" };
+
+    void RenderFloats((string Icon, string Speed)[] icons, int start, int step)
+    {
+        for (var i = 0; i < icons.Length; i++)
+        {
+            <i class="lp-layer lp-float lp-f@(start + i * step) bi @icons[i].Icon" data-speed="@icons[i].Speed" aria-hidden="true"></i>
+        }
+    }
+}
+@section Styles {
+    <link rel="stylesheet" href="~/css/landing.css" asp-append-version="true" />
+}
+
+<div class="landing">
+    <section class="lp-hero">
+        <div class="lp-layer lp-orb lp-orb-1" data-speed="0.15"></div>
+        <div class="lp-layer lp-orb lp-orb-2" data-speed="0.3"></div>
+        <div class="lp-layer lp-orb lp-orb-3" data-speed="0.05"></div>
+        @{
+            RenderFloats(heroIcons, 1, 1);
+        }
+
+        <div class="lp-hero-inner">
+            <div class="lp-hero-text">
+                <span class="lp-eyebrow">IIE Rosebank College</span>
+                <h1>Welcome to Rosebank International</h1>
+                <p>Your marks, assessments, attendance and support in one place, so help arrives before it's too late.</p>
+                <div class="lp-cta">
+                    <a asp-controller="Account" asp-action="Login" class="btn btn-lg lp-btn-primary"><i class="bi bi-box-arrow-in-right" aria-hidden="true"></i> Log in</a>
+                    <a href="#offer" class="btn btn-lg lp-btn-ghost">Explore</a>
+                </div>
+            </div>
+            <div class="lp-stack" data-speed="-0.12" aria-hidden="true">
+                <div class="lp-book lp-book-1"></div>
+                <div class="lp-book lp-book-2"></div>
+                <div class="lp-book lp-book-3"></div>
+                <i class="bi bi-mortarboard-fill lp-cap"></i>
+            </div>
+        </div>
+        <a href="#offer" class="lp-scroll" aria-label="Scroll to what we offer"><i class="bi bi-chevron-double-down" aria-hidden="true"></i></a>
+    </section>
+
+    <section class="lp-section lp-offer" id="offer">
+        @{
+            RenderFloats(decoIcons, 1, 2);
+        }
+        <div class="lp-wrap">
+            <div class="lp-heading lp-reveal">
+                <h2>What we offer</h2>
+                <p>IIE qualifications, from your first step into higher education through to specialised study.</p>
+            </div>
+            <div class="lp-card-grid">
+                @foreach (var o in offers)
+                {
+                    <div class="lp-card lp-reveal">
+                        <span class="lp-icon"><i class="bi @o.Icon" aria-hidden="true"></i></span>
+                        <h3>@o.Title</h3>
+                        <p>@o.Text</p>
+                    </div>
+                }
+            </div>
+            <div class="lp-modes lp-reveal">
+                <span class="lp-mode"><i class="bi bi-building" aria-hidden="true"></i>Contact: weekday lectures on campus</span>
+                <span class="lp-mode"><i class="bi bi-laptop" aria-hidden="true"></i>Distance: online study with dedicated tutors</span>
+            </div>
+        </div>
+    </section>
+
+    <section class="lp-section lp-band">
+        @{
+            RenderFloats(decoIcons, 2, 2);
+        }
+        <div class="lp-wrap">
+            <div class="lp-heading lp-reveal">
+                <h2>Learning, kept on track</h2>
+                <p>One platform for students, lecturers and admins.</p>
+            </div>
+            <div class="lp-card-grid">
+                @foreach (var f in features)
+                {
+                    <div class="lp-glass lp-reveal">
+                        <i class="bi @f.Icon" aria-hidden="true"></i>
+                        <h3>@f.Title</h3>
+                        <p>@f.Text</p>
+                    </div>
+                }
+            </div>
+        </div>
+    </section>
+
+    <section class="lp-section">
+        <div class="lp-wrap">
+            <div class="lp-heading lp-reveal">
+                <h2>Find us on campus</h2>
+                <p>Contact lectures run at campuses across South Africa.</p>
+            </div>
+            <div class="lp-campuses lp-reveal">
+                @foreach (var c in campuses)
+                {
+                    <span class="lp-chip"><i class="bi bi-geo-alt-fill" aria-hidden="true"></i>@c</span>
+                }
+            </div>
+            <div class="lp-final lp-reveal">
+                <i class="bi bi-book-half lp-final-deco" aria-hidden="true"></i>
+                <h2>Ready to pick up where you left off?</h2>
+                <p>Log in with the details your campus admin gave you.</p>
+                <a asp-controller="Account" asp-action="Login" class="btn btn-lg lp-btn-primary">Log in</a>
+            </div>
+        </div>
+    </section>
+</div>
+
+@section Scripts {
+    <script src="~/js/landing.js" asp-append-version="true"></script>
+}

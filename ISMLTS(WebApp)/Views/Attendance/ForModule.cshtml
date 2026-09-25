@@ -1,0 +1,56 @@
+﻿@model IEnumerable<ISMLTS_WebApp_.Models.AttendanceSession>
+@{
+    ViewData["Title"] = "Attendance";
+}
+
+<h1>@ViewBag.ModuleDisplay — Attendance</h1>
+<a asp-action="Index" class="btn btn-outline-secondary btn-sm mb-3">&larr; All Modules</a>
+
+<div class="panel mb-4">
+    <form asp-action="Start" method="post" data-geo-form>
+        <input type="hidden" name="moduleId" value="@ViewBag.ModuleId" />
+        <input type="hidden" name="latitude" />
+        <input type="hidden" name="longitude" />
+        <button type="submit" class="btn btn-rosebank"><i class="bi bi-qr-code" aria-hidden="true"></i> Start attendance session</button>
+        <p class="small text-muted mt-2 mb-0" data-geo-status>Your browser will ask for your location. It's saved as the classroom position students are checked against.</p>
+    </form>
+</div>
+
+<table class="table align-middle">
+    <thead><tr><th>Started</th><th>Present</th><th>Status</th><th><span class="visually-hidden">Actions</span></th></tr></thead>
+    <tbody>
+        @foreach (var s in Model)
+        {
+            <tr>
+                <td>@s.StartedAt.ToLocalTime().ToString("ddd, dd MMM yyyy HH:mm")</td>
+                <td>@s.Records.Count</td>
+                <td>
+                    @if (s.IsOpen)
+                    {
+                        <span class="badge bg-success">Open</span>
+                    }
+                    else
+                    {
+
+                        <span class="badge bg-secondary">Closed</span>
+                    }
+                </td>
+                <td class="text-end">
+                    @if (s.IsOpen)
+                    {
+                        <a asp-action="Live" asp-route-id="@s.SessionId" class="btn btn-rosebank btn-sm">Show QR</a>
+                    }
+                    <a asp-action="Details" asp-route-id="@s.SessionId" class="btn btn-outline-secondary btn-sm">Register</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+@if (!Model.Any())
+{
+    <p class="text-muted">No sessions yet.</p>
+}
+
+@section Scripts {
+    <script src="~/js/attendance.js" asp-append-version="true"></script>
+}

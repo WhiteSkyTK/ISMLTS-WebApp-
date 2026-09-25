@@ -3,18 +3,22 @@
     ViewData["Title"] = "Log In";
 }
 
-<h2>Log In</h2>
-<div class="card p-4" style="max-width:400px;">
-    <form asp-action="Login" method="post">
-        <div asp-validation-summary="All" class="text-danger"></div>
-        <div class="mb-3">
-            <label asp-for="EmailOrUsername" class="form-label"></label>
-            <input asp-for="EmailOrUsername" class="form-control" />
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-4">
+        <h2>Log In</h2>
+        <div class="card p-4">
+            <form asp-action="Login" asp-route-returnUrl="@ViewData["ReturnUrl"]" method="post">
+                <div asp-validation-summary="All" class="text-danger"></div>
+                <div class="mb-3">
+                    <label asp-for="EmailOrUsername" class="form-label"></label>
+                    <input asp-for="EmailOrUsername" class="form-control" autocomplete="username" />
+                </div>
+                <div class="mb-3">
+                    <label asp-for="Password" class="form-label"></label>
+                    <input asp-for="Password" class="form-control" autocomplete="current-password" />
+                </div>
+                <button type="submit" class="btn btn-rosebank w-100">Log In</button>
+            </form>
         </div>
-        <div class="mb-3">
-            <label asp-for="Password" class="form-label"></label>
-            <input asp-for="Password" class="form-control" />
-        </div>
-        <button type="submit" class="btn btn-rosebank">Log In</button>
-    </form>
+    </div>
 </div>

@@ -1,0 +1,43 @@
+﻿@model ISMLTS_WebApp_.Models.AttendanceDetailsViewModel
+@{
+    ViewData["Title"] = "Register";
+    ViewData["AllowRemove"] = true;
+    var present = Model.Session.Records.Count;
+    var total = present + Model.Absent.Count;
+}
+
+<h1>@Model.Session.Module?.Code — Register</h1>
+<p class="text-muted">
+    @Model.Session.StartedAt.ToLocalTime().ToString("dddd, dd MMM yyyy HH:mm") · @present of @total present
+    @if (Model.Session.IsOpen)
+    {
+        <a asp-action="Live" asp-route-id="@Model.Session.SessionId" class="ms-2">Show QR</a>
+    }
+</p>
+
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="panel">
+            <h5><i class="bi bi-check2-circle" aria-hidden="true"></i> Present</h5>
+            <partial name="_Records" model="Model.Session" />
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="panel">
+            <h5><i class="bi bi-person-x" aria-hidden="true"></i> Absent</h5>
+            @if (!Model.Absent.Any())
+            {
+                <p class="text-muted mb-0">Everyone's here.</p>
+            }
+            @foreach (var s in Model.Absent)
+            {
+                <form asp-action="MarkPresent" asp-route-id="@Model.Session.SessionId" method="post" class="d-flex justify-content-between align-items-center mb-2">
+                    <input type="hidden" name="studentId" value="@s.StudentId" />
+                    <span>@s.FullName</span>
+                    <button type="submit" class="btn btn-outline-success btn-sm">Mark present</button>
+                </form>
+            }
+        </div>
+    </div>
+</div>
+<a asp-action="ForModule" asp-route-moduleId="@Model.Session.ModuleId" class="d-inline-block mt-3">Back to sessions</a>

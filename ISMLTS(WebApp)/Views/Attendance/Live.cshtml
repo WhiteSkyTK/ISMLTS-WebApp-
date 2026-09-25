@@ -1,0 +1,44 @@
+﻿@model ISMLTS_WebApp_.Models.AttendanceLiveViewModel
+@{
+    ViewData["Title"] = "Live Attendance";
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <h1 class="mb-0">@Model.Session.Module?.Code — Attendance</h1>
+    <div class="d-flex gap-2">
+        <a asp-action="Details" asp-route-id="@Model.Session.SessionId" class="btn btn-outline-secondary">Register</a>
+        <form asp-action="Close" asp-route-id="@Model.Session.SessionId" method="post">
+            <button type="submit" class="btn btn-danger">Close session</button>
+        </form>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-5">
+        <div class="panel text-center">
+            @if (Model.Session.IsOpen)
+            {
+                <img src="@Model.QrDataUri" alt="QR code to mark attendance for @Model.Session.Module?.Code" class="img-fluid mb-3" />
+                <p class="text-muted mb-1">No camera? Students enter this code under My Attendance:</p>
+                <p class="display-5 fw-bold font-monospace mb-1">@Model.Session.Code</p>
+                <p class="mb-0">Closes in <strong data-seconds-left="@Model.SecondsLeft"></strong></p>
+            }
+            else
+            {
+                <p class="text-muted mb-0">This session is closed.</p>
+            }
+        </div>
+    </div>
+    <div class="col-lg-7">
+        <div class="panel">
+            <h5><i class="bi bi-people" aria-hidden="true"></i> Present (updates every 10 seconds)</h5>
+            <div data-refresh-url="@Url.Action("Records", new { id = Model.Session.SessionId })">
+                <partial name="_Records" model="Model.Session" />
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/attendance.js" asp-append-version="true"></script>
+}

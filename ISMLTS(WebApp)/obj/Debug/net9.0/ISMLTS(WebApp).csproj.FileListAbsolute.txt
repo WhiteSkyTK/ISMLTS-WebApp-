@@ -347,3 +347,10 @@ C:\Users\Student\source\repos\ISMLTS(WebApp)\ISMLTS(WebApp)\obj\Debug\net9.0\ref
 C:\Users\Student\source\repos\ISMLTS(WebApp)\ISMLTS(WebApp)\obj\Debug\net9.0\compressed\7x5g0qedkz-te90157no5.gz
 C:\Users\Student\source\repos\ISMLTS(WebApp)\ISMLTS(WebApp)\obj\Debug\net9.0\compressed\vz79q42caf-g1p55rks6n.gz
 C:\Users\Student\source\repos\ISMLTS(WebApp)\ISMLTS(WebApp)\obj\Debug\net9.0\compressed\orql4u1fjp-f7cvp8f2hu.gz
+C:\Users\Student\source\repos\ISMLTS(WebApp)\ISMLTS(WebApp)\bin\Debug\net9.0\Microsoft.Win32.SystemEvents.dll
+C:\Users\Student\source\repos\ISMLTS(WebApp)\ISMLTS(WebApp)\bin\Debug\net9.0\QRCoder.dll
+C:\Users\Student\source\repos\ISMLTS(WebApp)\ISMLTS(WebApp)\bin\Debug\net9.0\System.Drawing.Common.dll
+C:\Users\Student\source\repos\ISMLTS(WebApp)\ISMLTS(WebApp)\bin\Debug\net9.0\runtimes\win\lib\net6.0\Microsoft.Win32.SystemEvents.dll
+C:\Users\Student\source\repos\ISMLTS(WebApp)\ISMLTS(WebApp)\bin\Debug\net9.0\runtimes\unix\lib\net6.0\System.Drawing.Common.dll
+C:\Users\Student\source\repos\ISMLTS(WebApp)\ISMLTS(WebApp)\bin\Debug\net9.0\runtimes\win\lib\net6.0\System.Drawing.Common.dll
+C:\Users\Student\source\repos\ISMLTS(WebApp)\ISMLTS(WebApp)\obj\Debug\net9.0\compressed\5ypgep9scm-wzu1bnj6lv.gz

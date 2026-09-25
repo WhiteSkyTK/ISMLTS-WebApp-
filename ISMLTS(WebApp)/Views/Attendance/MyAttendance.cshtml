@@ -1,0 +1,35 @@
+﻿@model List<ISMLTS_WebApp_.Models.MyAttendanceRow>
+@{
+    ViewData["Title"] = "My Attendance";
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <h1 class="mb-0">My Attendance</h1>
+    <a asp-action="Scan" class="btn btn-rosebank"><i class="bi bi-qr-code-scan" aria-hidden="true"></i> Enter a code</a>
+</div>
+@if (TempData["ScanSuccess"] is string success)
+{
+    <div class="alert alert-success">@success</div>
+}
+<div class="panel">
+    <table class="table align-middle mb-0">
+        <thead><tr><th>Module</th><th>Attended</th><th>Attendance</th></tr></thead>
+        <tbody>
+            @foreach (var row in Model)
+            {
+                <tr>
+                    <td>@row.ModuleDisplay</td>
+                    <td>@row.Attended of @row.Total</td>
+                    <td>
+                        <progress class="w-100" value="@row.Percentage" max="100" aria-label="@row.ModuleDisplay attendance">@row.Percentage%</progress>
+                        <span class="small text-muted">@row.Percentage%</span>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    @if (!Model.Any())
+    {
+        <p class="text-muted mb-0">You're not enrolled in any modules yet.</p>
+    }
+</div>

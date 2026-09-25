@@ -1,0 +1,82 @@
+﻿@model ISMLTS_WebApp_.Models.AttendanceSession
+@using System.Globalization
+@{
+    var allowRemove = ViewData["AllowRemove"] is true;
+}
+
+@if (!Model.Records.Any())
+{
+    <p class="text-muted mb-0">No one has scanned in yet.</p>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-sm align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>Student</th>
+                    <th>Time</th>
+                    <th>Campus network</th>
+                    <th>Distance</th>
+                    <th>Location</th>
+                    @if (allowRemove)
+                    {
+                        <th><span class="visually-hidden">Actions</span></th>
+                    }
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var r in Model.Records.OrderBy(x => x.ScannedAt))
+                {
+                    var mapUrl = r.Latitude.HasValue && r.Longitude.HasValue
+                    ? string.Create(CultureInfo.InvariantCulture, $"https://www.google.com/maps?q={r.Latitude.Value:F6},{r.Longitude.Value:F6}")
+                    : null;
+                    <tr>
+                        <td>@r.Student?.FullName</td>
+                        <td>@r.ScannedAt.ToLocalTime().ToString("HH:mm:ss")</td>
+                        @if (r.IsManual)
+                        {
+                            <td colspan="3"><span class="badge bg-info text-dark">Marked by lecturer</span></td>
+                        }
+                        else
+                        {
+                            <td>
+                                @if (r.IpOnCampus)
+                                {
+                                    <span class="badge bg-success">Yes</span>
+                                }
+                                else
+                                {
+
+                                    <span class="badge bg-warning text-dark">No</span>
+                                }
+                                <span class="small text-muted d-block">@r.IpAddress</span>
+                            </td>
+                            <td>@(r.DistanceMeters.HasValue ? $"{r.DistanceMeters.Value:0} m" : "—")</td>
+                            <td>
+                                @if (mapUrl != null)
+                                {
+                                    <a href="@mapUrl" target="_blank" rel="noopener">View map</a>
+                                }
+                                else
+                                {
+
+                                    <span class="text-muted">Not shared</span>
+                                }
+                            </td>
+                        }
+                        @if (allowRemove)
+                        {
+                            <td>
+                                <form asp-action="RemoveRecord" asp-route-id="@Model.SessionId" method="post">
+                                    <input type="hidden" name="recordId" value="@r.RecordId" />
+                                    <button type="submit" class="btn btn-outline-danger btn-sm">Remove</button>
+                                </form>
+                            </td>
+                        }
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

@@ -1,0 +1,21 @@
+﻿@model IEnumerable<ISMLTS_WebApp_.Models.Module>
+@{
+    ViewData["Title"] = "Attendance";
+}
+
+<h1>Attendance</h1>
+<p class="text-muted">Pick a module to start a register or review past sessions.</p>
+<div class="row g-3">
+    @foreach (var m in Model)
+    {
+        <div class="col-md-4">
+            <a asp-action="ForModule" asp-route-moduleId="@m.ModuleId" class="quick-action-btn w-100">
+                <i class="bi bi-qr-code" aria-hidden="true"></i><span>@m.Code — @m.Name</span>
+            </a>
+        </div>
+    }
+</div>
+@if (!Model.Any())
+{
+    <p class="text-muted">You're not assigned to any modules yet.</p>
+}

@@ -1,5 +1,8 @@
+wwwroot\css\landing.css
 wwwroot\css\site.css
 wwwroot\favicon.ico
+wwwroot\js\attendance.js
+wwwroot\js\landing.js
 wwwroot\js\site.js
 wwwroot\lib\bootstrap\dist\css\bootstrap-grid.css
 wwwroot\lib\bootstrap\dist\css\bootstrap-grid.css.map
@@ -61,11 +64,9 @@ wwwroot\lib\jquery\dist\jquery.slim.js
 wwwroot\lib\jquery\dist\jquery.slim.min.js
 wwwroot\lib\jquery\dist\jquery.slim.min.map
 wwwroot\lib\jquery\LICENSE.txt
-wwwroot\css\landing.css
-wwwroot\js\landing.js
+C:\Users\Student\source\repos\ISMLTS(WebApp)\ISMLTS(WebApp)\wwwroot\js\site.js
 C:\Users\Student\source\repos\ISMLTS(WebApp)\ISMLTS(WebApp)\wwwroot\css\site.css
 C:\Users\Student\source\repos\ISMLTS(WebApp)\ISMLTS(WebApp)\wwwroot\favicon.ico
-C:\Users\Student\source\repos\ISMLTS(WebApp)\ISMLTS(WebApp)\wwwroot\js\site.js
 C:\Users\Student\source\repos\ISMLTS(WebApp)\ISMLTS(WebApp)\wwwroot\lib\bootstrap\dist\css\bootstrap-grid.css
 C:\Users\Student\source\repos\ISMLTS(WebApp)\ISMLTS(WebApp)\wwwroot\lib\bootstrap\dist\css\bootstrap-grid.css.map
 C:\Users\Student\source\repos\ISMLTS(WebApp)\ISMLTS(WebApp)\wwwroot\lib\bootstrap\dist\css\bootstrap-grid.min.css
@@ -127,3 +128,4 @@ C:\Users\Student\source\repos\ISMLTS(WebApp)\ISMLTS(WebApp)\wwwroot\lib\jquery\d
 C:\Users\Student\source\repos\ISMLTS(WebApp)\ISMLTS(WebApp)\wwwroot\lib\jquery\LICENSE.txt
 C:\Users\Student\source\repos\ISMLTS(WebApp)\ISMLTS(WebApp)\wwwroot\css\landing.css
 C:\Users\Student\source\repos\ISMLTS(WebApp)\ISMLTS(WebApp)\wwwroot\js\landing.js
+C:\Users\Student\source\repos\ISMLTS(WebApp)\ISMLTS(WebApp)\wwwroot\js\attendance.js

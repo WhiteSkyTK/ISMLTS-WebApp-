@@ -1,0 +1,35 @@
+﻿@model string?
+@{
+    ViewData["Title"] = "Mark Attendance";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-7 col-lg-5">
+        <h1>Mark Attendance</h1>
+        @if (TempData["ScanError"] is string error)
+        {
+            <div class="alert alert-danger">@error</div>
+        }
+        <div class="panel">
+            <form asp-action="Scan" method="post" data-geo-form>
+                <input type="hidden" name="latitude" />
+                <input type="hidden" name="longitude" />
+                <input type="hidden" name="accuracy" />
+                <div class="mb-3">
+                    <label for="code" class="form-label">Session code</label>
+                    <input id="code" name="code" value="@Model" class="form-control form-control-lg text-uppercase font-monospace" maxlength="6" autocomplete="off" required />
+                </div>
+                <button type="submit" class="btn btn-rosebank w-100">Mark me present</button>
+                <p class="small text-muted mt-3 mb-0" data-geo-status>
+                    <i class="bi bi-geo-alt" aria-hidden="true"></i>
+                    Your browser will ask for your location. It's only used to confirm you're in class and is saved with this attendance record.
+                </p>
+            </form>
+        </div>
+        <a asp-action="MyAttendance" class="d-inline-block mt-3">My attendance</a>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/attendance.js" asp-append-version="true"></script>
+}

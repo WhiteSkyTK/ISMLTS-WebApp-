@@ -1,8 +1,8 @@
-﻿using Microsoft.AspNetCore.Authentication;
+﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 using ISMLTS_WebApp_.Models;
 using ISMLTS_WebApp_.Repositories;
 
@@ -25,49 +25,41 @@ namespace ISMLTS_WebApp_.Controllers
         }
 
         [HttpGet]
-        public IActionResult Login() => View();
+        public IActionResult Login(string? returnUrl = null)
+        {
+            ViewData["ReturnUrl"] = returnUrl;
+            return View();
+        }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Login(LoginViewModel model)
+        public async Task<IActionResult> Login(LoginViewModel model, string? returnUrl = null)
         {
+            ViewData["ReturnUrl"] = returnUrl;
             if (!ModelState.IsValid) return View(model);
 
-            var admin = await _adminRepository.GetByUsernameAsync(model.EmailOrUsername);
-            if (admin != null && BCrypt.Net.BCrypt.Verify(model.Password, admin.PasswordHash))
+            var account = await FindAccountAsync(model.EmailOrUsername.Trim(), model.Password);
+            if (account == null)
             {
-                await SignInAsync(admin.AdminId.ToString(), admin.Username, "Admin");
-                return RedirectToAction("Index", "Home");
+                ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+                return View(model);
             }
 
-            var lecturer = await _lecturerRepository.GetByEmailAsync(model.EmailOrUsername);
-            if (lecturer != null && BCrypt.Net.BCrypt.Verify(model.Password, lecturer.PasswordHash))
-            {
-                await SignInAsync(lecturer.LecturerId.ToString(), lecturer.FullName, "Lecturer");
-                return RedirectToAction("Index", "Home");
-            }
-
-            var student = await _studentRepository.GetByEmailAsync(model.EmailOrUsername);
-            if (student != null && BCrypt.Net.BCrypt.Verify(model.Password, student.PasswordHash))
-            {
-                await SignInAsync(student.StudentId.ToString(), student.FullName, "Student");
-                return RedirectToAction("Index", "Home");
-            }
-
-            ModelState.AddModelError(string.Empty, "Invalid login attempt.");
-            return View(model);
-        }
-
-        private async Task SignInAsync(string id, string name, string role)
-        {
             var claims = new List<Claim>
             {
-                new Claim(ClaimTypes.NameIdentifier, id),
-                new Claim(ClaimTypes.Name, name),
-                new Claim(ClaimTypes.Role, role)
+                new(ClaimTypes.NameIdentifier, account.Value.Id),
+                new(ClaimTypes.Name, account.Value.Name),
+                new(ClaimTypes.Role, account.Value.Role)
             };
             var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(identity));
+
+            // Only follow return URLs on this site (blocks open-redirect attacks)
+            if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+            {
+                return LocalRedirect(returnUrl);
+            }
+            return RedirectToAction("Index", "Home");
         }
 
         [Authorize]
@@ -78,5 +70,35 @@ namespace ISMLTS_WebApp_.Controllers
         }
 
         public IActionResult AccessDenied() => View();
+
+        private async Task<(string Id, string Name, string Role)?> FindAccountAsync(string login, string password)
+        {
+            var admin = await _adminRepository.GetByUsernameAsync(login);
+            if (admin != null && PasswordMatches(password, admin.PasswordHash))
+                return (admin.AdminId.ToString(), admin.Username, "Admin");
+
+            var lecturer = await _lecturerRepository.GetByEmailAsync(login);
+            if (lecturer != null && PasswordMatches(password, lecturer.PasswordHash))
+                return (lecturer.LecturerId.ToString(), lecturer.FullName, "Lecturer");
+
+            var student = await _studentRepository.GetByEmailAsync(login);
+            if (student != null && PasswordMatches(password, student.PasswordHash))
+                return (student.StudentId.ToString(), student.FullName, "Student");
+
+            return null;
+        }
+
+        // Accounts saved before hashing was added hold text BCrypt can't parse: treat as a failed login
+        private static bool PasswordMatches(string password, string hash)
+        {
+            try
+            {
+                return BCrypt.Net.BCrypt.Verify(password, hash);
+            }
+            catch (Exception ex) when (ex is BCrypt.Net.SaltParseException or ArgumentException)
+            {
+                return false;
+            }
+        }
     }
 }

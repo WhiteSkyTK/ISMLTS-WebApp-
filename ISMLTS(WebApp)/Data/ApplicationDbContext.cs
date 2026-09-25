@@ -17,6 +17,8 @@ namespace ISMLTS_WebApp_.Data
         public DbSet<Assessment> Assessments => Set<Assessment>();
         public DbSet<Submission> Submissions => Set<Submission>();
         public DbSet<Ticket> Tickets => Set<Ticket>();
+        public DbSet<AttendanceSession> AttendanceSessions => Set<AttendanceSession>();
+        public DbSet<AttendanceRecord> AttendanceRecords => Set<AttendanceRecord>();
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -84,6 +86,21 @@ namespace ISMLTS_WebApp_.Data
 
             modelBuilder.Entity<Ticket>()
                 .HasOne(t => t.Module).WithMany().HasForeignKey(t => t.ModuleId).OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<AttendanceSession>()
+                .HasIndex(s => s.Code).IsUnique();
+
+            modelBuilder.Entity<AttendanceSession>()
+                .HasOne(s => s.Module).WithMany().HasForeignKey(s => s.ModuleId).OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<AttendanceRecord>()
+                .HasOne(r => r.Session).WithMany(s => s.Records).HasForeignKey(r => r.SessionId).OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<AttendanceRecord>()
+                .HasOne(r => r.Student).WithMany().HasForeignKey(r => r.StudentId).OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<AttendanceRecord>()
+                .HasIndex(r => new { r.SessionId, r.StudentId }).IsUnique();
         }
     }
 }

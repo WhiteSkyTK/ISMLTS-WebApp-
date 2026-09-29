@@ -9,6 +9,7 @@ using ISMLTS_WebApp_.Services;
 
 namespace ISMLTS_WebApp_.Controllers
 {
+    [Authorize]
     public class AttendanceController : Controller
     {
         // No 0/O or 1/I, so typed codes can't be misread

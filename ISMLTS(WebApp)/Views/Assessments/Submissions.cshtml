@@ -29,7 +29,7 @@
                         <span class="badge bg-success">Submitted</span>
                     }
                 </td>
-                <td>@(row.SubmittedAt?.ToString("dd MMM, HH:mm") ?? "—")</td>
+                <td>@(row.SubmittedAt?.ToLocalTime().ToString("dd MMM, HH:mm") ?? "—")</td>
                 <td>@if (!string.IsNullOrEmpty(row.Link)) {
                 <a href="@row.Link" target="_blank" rel="noopener">Open</a>
             } else

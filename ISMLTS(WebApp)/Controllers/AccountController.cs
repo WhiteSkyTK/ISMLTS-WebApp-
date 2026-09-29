@@ -3,13 +3,17 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using ISMLTS_WebApp_.Models;
 using ISMLTS_WebApp_.Repositories;
 
 namespace ISMLTS_WebApp_.Controllers
 {
+    [Authorize]
     public class AccountController : Controller
     {
+        public const string LoginRateLimitPolicy = "login";
+
         private readonly IStudentRepository _studentRepository;
         private readonly ILecturerRepository _lecturerRepository;
         private readonly IAdminRepository _adminRepository;
@@ -24,6 +28,7 @@ namespace ISMLTS_WebApp_.Controllers
             _adminRepository = adminRepository;
         }
 
+        [AllowAnonymous]
         [HttpGet]
         public IActionResult Login(string? returnUrl = null)
         {
@@ -31,8 +36,10 @@ namespace ISMLTS_WebApp_.Controllers
             return View();
         }
 
+        [AllowAnonymous]
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [EnableRateLimiting(LoginRateLimitPolicy)]
         public async Task<IActionResult> Login(LoginViewModel model, string? returnUrl = null)
         {
             ViewData["ReturnUrl"] = returnUrl;
@@ -62,14 +69,20 @@ namespace ISMLTS_WebApp_.Controllers
             return RedirectToAction("Index", "Home");
         }
 
-        [Authorize]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Logout()
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             return RedirectToAction("Index", "Home");
         }
 
-        public IActionResult AccessDenied() => View();
+        [AllowAnonymous]
+        public IActionResult AccessDenied()
+        {
+            Response.StatusCode = StatusCodes.Status403Forbidden;
+            return View();
+        }
 
         private async Task<(string Id, string Name, string Role)?> FindAccountAsync(string login, string password)
         {

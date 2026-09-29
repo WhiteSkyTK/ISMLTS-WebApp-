@@ -11,7 +11,8 @@
         <form asp-action="Submit" asp-route-id="@Model.AssessmentId" method="post">
             <div class="form-group">
                 <label for="link" class="control-label">Link to your work (GitHub, Drive, etc.)</label>
-                <input id="link" name="link" class="form-control" value="@Model.Link" placeholder="https://..." />
+                <input id="link" name="link" type="url" class="form-control" value="@Model.Link" placeholder="https://..." maxlength="300" required />
+                <span asp-validation-for="Link" class="text-danger"></span>
             </div>
             <div class="form-group mt-2">
                 <input type="submit" value="Submit" class="btn btn-rosebank" />

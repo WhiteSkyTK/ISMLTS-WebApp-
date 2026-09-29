@@ -29,7 +29,7 @@
                         <span class="badge bg-success">Resolved</span>
                     }
                 </td>
-                <td>@t.DateOpened.ToString("dd MMM, HH:mm")</td>
+                <td>@t.DateOpened.ToLocalTime().ToString("dd MMM, HH:mm")</td>
                 <td><a asp-action="Respond" asp-route-id="@t.TicketId" class="btn btn-rosebank btn-sm">Respond</a></td>
             </tr>
         }

@@ -1,5 +1,5 @@
-﻿using System.Security.Claims;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using ISMLTS_WebApp_.Extensions;
 using ISMLTS_WebApp_.Repositories;
 
 namespace ISMLTS_WebApp_.ViewComponents
@@ -22,10 +22,9 @@ namespace ISMLTS_WebApp_.ViewComponents
 
         public async Task<IViewComponentResult> InvokeAsync()
         {
-            var idClaim = UserClaimsPrincipal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             var items = new List<string>();
 
-            if (idClaim != null && int.TryParse(idClaim, out var userId))
+            if (UserClaimsPrincipal.GetUserId() is int userId)
             {
                 if (UserClaimsPrincipal.IsInRole("Lecturer"))
                 {

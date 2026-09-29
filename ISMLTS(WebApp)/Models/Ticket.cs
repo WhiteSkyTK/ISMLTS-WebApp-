@@ -28,7 +28,7 @@ namespace ISMLTS_WebApp_.Models
         [MaxLength(1000)]
         public string? LecturerResponse { get; set; }
 
-        public DateTime DateOpened { get; set; } = DateTime.Now;
+        public DateTime DateOpened { get; set; } = DateTime.UtcNow;
         public DateTime? DateResolved { get; set; }
     }
 }

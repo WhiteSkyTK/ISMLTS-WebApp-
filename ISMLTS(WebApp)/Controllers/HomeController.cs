@@ -1,11 +1,13 @@
 using System.Diagnostics;
-using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using ISMLTS_WebApp_.Extensions;
 using ISMLTS_WebApp_.Models;
 using ISMLTS_WebApp_.Repositories;
 
 namespace ISMLTS_WebApp_.Controllers
 {
+    [Authorize]
     public class HomeController : Controller
     {
         private readonly IStudentRepository _studentRepository;
@@ -28,14 +30,14 @@ namespace ISMLTS_WebApp_.Controllers
             _logger = logger;
         }
 
+        [AllowAnonymous]
         public async Task<IActionResult> Index()
         {
             if (User.Identity?.IsAuthenticated != true) return View("Landing");
 
             var model = new DashboardViewModel();
 
-            var idClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            int.TryParse(idClaim, out var userId);
+            var userId = User.GetUserId() ?? 0;
 
             if (User.IsInRole("Admin"))
             {
@@ -47,7 +49,7 @@ namespace ISMLTS_WebApp_.Controllers
             Student? student = null;
             if (User.IsInRole("Student"))
             {
-                student = idClaim != null ? await _studentRepository.GetByIdWithModulesAsync(userId) : null;
+                student = await _studentRepository.GetByIdWithModulesAsync(userId);
 
                 model.Courses = student?.Modules.Select(m => new CourseCard
                 {
@@ -90,8 +92,10 @@ namespace ISMLTS_WebApp_.Controllers
             return View(model);
         }
 
+        [AllowAnonymous]
         public IActionResult Privacy() => View();
 
+        [AllowAnonymous]
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error() =>
             View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });

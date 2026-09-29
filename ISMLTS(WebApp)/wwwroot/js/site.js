@@ -114,6 +114,34 @@
         });
     }
 
+    // ---------- Notification bell: opening it marks the notifications shown as read ----------
+    for (const bell of document.querySelectorAll('[data-notification-bell]')) {
+        const form = bell.parentElement.querySelector('form[data-mark-seen]');
+        if (!form) {
+            continue;
+        }
+        bell.addEventListener('shown.bs.dropdown', () => {
+            if (form.dataset.sent === 'true') {
+                return;
+            }
+            form.dataset.sent = 'true';
+            fetch(form.action, { method: 'POST', body: new FormData(form) })
+                .then((response) => (response.ok ? response.json() : Promise.reject(new Error(String(response.status)))))
+                .then((result) => {
+                    const badge = bell.querySelector('[data-notification-count]');
+                    if (result.unread > 0 && badge) {
+                        badge.textContent = result.unread > 9 ? '9+' : String(result.unread);
+                    } else {
+                        badge?.remove();
+                    }
+                    bell.setAttribute('aria-label', result.unread > 0 ? `Notifications, ${result.unread} unread` : 'Notifications');
+                })
+                .catch(() => {
+                    form.dataset.sent = 'false';
+                });
+        });
+    }
+
     // ---------- data-check-all: one checkbox ticks every visible checkbox in a list ----------
     for (const master of document.querySelectorAll('[data-check-all]')) {
         const list = document.querySelector(master.dataset.checkAll);

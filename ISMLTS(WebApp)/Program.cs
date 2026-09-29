@@ -1,7 +1,12 @@
+using System.Globalization;
+using System.Threading.RateLimiting;
+using ISMLTS_WebApp_.Controllers;
 using ISMLTS_WebApp_.Data;
 using ISMLTS_WebApp_.Repositories;
 using ISMLTS_WebApp_.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -18,6 +23,30 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
     });
 
 builder.Services.AddControllersWithViews();
+
+// Slows password guessing on the login form. Campus Wi-Fi may put a whole class behind one IP,
+// so the limit is a setting that can be raised in App Service without a redeploy.
+var loginAttemptsPerMinute = builder.Configuration.GetValue("RateLimiting:LoginAttemptsPerMinute", 5);
+builder.Services.AddRateLimiter(options =>
+{
+    options.AddPolicy(AccountController.LoginRateLimitPolicy, context =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            _ => new FixedWindowRateLimiterOptions { PermitLimit = loginAttemptsPerMinute, Window = TimeSpan.FromMinutes(1) }));
+
+    // A friendly page instead of a bare 429
+    options.OnRejected = async (context, _) =>
+    {
+        var http = context.HttpContext;
+        http.Response.StatusCode = StatusCodes.Status429TooManyRequests;
+        if (context.Lease.TryGetMetadata(MetadataName.RetryAfter, out var retryAfter))
+        {
+            http.Response.Headers.RetryAfter = ((int)retryAfter.TotalSeconds).ToString(CultureInfo.InvariantCulture);
+        }
+        var view = new ViewResult { ViewName = "~/Views/Account/TooManyAttempts.cshtml" };
+        await view.ExecuteResultAsync(new ActionContext(http, http.GetRouteData(), new ActionDescriptor()));
+    };
+});
 
 builder.Services.AddScoped<IStudentRepository, StudentRepository>();
 builder.Services.AddScoped<ILecturerRepository, LecturerRepository>();
@@ -57,6 +86,8 @@ app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.UseRateLimiter();
 
 app.MapStaticAssets();
 

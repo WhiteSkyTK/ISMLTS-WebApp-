@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using ISMLTS_WebApp_.Models;
 using ISMLTS_WebApp_.Repositories;
 
@@ -11,6 +12,8 @@ namespace ISMLTS_WebApp_.Controllers
     [Authorize]
     public class AccountController : Controller
     {
+        public const string LoginRateLimitPolicy = "login";
+
         private readonly IStudentRepository _studentRepository;
         private readonly ILecturerRepository _lecturerRepository;
         private readonly IAdminRepository _adminRepository;
@@ -36,6 +39,7 @@ namespace ISMLTS_WebApp_.Controllers
         [AllowAnonymous]
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [EnableRateLimiting(LoginRateLimitPolicy)]
         public async Task<IActionResult> Login(LoginViewModel model, string? returnUrl = null)
         {
             ViewData["ReturnUrl"] = returnUrl;

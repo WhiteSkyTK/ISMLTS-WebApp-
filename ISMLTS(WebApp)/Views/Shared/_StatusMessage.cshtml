@@ -1,0 +1,19 @@
+@model StatusPageModel
+@{
+    var signedIn = User.Identity?.IsAuthenticated == true;
+}
+
+@* Shared body for the 400/403/404/429/500 pages *@
+<div class="status-page">
+    <span class="status-icon"><i class="bi @Model.Icon" aria-hidden="true"></i></span>
+    <span class="status-code">Error @Model.Code</span>
+    <h1>@Model.Title</h1>
+    <p class="text-muted">@Model.Message</p>
+    <div class="form-actions">
+        <a asp-controller="Home" asp-action="Index" class="btn btn-rosebank"><i class="bi bi-house" aria-hidden="true"></i> @(signedIn ? "Back to my dashboard" : "Go to the home page")</a>
+        @if (!signedIn)
+        {
+            <a asp-controller="Account" asp-action="Login" class="btn btn-outline-rosebank"><i class="bi bi-box-arrow-in-right" aria-hidden="true"></i> Log in</a>
+        }
+    </div>
+</div>

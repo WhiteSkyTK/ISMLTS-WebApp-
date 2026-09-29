@@ -1,4 +1,5 @@
 using System.Net;
+using System.Text.RegularExpressions;
 
 namespace ISMLTS.Tests.Integration
 {
@@ -102,6 +103,37 @@ namespace ISMLTS.Tests.Integration
                 .PostAsync("/Account/Logout", new FormUrlEncodedContent(new Dictionary<string, string>()));
 
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+            Assert.Contains("That request didn&#x27;t work", await response.Content.ReadAsStringAsync());
+        }
+
+        [Fact]
+        public async Task UnknownPage_ShowsAStyled404()
+        {
+            var response = await _factory.ClientFor().GetAsync("/No/Such/Page");
+
+            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+            Assert.Contains("Page not found", await response.Content.ReadAsStringAsync());
+        }
+
+        [Fact]
+        public async Task AnotherLecturersModule_ShowsTheStyled404()
+        {
+            var response = await _factory.ClientFor("Lecturer", _factory.Data.LecturerAId)
+                .GetAsync($"/Marks/ForModule?moduleId={_factory.Data.ModuleBId}");
+
+            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+            Assert.Contains("Page not found", await response.Content.ReadAsStringAsync());
+        }
+
+        [Fact]
+        public async Task CurrentSection_IsHighlightedInTheNav()
+        {
+            var html = await _factory.ClientFor("Admin", _factory.Data.AdminId).GetStringAsync("/Courses");
+
+            var link = Regex.Match(html, "<a [^>]*href=\"/Courses\"[^>]*>", RegexOptions.None, TimeSpan.FromSeconds(1)).Value;
+            Assert.Contains("class=\"nav-link active\"", link);
+            Assert.Contains("aria-current=\"page\"", link);
+            Assert.DoesNotContain("highlight-active", html);
         }
 
         private static async Task AssertDeniedAsync(HttpClient client, string url)

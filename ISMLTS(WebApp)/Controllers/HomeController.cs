@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using ISMLTS_WebApp_.Extensions;
 using ISMLTS_WebApp_.Models;
 using ISMLTS_WebApp_.Repositories;
+using ISMLTS_WebApp_.Services;
 
 namespace ISMLTS_WebApp_.Controllers
 {
@@ -99,5 +100,16 @@ namespace ISMLTS_WebApp_.Controllers
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error() =>
             View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+
+        // UseStatusCodePagesWithReExecute sends empty 4xx/5xx responses here and keeps the original status code
+        [AllowAnonymous]
+        [Route("/Status/{code:int}")]
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        public IActionResult Status(int code)
+        {
+            var page = StatusPages.Describe(code);
+            Response.StatusCode = page.Code;
+            return View(page);
+        }
     }
 }

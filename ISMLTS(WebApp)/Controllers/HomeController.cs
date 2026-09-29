@@ -57,9 +57,7 @@ namespace ISMLTS_WebApp_.Controllers
                     ModuleId = m.ModuleId,
                     Code = m.Code,
                     Name = m.Name,
-                    IsCurrentSemester = true,
-                    Rating = 4.3,
-                    DiscussionCount = 6
+                    IsCurrentSemester = true
                 }).ToList() ?? new List<CourseCard>();
             }
 

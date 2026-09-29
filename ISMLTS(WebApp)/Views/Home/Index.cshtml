@@ -1,37 +1,49 @@
-﻿@model ISMLTS_WebApp_.Models.DashboardViewModel
+@model DashboardViewModel
 @{
     ViewData["Title"] = "Dashboard";
 }
 
 @if (User.IsInRole("Admin"))
 {
+    <partial name="_PageHeader" model='new PageHeaderModel { Title = "Dashboard", Subtitle = "Accounts, modules and courses at a glance." }' />
     <div class="row g-3 mb-4">
-        <div class="col-md-4"><div class="stat-card"><i class="bi bi-people-fill"></i><div><h3>@Model.TotalStudents</h3><span>Students</span></div></div></div>
-        <div class="col-md-4"><div class="stat-card"><i class="bi bi-person-workspace"></i><div><h3>@Model.TotalLecturers</h3><span>Lecturers</span></div></div></div>
-        <div class="col-md-4"><div class="stat-card"><i class="bi bi-journal-bookmark-fill"></i><div><h3>@Model.TotalModules</h3><span>Modules</span></div></div></div>
+        <div class="col-md-4"><div class="stat-card"><i class="bi bi-people-fill" aria-hidden="true"></i><div><h2 class="h3">@Model.TotalStudents</h2><span>Students</span></div></div></div>
+        <div class="col-md-4"><div class="stat-card"><i class="bi bi-person-workspace" aria-hidden="true"></i><div><h2 class="h3">@Model.TotalLecturers</h2><span>Lecturers</span></div></div></div>
+        <div class="col-md-4"><div class="stat-card"><i class="bi bi-journal-bookmark-fill" aria-hidden="true"></i><div><h2 class="h3">@Model.TotalModules</h2><span>Modules</span></div></div></div>
     </div>
     <div class="quick-actions">
-        <a asp-controller="Students" asp-action="Index" class="quick-action-btn"><i class="bi bi-people"></i><span>Manage Students</span></a>
-        <a asp-controller="Lecturers" asp-action="Index" class="quick-action-btn"><i class="bi bi-person-badge"></i><span>Manage Lecturers</span></a>
-        <a asp-controller="Modules" asp-action="Index" class="quick-action-btn"><i class="bi bi-journal-bookmark"></i><span>Manage Modules</span></a>
+        <a asp-controller="Students" asp-action="Index" class="quick-action-btn"><i class="bi bi-people" aria-hidden="true"></i><span>Manage students</span></a>
+        <a asp-controller="Lecturers" asp-action="Index" class="quick-action-btn"><i class="bi bi-person-badge" aria-hidden="true"></i><span>Manage lecturers</span></a>
+        <a asp-controller="Modules" asp-action="Index" class="quick-action-btn"><i class="bi bi-journal-bookmark" aria-hidden="true"></i><span>Manage modules</span></a>
+        <a asp-controller="Courses" asp-action="Index" class="quick-action-btn"><i class="bi bi-collection" aria-hidden="true"></i><span>Manage courses</span></a>
+        <a asp-controller="Admins" asp-action="Index" class="quick-action-btn"><i class="bi bi-shield-lock" aria-hidden="true"></i><span>Manage admins</span></a>
     </div>
 }
 
 @if (User.IsInRole("Lecturer"))
 {
+    <partial name="_PageHeader" model='new PageHeaderModel { Title = "Dashboard", Subtitle = "Your modules, registers and marks." }' />
     <div class="quick-actions mb-4">
-        <a asp-controller="Announcements" asp-action="Create" class="quick-action-btn"><i class="bi bi-megaphone"></i><span>New Announcement</span></a>
-        <a asp-controller="Attendance" asp-action="Index" class="quick-action-btn"><i class="bi bi-qr-code-scan"></i><span>Mark Register</span></a>
-        <a asp-controller="Marks" asp-action="Index" class="quick-action-btn"><i class="bi bi-clipboard-check"></i><span>Capture Marks</span></a>
+        <a asp-controller="Attendance" asp-action="Index" class="quick-action-btn"><i class="bi bi-qr-code-scan" aria-hidden="true"></i><span>Take a register</span></a>
+        <a asp-controller="Marks" asp-action="Index" class="quick-action-btn"><i class="bi bi-clipboard-check" aria-hidden="true"></i><span>Capture marks</span></a>
+        <a asp-controller="Tickets" asp-action="Index" class="quick-action-btn"><i class="bi bi-chat-dots" aria-hidden="true"></i><span>Answer tickets</span></a>
+        <span class="quick-action-btn is-soon"><i class="bi bi-megaphone" aria-hidden="true"></i><span>New announcement <small class="soon-tag">Soon</small></span></span>
     </div>
     <div class="panel">
-        <h5><i class="bi bi-calendar-event"></i> Upcoming Due Dates You've Set</h5>
-        <ul class="mb-0">
-            @foreach (var t in Model.UpcomingTasks)
-            {
-                <li><span class="badge task-badge task-@t.Type.ToLower()">@t.Type</span> @t.Title — @t.DueDate.ToString("ddd, dd MMM")</li>
-            }
-        </ul>
+        <h5><i class="bi bi-calendar-event" aria-hidden="true"></i> Upcoming due dates you have set</h5>
+        @if (Model.UpcomingTasks.Any())
+        {
+            <ul class="mb-0">
+                @foreach (var t in Model.UpcomingTasks)
+                {
+                    <li><span class="badge task-badge task-@t.Type.ToLowerInvariant()">@t.Type</span> @t.Title — @t.DueDate.ToString("ddd, dd MMM")</li>
+                }
+            </ul>
+        }
+        else
+        {
+            <p class="text-muted mb-0">Nothing due soon. Add assessments under Assessments.</p>
+        }
     </div>
 }
 
@@ -39,90 +51,99 @@
 {
     <div class="hero-banner mb-4 position-relative">
         <h1>Welcome to Rosebank International</h1>
-        <button id="listenBtn" class="btn btn-sm listen-btn" type="button"><i class="bi bi-volume-up-fill"></i> Listen</button>
+        <button id="listenBtn" class="btn btn-sm listen-btn" type="button"><i class="bi bi-volume-up-fill" aria-hidden="true"></i> Listen</button>
     </div>
 
     <div class="row g-3">
         <div class="col-lg-8">
             <div class="panel mb-3">
-                <ul class="nav nav-tabs">
-                    <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tabAnnouncements">Announcements</button></li>
-                    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabWorkToDo">Work To Do</button></li>
+                <ul class="nav nav-tabs" role="tablist">
+                    <li class="nav-item" role="presentation"><button class="nav-link active" type="button" role="tab" data-bs-toggle="tab" data-bs-target="#tabAnnouncements" aria-controls="tabAnnouncements" aria-selected="true">Announcements</button></li>
+                    <li class="nav-item" role="presentation"><button class="nav-link" type="button" role="tab" data-bs-toggle="tab" data-bs-target="#tabWorkToDo" aria-controls="tabWorkToDo" aria-selected="false">Work to do</button></li>
                 </ul>
                 <div class="tab-content pt-3">
-                    <div class="tab-pane fade show active" id="tabAnnouncements">
+                    <div class="tab-pane fade show active" id="tabAnnouncements" role="tabpanel">
                         @if (!Model.Announcements.Any())
                         {
                             <p class="text-muted mb-0">There are no announcements to display.</p>
                         }
                         else
                         {
-                            <ul class="mb-0">@foreach (var a in Model.Announcements) {
-                            <li>@a</li>
+                            <ul class="mb-0">
+                                @foreach (var a in Model.Announcements)
+                                {
+                                    <li>@a</li>
+                                }
+                            </ul>
                         }
-    </ul>
-                    }
-                </div>
-                <div class="tab-pane fade" id="tabWorkToDo">
-                    <ul class="mb-0">
-                        @foreach (var t in Model.UpcomingTasks)
+                    </div>
+                    <div class="tab-pane fade" id="tabWorkToDo" role="tabpanel">
+                        @if (Model.UpcomingTasks.Any())
                         {
-                            <li><span class="badge task-badge task-@t.Type.ToLower()">@t.Type</span> @t.Title — due @t.DueDate.ToString("ddd, dd MMM")</li>
+                            <ul class="mb-0">
+                                @foreach (var t in Model.UpcomingTasks)
+                                {
+                                    <li><span class="badge task-badge task-@t.Type.ToLowerInvariant()">@t.Type</span> @t.Title — due @t.DueDate.ToString("ddd, dd MMM")</li>
+                                }
+                            </ul>
                         }
+                        else
+                        {
+                            <p class="text-muted mb-0">Nothing due soon.</p>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel">
+                <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                    <h5 class="mb-0">My modules</h5>
+                    <ul class="nav nav-pills nav-pills-sm">
+                        <li class="nav-item"><button class="nav-link active course-filter" type="button" data-filter="all">All</button></li>
+                        <li class="nav-item"><button class="nav-link course-filter" type="button" data-filter="pinned">Pinned</button></li>
+                        <li class="nav-item"><button class="nav-link course-filter" type="button" data-filter="archived">Archived</button></li>
                     </ul>
                 </div>
-            </div>
-        </div>
-
-        <div class="panel">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h5 class="mb-0">My Courses</h5>
-                <ul class="nav nav-pills nav-pills-sm">
-                    <li class="nav-item"><button class="nav-link active course-filter" data-filter="all">All</button></li>
-                    <li class="nav-item"><button class="nav-link course-filter" data-filter="pinned">Pinned</button></li>
-                    <li class="nav-item"><button class="nav-link course-filter" data-filter="archived">Archived</button></li>
-                </ul>
-            </div>
-            <div class="row g-3">
-                @foreach (var c in Model.Courses)
-                {
-                    <div class="col-md-6 course-card-wrap cat-all @(c.IsCurrentSemester ? "" : "cat-archived")">
-                        <div class="course-card">
-                            <div class="d-flex justify-content-between">
-                                <strong>@c.Code</strong>
-                                <button class="pin-btn" type="button" title="Pin module"><i class="bi bi-pin-angle"></i></button>
-                            </div>
-                            <div class="mb-2">@c.Name</div>
-                            <div class="small text-muted">
-                                <i class="bi bi-star-fill text-warning"></i> @c.Rating.ToString("0.0")
-                                &nbsp;·&nbsp; <i class="bi bi-chat-dots"></i> @c.DiscussionCount discussing
+                <div class="row g-3">
+                    @foreach (var c in Model.Courses)
+                    {
+                        <div class="col-md-6 course-card-wrap cat-all @(c.IsCurrentSemester ? "" : "cat-archived")">
+                            <div class="course-card">
+                                <div class="d-flex justify-content-between">
+                                    <strong class="font-monospace">@c.Code</strong>
+                                    <button class="pin-btn" type="button" aria-label="Pin @c.Code" aria-pressed="false"><i class="bi bi-pin-angle" aria-hidden="true"></i></button>
+                                </div>
+                                <div class="mb-2">@c.Name</div>
+                                <a asp-controller="Assessments" asp-action="MyAssessments" class="small">Assessments <i class="bi bi-arrow-right" aria-hidden="true"></i></a>
                             </div>
                         </div>
+                    }
+                    @if (!Model.Courses.Any())
+                    {
+                        <p class="text-muted mb-0">You are not enrolled in any modules yet.</p>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="panel">
+                <h5><i class="bi bi-calendar-event" aria-hidden="true"></i> Calendar</h5>
+                <p class="fw-semibold">@DateTime.Today.ToString("dddd, dd MMMM yyyy")</p>
+                <hr />
+                <h6 class="text-muted">Upcoming</h6>
+                @foreach (var t in Model.UpcomingTasks.OrderBy(t => t.DueDate))
+                {
+                    <div class="d-flex justify-content-between small mb-2">
+                        <span><span class="badge task-badge task-@t.Type.ToLowerInvariant()">@t.Type</span> @t.Title</span>
+                        <span class="text-muted">@t.DueDate.ToString("dd MMM")</span>
                     </div>
                 }
-                @if (!Model.Courses.Any())
+                @if (!Model.UpcomingTasks.Any())
                 {
-                    <p class="text-muted mb-0">No modules assigned yet.</p>
+                    <p class="small text-muted mb-0">Nothing due soon.</p>
                 }
             </div>
-            <div class="text-center mt-3"><a href="#" class="btn btn-outline-secondary btn-sm">View All Courses</a></div>
         </div>
     </div>
-
-    <div class="col-lg-4">
-        <div class="panel">
-            <h5><i class="bi bi-calendar-event"></i> Calendar</h5>
-            <p class="fw-semibold">@DateTime.Today.ToString("dddd, dd MMMM yyyy")</p>
-            <hr />
-            <h6 class="text-muted">Upcoming</h6>
-            @foreach (var t in Model.UpcomingTasks.OrderBy(t => t.DueDate))
-            {
-                <div class="d-flex justify-content-between small mb-2">
-                    <span><span class="badge task-badge task-@t.Type.ToLower()">@t.Type</span> @t.Title</span>
-                    <span class="text-muted">@t.DueDate.ToString("dd MMM")</span>
-                </div>
-            }
-        </div>
-    </div>
-</div>
 }

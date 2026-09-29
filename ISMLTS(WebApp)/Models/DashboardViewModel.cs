@@ -13,8 +13,6 @@
         public string Code { get; set; } = string.Empty;
         public string Name { get; set; } = string.Empty;
         public bool IsCurrentSemester { get; set; }
-        public double Rating { get; set; }
-        public int DiscussionCount { get; set; }
     }
 
     public class DashboardViewModel

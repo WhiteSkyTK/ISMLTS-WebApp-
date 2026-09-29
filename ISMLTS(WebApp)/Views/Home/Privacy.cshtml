@@ -1,6 +1,9 @@
-﻿@{
+@{
     ViewData["Title"] = "Privacy Policy";
 }
-<h1>@ViewData["Title"]</h1>
 
-<p>Use this page to detail your site's privacy policy.</p>
+<partial name="_PageHeader" model='new PageHeaderModel { Title = "Privacy", Subtitle = "How ISMLTS uses your information." }' />
+
+<div class="panel form-panel">
+    <p class="mb-0">The full POPIA notice is coming in Phase 4. Until then, ask the admin office if you have a question about your data.</p>
+</div>

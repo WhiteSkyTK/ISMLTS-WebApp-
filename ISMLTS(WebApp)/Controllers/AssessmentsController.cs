@@ -6,6 +6,7 @@ using ISMLTS_WebApp_.Repositories;
 
 namespace ISMLTS_WebApp_.Controllers
 {
+    [Authorize]
     public class AssessmentsController : Controller
     {
         private readonly IAssessmentRepository _assessmentRepository;
@@ -25,8 +26,10 @@ namespace ISMLTS_WebApp_.Controllers
             _studentRepository = studentRepository;
         }
 
+        [Authorize(Roles = "Lecturer")]
         public async Task<IActionResult> Index() => View(await _moduleRepository.GetAllWithLecturerAsync());
 
+        [Authorize(Roles = "Lecturer")]
         public async Task<IActionResult> ForModule(int moduleId)
         {
             var module = await _moduleRepository.GetByIdAsync(moduleId);
@@ -37,10 +40,12 @@ namespace ISMLTS_WebApp_.Controllers
             return View(await _assessmentRepository.GetByModuleAsync(moduleId));
         }
 
+        [Authorize(Roles = "Lecturer")]
         [HttpGet]
         public IActionResult Create(int moduleId) =>
             View(new Assessment { ModuleId = moduleId, DueDate = DateTime.Today.AddDays(7) });
 
+        [Authorize(Roles = "Lecturer")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("ModuleId,Name,Type,DueDate,Description")] Assessment assessment)
@@ -51,6 +56,7 @@ namespace ISMLTS_WebApp_.Controllers
             return RedirectToAction(nameof(ForModule), new { moduleId = assessment.ModuleId });
         }
 
+        [Authorize(Roles = "Lecturer")]
         public async Task<IActionResult> Edit(int id)
         {
             var assessment = await _assessmentRepository.GetByIdAsync(id);
@@ -58,6 +64,7 @@ namespace ISMLTS_WebApp_.Controllers
             return View(assessment);
         }
 
+        [Authorize(Roles = "Lecturer")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("AssessmentId,ModuleId,Name,Type,DueDate,Description")] Assessment input)
@@ -78,6 +85,7 @@ namespace ISMLTS_WebApp_.Controllers
             return RedirectToAction(nameof(ForModule), new { moduleId = assessment.ModuleId });
         }
 
+        [Authorize(Roles = "Lecturer")]
         public async Task<IActionResult> Delete(int id)
         {
             var assessment = await _assessmentRepository.GetByIdWithModuleAsync(id);
@@ -85,6 +93,7 @@ namespace ISMLTS_WebApp_.Controllers
             return View(assessment);
         }
 
+        [Authorize(Roles = "Lecturer")]
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
@@ -98,6 +107,7 @@ namespace ISMLTS_WebApp_.Controllers
             return RedirectToAction(nameof(ForModule), new { moduleId });
         }
 
+        [Authorize(Roles = "Lecturer")]
         public async Task<IActionResult> Submissions(int id)
         {
             var assessment = await _assessmentRepository.GetByIdWithModuleAsync(id);

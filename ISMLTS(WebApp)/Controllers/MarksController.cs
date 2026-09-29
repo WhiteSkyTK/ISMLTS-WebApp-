@@ -7,6 +7,7 @@ using ISMLTS_WebApp_.Services;
 
 namespace ISMLTS_WebApp_.Controllers
 {
+    [Authorize]
     public class MarksController : Controller
     {
         private readonly IMarkRepository _markRepository;
@@ -23,8 +24,10 @@ namespace ISMLTS_WebApp_.Controllers
             _studentRepository = studentRepository;
         }
 
+        [Authorize(Roles = "Lecturer")]
         public async Task<IActionResult> Index() => View(await _moduleRepository.GetAllWithLecturerAsync());
 
+        [Authorize(Roles = "Lecturer")]
         public async Task<IActionResult> ForModule(int moduleId)
         {
             var module = await _moduleRepository.GetByIdWithDetailsAsync(moduleId);
@@ -54,6 +57,7 @@ namespace ISMLTS_WebApp_.Controllers
             });
         }
 
+        [Authorize(Roles = "Lecturer")]
         [HttpGet]
         public async Task<IActionResult> Create(int moduleId, int studentId)
         {
@@ -66,6 +70,7 @@ namespace ISMLTS_WebApp_.Controllers
             return View(new Mark { ModuleId = moduleId, StudentId = studentId });
         }
 
+        [Authorize(Roles = "Lecturer")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("StudentId,ModuleId,AssessmentName,Score,MaxScore,DateCaptured")] Mark mark)
@@ -84,6 +89,7 @@ namespace ISMLTS_WebApp_.Controllers
             return RedirectToAction(nameof(ForModule), new { moduleId = mark.ModuleId });
         }
 
+        [Authorize(Roles = "Lecturer")]
         public async Task<IActionResult> Edit(int id)
         {
             var mark = await _markRepository.GetByIdWithDetailsAsync(id);
@@ -91,6 +97,7 @@ namespace ISMLTS_WebApp_.Controllers
             return View(mark);
         }
 
+        [Authorize(Roles = "Lecturer")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("MarkId,StudentId,ModuleId,AssessmentName,Score,MaxScore,DateCaptured")] Mark input)
@@ -111,6 +118,7 @@ namespace ISMLTS_WebApp_.Controllers
             return RedirectToAction(nameof(ForModule), new { moduleId = mark.ModuleId });
         }
 
+        [Authorize(Roles = "Lecturer")]
         public async Task<IActionResult> Delete(int id)
         {
             var mark = await _markRepository.GetByIdWithDetailsAsync(id);
@@ -118,6 +126,7 @@ namespace ISMLTS_WebApp_.Controllers
             return View(mark);
         }
 
+        [Authorize(Roles = "Lecturer")]
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)

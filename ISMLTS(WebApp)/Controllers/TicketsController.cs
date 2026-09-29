@@ -6,6 +6,7 @@ using ISMLTS_WebApp_.Repositories;
 
 namespace ISMLTS_WebApp_.Controllers
 {
+    [Authorize]
     public class TicketsController : Controller
     {
         private readonly ITicketRepository _ticketRepository;

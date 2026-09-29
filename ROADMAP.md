@@ -22,12 +22,14 @@ One phase per session: plan briefly, implement, add tests, run `dotnet build` an
 - [x] Subtle motion (page fade-in, card hover lift, unread-badge pulse), all off under `prefers-reduced-motion`
 - [x] Remove every remaining inline `style=""` from views
 - [x] Log-in page redesign (brand panel, input icons, show/hide password, Caps Lock hint) and one button style set (`btn-rosebank`, `btn-outline-rosebank`, `btn-icon`)
+- [x] Courses: tick a course's modules and enrol a class in all of them (per term) at once; the seeder keeps ADAD0701 with its 8 modules (4 per term)
 
 ## Phase 2 — Notifications and announcements
 - [ ] Notification entity (UserId, Role, Title, Message, Url, CreatedAt, IsRead) with repository and INotificationService
 - [ ] Triggers: assessment posted → enrolled students; mark captured/updated → that student; ticket raised → module lecturer; ticket answered → student; attendance session started → enrolled students ("Attendance is open for XADAD7112 — scan the QR in class", never include the code); lecturer marks a student present or removes a scan → that student; announcement posted → its audience
 - [ ] Bell: unread count, latest 8, clicking marks read and follows the link (local URLs only), "Mark all read", "View all" page with All/Unread filter; the "due soon" list stays as a second section
 - [ ] Announcement entity: lecturers post to their modules, admins post to everyone; the dashboard Announcements tab uses real data
+- [ ] Email for ticket replies (both directions) and a weekly "due this week" digest for students (Azure Communication Services), with an opt-out per user on a Notification settings page
 - [ ] Unit tests for NotificationService
 
 ## Phase 3 — Marking and progress
@@ -39,6 +41,8 @@ One phase per session: plan briefly, implement, add tests, run `dotnet build` an
 - [ ] Class Insights (lecturer): per-module class average, attendance rate, submission rate, and an at-risk list (average below 50% or attendance below `Risk:AttendanceThreshold`, default 75) with quick actions
 - [ ] CSV export of module marks and session registers (values escaped properly)
 - [ ] Audit log of mark changes (who, when, old → new) shown on the mark
+- [ ] Lecturers release marks per assessment; students don't see a mark before it is released
+- [ ] CSV import of marks for a whole assessment, with a preview and per-row errors
 - [ ] Unit tests for every new calculation
 
 ## Phase 4 — Pages behind every link
@@ -56,19 +60,8 @@ One phase per session: plan briefly, implement, add tests, run `dotnet build` an
 - [ ] Swagger UI in Development only; share the endpoint list with the Android teammate
 - [ ] Integration tests for the API auth rules
 
----
-
-# Proposed — not approved yet
-
-Suggested after Phase 1. Nothing below gets built until it is approved and moved up into the list above.
-
-## Proposed additions to existing phases
-- Phase 2: optional email for ticket replies and a weekly "due this week" digest (Azure Communication Services), with an opt-out per user
-- Phase 3: lecturers release marks per assessment; students don't see a mark before it is released
-- Phase 3: CSV import of marks for a whole assessment, with a preview and per-row errors (same pattern as the Phase 4 user import)
-
 ## Phase 6 — Go live on Azure
-Suggested right after Phase 2, so lecturers can try the real site and the Android teammate has a URL to build against.
+- [x] The App Service site is created and running (published by hand; Phases 0–1 and later changes still to be published)
 - [ ] GitHub Actions deploys to an App Service staging slot after the tests pass (OIDC login, no publish profile in the repo); swapping to production stays a manual step
 - [ ] `/health` endpoint that checks the database; the App Service health check uses it
 - [ ] Confirm on Azure that `RemoteIpAddress` is the student's IP (the login rate limit and the campus-network check both rely on it); add `UseForwardedHeaders` with the App Service proxy if it isn't

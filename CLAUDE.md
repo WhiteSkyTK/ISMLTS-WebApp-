@@ -49,7 +49,8 @@ Integrated School Management and Learning Tracking System for IIE Rosebank Colle
 Done: login (with returnUrl), CRUD for Students/Lecturers/Admins/Modules/Courses, enrolment, Marks with risk flag (average below 50%), Assessments with link submissions, Tickets, landing page, role dashboards, notification bell, QR attendance with campus-IP and GPS checks.
 Phase 0 done: role attributes on every controller, lecturer ownership and student enrolment checks, POST logout, login rate limit (`RateLimiting:LoginAttemptsPerMinute`, default 5 per IP), duplicate/password validation, http(s)-only submission links, integration tests in `ISMLTS.Tests/Integration`.
 Phase 1 done: shared page parts and toasts on every page, confirm dialog instead of Delete pages, server-side search and paging on admin lists, instant table filters, styled status pages, redesigned log-in page, button set and subtle motion.
-Next: see ROADMAP.md (Phases 2–5, plus proposed Phases 6–9 awaiting approval):
+After Phase 1: course pages to group modules and enrol a class per term (`CourseService`); `DataSeeder.SeedDataAsync` runs on every startup and keeps ADAD0701 with its 8 modules (4 per term) without duplicating anything.
+The site is live on Azure App Service (published by hand). Next: see ROADMAP.md, Phases 2–9 (all approved):
 ## Roadmap
 ROADMAP.md holds the remaining work. One phase per session: plan briefly, implement, add tests, run `dotnet build` and `dotnet test`, then stop with a manual test checklist. Tick finished items there and keep Status here current.
 

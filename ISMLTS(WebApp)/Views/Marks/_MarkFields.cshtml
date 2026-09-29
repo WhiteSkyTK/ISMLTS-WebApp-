@@ -1,27 +1,44 @@
-@model Mark
+@model MarkForm
 
 <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
 <input type="hidden" asp-for="StudentId" />
 <input type="hidden" asp-for="ModuleId" />
 <div class="mb-3">
-    <label asp-for="AssessmentName" class="form-label"></label>
-    <input asp-for="AssessmentName" class="form-control" placeholder="e.g. ICE Task 1, Quiz 2, POE" autocomplete="off" />
-    <span asp-validation-for="AssessmentName" class="text-danger small"></span>
+    <label asp-for="AssessmentId" class="form-label"></label>
+    <select asp-for="AssessmentId" class="form-select" asp-items="@(new SelectList(ViewBag.Assessments, "AssessmentId", "Display"))">
+        <option value="">Other (not a listed assessment)</option>
+    </select>
+    <span asp-validation-for="AssessmentId" class="text-danger small"></span>
+    <div class="form-text">A listed assessment sets the total. Its marks stay hidden from students until you release them.</div>
 </div>
 <div class="row g-3 mb-3">
-    <div class="col-6">
+    <div class="col-sm-4">
         <label asp-for="Score" class="form-label"></label>
         <input asp-for="Score" class="form-control" type="number" step="0.5" min="0" />
         <span asp-validation-for="Score" class="text-danger small"></span>
     </div>
-    <div class="col-6">
-        <label asp-for="MaxScore" class="form-label"></label>
-        <input asp-for="MaxScore" class="form-control" type="number" step="0.5" min="0.5" />
-        <span asp-validation-for="MaxScore" class="text-danger small"></span>
+    <div class="col-sm-8">
+        <label asp-for="DateCaptured" class="form-label"></label>
+        <input asp-for="DateCaptured" class="form-control" type="date" />
     </div>
 </div>
+<details class="mb-3" open="@(Model.AssessmentId == null && !string.IsNullOrEmpty(Model.OtherName))">
+    <summary class="form-label">Not a listed assessment?</summary>
+    <div class="row g-3 mt-1">
+        <div class="col-sm-8">
+            <label asp-for="OtherName" class="form-label"></label>
+            <input asp-for="OtherName" class="form-control" placeholder="e.g. Class test 1" autocomplete="off" />
+            <span asp-validation-for="OtherName" class="text-danger small"></span>
+        </div>
+        <div class="col-sm-4">
+            <label asp-for="OutOf" class="form-label"></label>
+            <input asp-for="OutOf" class="form-control" type="number" step="0.5" min="0.5" />
+            <span asp-validation-for="OutOf" class="text-danger small"></span>
+        </div>
+    </div>
+</details>
 <div class="mb-3">
-    <label asp-for="DateCaptured" class="form-label"></label>
-    <input asp-for="DateCaptured" class="form-control" type="date" />
-    <span asp-validation-for="DateCaptured" class="text-danger small"></span>
+    <label asp-for="Feedback" class="form-label"></label>
+    <textarea asp-for="Feedback" class="form-control" rows="4" maxlength="1000" placeholder="What went well, and what to work on"></textarea>
+    <span asp-validation-for="Feedback" class="text-danger small"></span>
 </div>

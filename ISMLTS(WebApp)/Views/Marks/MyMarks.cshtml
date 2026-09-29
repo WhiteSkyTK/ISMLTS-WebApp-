@@ -40,7 +40,13 @@
                             @foreach (var m in module.Marks.OrderBy(m => m.DateCaptured))
                             {
                                 <tr>
-                                    <td>@m.AssessmentName</td>
+                                    <td>
+                                        @m.AssessmentName
+                                        @if (!string.IsNullOrEmpty(m.Feedback))
+                                        {
+                                            <span class="table-row-sub ticket-message"><i class="bi bi-chat-left-text" aria-hidden="true"></i> @m.Feedback</span>
+                                        }
+                                    </td>
                                     <td>@m.Score.ToString("0.##")/@m.MaxScore.ToString("0.##")</td>
                                     <td>@m.Percentage%</td>
                                 </tr>

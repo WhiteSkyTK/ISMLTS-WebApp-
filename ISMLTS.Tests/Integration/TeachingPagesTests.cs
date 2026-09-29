@@ -38,9 +38,9 @@ namespace ISMLTS.Tests.Integration
                 ["__RequestVerificationToken"] = token,
                 ["ModuleId"] = moduleId,
                 ["StudentId"] = studentId,
-                ["AssessmentName"] = "ICE Task 1",
+                ["OtherName"] = "ICE Task 1",
                 ["Score"] = "45.5",
-                ["MaxScore"] = "50",
+                ["OutOf"] = "50",
                 ["DateCaptured"] = "2026-09-01"
             }));
 

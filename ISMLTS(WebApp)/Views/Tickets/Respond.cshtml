@@ -21,6 +21,7 @@
             <div class="form-group mt-2">
                 <label for="lecturerResponse" class="control-label">Response</label>
                 <textarea id="lecturerResponse" name="lecturerResponse" class="form-control" rows="3">@Model.LecturerResponse</textarea>
+                <span asp-validation-for="LecturerResponse" class="text-danger"></span>
             </div>
             <div class="form-group mt-2">
                 <input type="submit" value="Save" class="btn btn-rosebank" />

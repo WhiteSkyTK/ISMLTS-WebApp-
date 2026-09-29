@@ -1,6 +1,7 @@
 ﻿using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using ISMLTS_WebApp_.Extensions;
 using ISMLTS_WebApp_.Models;
 using ISMLTS_WebApp_.Repositories;
 
@@ -27,12 +28,13 @@ namespace ISMLTS_WebApp_.Controllers
         }
 
         [Authorize(Roles = "Lecturer")]
-        public async Task<IActionResult> Index() => View(await _moduleRepository.GetAllWithLecturerAsync());
+        public async Task<IActionResult> Index() =>
+            View(await _moduleRepository.GetByLecturerAsync(User.GetUserId() ?? 0));
 
         [Authorize(Roles = "Lecturer")]
         public async Task<IActionResult> ForModule(int moduleId)
         {
-            var module = await _moduleRepository.GetByIdAsync(moduleId);
+            var module = await GetOwnedModuleAsync(moduleId);
             if (module == null) return NotFound();
 
             ViewBag.ModuleDisplay = $"{module.Code} - {module.Name}";
@@ -42,14 +44,18 @@ namespace ISMLTS_WebApp_.Controllers
 
         [Authorize(Roles = "Lecturer")]
         [HttpGet]
-        public IActionResult Create(int moduleId) =>
-            View(new Assessment { ModuleId = moduleId, DueDate = DateTime.Today.AddDays(7) });
+        public async Task<IActionResult> Create(int moduleId)
+        {
+            if (await GetOwnedModuleAsync(moduleId) == null) return NotFound();
+            return View(new Assessment { ModuleId = moduleId, DueDate = DateTime.Today.AddDays(7) });
+        }
 
         [Authorize(Roles = "Lecturer")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("ModuleId,Name,Type,DueDate,Description")] Assessment assessment)
         {
+            if (await GetOwnedModuleAsync(assessment.ModuleId) == null) return NotFound();
             if (!ModelState.IsValid) return View(assessment);
             await _assessmentRepository.AddAsync(assessment);
             await _assessmentRepository.SaveChangesAsync();
@@ -59,7 +65,7 @@ namespace ISMLTS_WebApp_.Controllers
         [Authorize(Roles = "Lecturer")]
         public async Task<IActionResult> Edit(int id)
         {
-            var assessment = await _assessmentRepository.GetByIdAsync(id);
+            var assessment = await GetOwnedAssessmentAsync(id);
             if (assessment == null) return NotFound();
             return View(assessment);
         }
@@ -70,10 +76,11 @@ namespace ISMLTS_WebApp_.Controllers
         public async Task<IActionResult> Edit(int id, [Bind("AssessmentId,ModuleId,Name,Type,DueDate,Description")] Assessment input)
         {
             if (id != input.AssessmentId) return NotFound();
-            if (!ModelState.IsValid) return View(input);
 
-            var assessment = await _assessmentRepository.GetByIdAsync(id);
+            var assessment = await GetOwnedAssessmentAsync(id);
             if (assessment == null) return NotFound();
+
+            if (!ModelState.IsValid) return View(input);
 
             assessment.Name = input.Name;
             assessment.Type = input.Type;
@@ -88,7 +95,7 @@ namespace ISMLTS_WebApp_.Controllers
         [Authorize(Roles = "Lecturer")]
         public async Task<IActionResult> Delete(int id)
         {
-            var assessment = await _assessmentRepository.GetByIdWithModuleAsync(id);
+            var assessment = await GetOwnedAssessmentAsync(id);
             if (assessment == null) return NotFound();
             return View(assessment);
         }
@@ -98,7 +105,7 @@ namespace ISMLTS_WebApp_.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var assessment = await _assessmentRepository.GetByIdAsync(id);
+            var assessment = await GetOwnedAssessmentAsync(id);
             if (assessment == null) return RedirectToAction(nameof(Index));
 
             var moduleId = assessment.ModuleId;
@@ -110,13 +117,14 @@ namespace ISMLTS_WebApp_.Controllers
         [Authorize(Roles = "Lecturer")]
         public async Task<IActionResult> Submissions(int id)
         {
-            var assessment = await _assessmentRepository.GetByIdWithModuleAsync(id);
+            var assessment = await GetOwnedAssessmentAsync(id);
             if (assessment == null) return NotFound();
 
-            var module = await _moduleRepository.GetByIdWithDetailsAsync(assessment.ModuleId);
+            var module = await GetOwnedModuleAsync(assessment.ModuleId);
+            if (module == null) return NotFound();
             var submissions = (await _submissionRepository.GetByAssessmentAsync(id)).ToDictionary(s => s.StudentId);
 
-            var rows = module!.Students.Select(s =>
+            var rows = module.Students.Select(s =>
             {
                 submissions.TryGetValue(s.StudentId, out var sub);
                 return new SubmissionRow
@@ -179,7 +187,7 @@ namespace ISMLTS_WebApp_.Controllers
             var idClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (idClaim == null || !int.TryParse(idClaim, out var studentId)) return Forbid();
 
-            var assessment = await _assessmentRepository.GetByIdWithModuleAsync(id);
+            var assessment = await GetEnrolledAssessmentAsync(id, studentId);
             if (assessment == null) return NotFound();
 
             var existing = await _submissionRepository.GetByAssessmentAndStudentAsync(id, studentId);
@@ -197,6 +205,8 @@ namespace ISMLTS_WebApp_.Controllers
             var idClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (idClaim == null || !int.TryParse(idClaim, out var studentId)) return Forbid();
 
+            if (await GetEnrolledAssessmentAsync(id, studentId) == null) return NotFound();
+
             var existing = await _submissionRepository.GetByAssessmentAndStudentAsync(id, studentId);
             if (existing == null)
             {
@@ -212,6 +222,25 @@ namespace ISMLTS_WebApp_.Controllers
 
             await _submissionRepository.SaveChangesAsync();
             return RedirectToAction(nameof(MyAssessments));
+        }
+
+        // Another lecturer's module (or assessment) looks exactly like one that doesn't exist
+        private async Task<Module?> GetOwnedModuleAsync(int moduleId)
+        {
+            var module = await _moduleRepository.GetByIdWithDetailsAsync(moduleId);
+            return module != null && module.LecturerId == User.GetUserId() ? module : null;
+        }
+
+        private async Task<Assessment?> GetOwnedAssessmentAsync(int id)
+        {
+            var assessment = await _assessmentRepository.GetByIdWithModuleAsync(id);
+            return assessment?.Module != null && assessment.Module.LecturerId == User.GetUserId() ? assessment : null;
+        }
+
+        private async Task<Assessment?> GetEnrolledAssessmentAsync(int id, int studentId)
+        {
+            var assessment = await _assessmentRepository.GetByIdWithModuleAsync(id);
+            return assessment != null && await _studentRepository.IsEnrolledAsync(studentId, assessment.ModuleId) ? assessment : null;
         }
     }
 }

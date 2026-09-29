@@ -1,6 +1,7 @@
 ﻿using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using ISMLTS_WebApp_.Extensions;
 using ISMLTS_WebApp_.Models;
 using ISMLTS_WebApp_.Repositories;
 using ISMLTS_WebApp_.Services;
@@ -25,12 +26,13 @@ namespace ISMLTS_WebApp_.Controllers
         }
 
         [Authorize(Roles = "Lecturer")]
-        public async Task<IActionResult> Index() => View(await _moduleRepository.GetAllWithLecturerAsync());
+        public async Task<IActionResult> Index() =>
+            View(await _moduleRepository.GetByLecturerAsync(User.GetUserId() ?? 0));
 
         [Authorize(Roles = "Lecturer")]
         public async Task<IActionResult> ForModule(int moduleId)
         {
-            var module = await _moduleRepository.GetByIdWithDetailsAsync(moduleId);
+            var module = await GetOwnedModuleAsync(moduleId);
             if (module == null) return NotFound();
 
             var marks = await _markRepository.GetByModuleAsync(moduleId);
@@ -61,9 +63,9 @@ namespace ISMLTS_WebApp_.Controllers
         [HttpGet]
         public async Task<IActionResult> Create(int moduleId, int studentId)
         {
-            var module = await _moduleRepository.GetByIdAsync(moduleId);
+            var module = await GetOwnedModuleAsync(moduleId);
             var student = await _studentRepository.GetByIdAsync(studentId);
-            if (module == null || student == null) return NotFound();
+            if (module == null || student == null || !await _studentRepository.IsEnrolledAsync(studentId, moduleId)) return NotFound();
 
             ViewBag.ModuleDisplay = $"{module.Code} - {module.Name}";
             ViewBag.StudentName = student.FullName;
@@ -75,11 +77,13 @@ namespace ISMLTS_WebApp_.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("StudentId,ModuleId,AssessmentName,Score,MaxScore,DateCaptured")] Mark mark)
         {
+            var module = await GetOwnedModuleAsync(mark.ModuleId);
+            if (module == null || !await _studentRepository.IsEnrolledAsync(mark.StudentId, mark.ModuleId)) return NotFound();
+
             if (!ModelState.IsValid)
             {
-                var module = await _moduleRepository.GetByIdAsync(mark.ModuleId);
                 var student = await _studentRepository.GetByIdAsync(mark.StudentId);
-                ViewBag.ModuleDisplay = module != null ? $"{module.Code} - {module.Name}" : "";
+                ViewBag.ModuleDisplay = $"{module.Code} - {module.Name}";
                 ViewBag.StudentName = student?.FullName ?? "";
                 return View(mark);
             }
@@ -92,7 +96,7 @@ namespace ISMLTS_WebApp_.Controllers
         [Authorize(Roles = "Lecturer")]
         public async Task<IActionResult> Edit(int id)
         {
-            var mark = await _markRepository.GetByIdWithDetailsAsync(id);
+            var mark = await GetOwnedMarkAsync(id);
             if (mark == null) return NotFound();
             return View(mark);
         }
@@ -103,10 +107,16 @@ namespace ISMLTS_WebApp_.Controllers
         public async Task<IActionResult> Edit(int id, [Bind("MarkId,StudentId,ModuleId,AssessmentName,Score,MaxScore,DateCaptured")] Mark input)
         {
             if (id != input.MarkId) return NotFound();
-            if (!ModelState.IsValid) return View(input);
 
-            var mark = await _markRepository.GetByIdAsync(id);
+            var mark = await GetOwnedMarkAsync(id);
             if (mark == null) return NotFound();
+
+            if (!ModelState.IsValid)
+            {
+                input.Student = mark.Student;
+                input.Module = mark.Module;
+                return View(input);
+            }
 
             mark.AssessmentName = input.AssessmentName;
             mark.Score = input.Score;
@@ -121,7 +131,7 @@ namespace ISMLTS_WebApp_.Controllers
         [Authorize(Roles = "Lecturer")]
         public async Task<IActionResult> Delete(int id)
         {
-            var mark = await _markRepository.GetByIdWithDetailsAsync(id);
+            var mark = await GetOwnedMarkAsync(id);
             if (mark == null) return NotFound();
             return View(mark);
         }
@@ -131,7 +141,7 @@ namespace ISMLTS_WebApp_.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var mark = await _markRepository.GetByIdAsync(id);
+            var mark = await GetOwnedMarkAsync(id);
             if (mark == null) return RedirectToAction(nameof(Index));
 
             var moduleId = mark.ModuleId;
@@ -156,6 +166,19 @@ namespace ISMLTS_WebApp_.Controllers
             }).ToList();
 
             return View(byModule);
+        }
+
+        // Another lecturer's module (or mark) looks exactly like one that doesn't exist
+        private async Task<Module?> GetOwnedModuleAsync(int moduleId)
+        {
+            var module = await _moduleRepository.GetByIdWithDetailsAsync(moduleId);
+            return module != null && module.LecturerId == User.GetUserId() ? module : null;
+        }
+
+        private async Task<Mark?> GetOwnedMarkAsync(int id)
+        {
+            var mark = await _markRepository.GetByIdWithDetailsAsync(id);
+            return mark?.Module != null && mark.Module.LecturerId == User.GetUserId() ? mark : null;
         }
     }
 }

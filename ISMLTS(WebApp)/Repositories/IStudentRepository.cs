@@ -8,6 +8,6 @@ namespace ISMLTS_WebApp_.Repositories
         Task<Student?> GetByEmailAsync(string email);
         Task<Student?> GetByIdWithModulesAsync(int id);
         Task<IEnumerable<Student>> GetByModuleAsync(int moduleId);
-
+        Task<bool> IsEnrolledAsync(int studentId, int moduleId);
     }
 }

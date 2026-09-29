@@ -1,0 +1,35 @@
+@model List<Announcement>
+@using ISMLTS_WebApp_.Extensions
+@{
+    ViewData["Title"] = "Announcements";
+    var canPost = User.IsInRole(Roles.Lecturer) || User.IsInRole(Roles.Admin);
+    var role = User.GetRole();
+    var userId = User.GetUserId();
+    var subtitle = User.IsInRole(Roles.Student) ? "News from your lecturers and the college." : "Posts for your modules and the college.";
+}
+
+<partial name="_PageHeader" model='new PageHeaderModel { Title = "Announcements", Subtitle = subtitle, ActionUrl = canPost ? Url.Action("Create") : null, ActionText = "New announcement", ActionIcon = "bi-megaphone" }' />
+
+<div class="panel">
+    @if (Model.Any())
+    {
+        @foreach (var a in Model)
+        {
+            <div class="d-flex gap-2 align-items-start">
+                <div class="flex-grow-1">
+                    <partial name="_AnnouncementItem" model="a" />
+                </div>
+                @if (a.AuthorRole == role && a.AuthorId == userId)
+                {
+                    <form asp-action="Delete" asp-route-id="@a.AnnouncementId" method="post" class="pt-3" data-confirm="Delete &quot;@a.Title&quot;? It disappears for everyone who can see it.">
+                        <button type="submit" class="btn btn-icon btn-icon-danger" data-bs-toggle="tooltip" data-bs-title="Delete" aria-label="Delete @a.Title"><i class="bi bi-trash" aria-hidden="true"></i></button>
+                    </form>
+                }
+            </div>
+        }
+    }
+    else
+    {
+        <partial name="_EmptyState" model='new EmptyStateModel { Icon = "bi-megaphone", Title = "No announcements yet", Message = canPost ? "Post one to let your students know what is happening." : "When your lecturers post news, it shows up here.", ActionUrl = canPost ? Url.Action("Create") : null, ActionText = "New announcement" }' />
+    }
+</div>

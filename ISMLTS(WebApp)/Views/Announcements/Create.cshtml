@@ -1,0 +1,49 @@
+@model AnnouncementForm
+@{
+    ViewData["Title"] = "New Announcement";
+    var isLecturer = User.IsInRole(Roles.Lecturer);
+}
+
+<partial name="_PageHeader" model='new PageHeaderModel { Title = "New announcement", Subtitle = isLecturer ? "Everyone enrolled in the module gets a notification." : "Everyone in the audience gets a notification.", BackUrl = Url.Action("Index"), BackText = "Announcements" }' />
+
+<div class="panel form-panel">
+    <form asp-action="Create" method="post">
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+        @if (isLecturer)
+        {
+            <div class="mb-3">
+                <label asp-for="ModuleId" class="form-label"></label>
+                <select asp-for="ModuleId" class="form-select" asp-items="@(new SelectList(ViewBag.Modules, "ModuleId", "Display"))">
+                    <option value="">Choose one of your modules</option>
+                </select>
+                <span asp-validation-for="ModuleId" class="text-danger small"></span>
+            </div>
+        }
+        else
+        {
+            <div class="mb-3">
+                <label asp-for="Audience" class="form-label"></label>
+                <select asp-for="Audience" class="form-select">
+                    <option value="@AnnouncementAudiences.Everyone">Everyone</option>
+                    <option value="@AnnouncementAudiences.Students">All students</option>
+                    <option value="@AnnouncementAudiences.Lecturers">All lecturers</option>
+                </select>
+                <span asp-validation-for="Audience" class="text-danger small"></span>
+            </div>
+        }
+        <div class="mb-3">
+            <label asp-for="Title" class="form-label"></label>
+            <input asp-for="Title" class="form-control" placeholder="e.g. POE deadline moved to Friday" autocomplete="off" />
+            <span asp-validation-for="Title" class="text-danger small"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="Body" class="form-label"></label>
+            <textarea asp-for="Body" class="form-control" rows="6" maxlength="2000"></textarea>
+            <span asp-validation-for="Body" class="text-danger small"></span>
+        </div>
+        <div class="form-actions">
+            <button type="submit" class="btn btn-rosebank" data-loading="Posting…"><i class="bi bi-megaphone" aria-hidden="true"></i> Post announcement</button>
+            <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+        </div>
+    </form>
+</div>

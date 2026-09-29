@@ -1,0 +1,12 @@
+@model Announcement
+@using ISMLTS_WebApp_.Services
+@{
+    ViewData["Title"] = Model.Title;
+    var subtitle = $"{AnnouncementAudience.Describe(Model)} · {Model.AuthorName} · {Model.CreatedAt.ToLocalTime():dd MMM yyyy, HH:mm}";
+}
+
+<partial name="_PageHeader" model='new PageHeaderModel { Title = Model.Title, Subtitle = subtitle, BackUrl = Url.Action("Index"), BackText = "Announcements" }' />
+
+<div class="panel form-panel">
+    <p class="ticket-message mb-0">@Model.Body</p>
+</div>

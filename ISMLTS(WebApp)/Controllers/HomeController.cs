@@ -15,6 +15,7 @@ namespace ISMLTS_WebApp_.Controllers
         private readonly ILecturerRepository _lecturerRepository;
         private readonly IModuleRepository _moduleRepository;
         private readonly IAssessmentRepository _assessmentRepository;
+        private readonly IAnnouncementRepository _announcementRepository;
         private readonly ILogger<HomeController> _logger;
 
         public HomeController(
@@ -22,12 +23,14 @@ namespace ISMLTS_WebApp_.Controllers
             ILecturerRepository lecturerRepository,
             IModuleRepository moduleRepository,
             IAssessmentRepository assessmentRepository,
+            IAnnouncementRepository announcementRepository,
             ILogger<HomeController> logger)
         {
             _studentRepository = studentRepository;
             _lecturerRepository = lecturerRepository;
             _moduleRepository = moduleRepository;
             _assessmentRepository = assessmentRepository;
+            _announcementRepository = announcementRepository;
             _logger = logger;
         }
 
@@ -61,16 +64,15 @@ namespace ISMLTS_WebApp_.Controllers
                 }).ToList() ?? new List<CourseCard>();
             }
 
-            // Placeholder until an Announcement model exists
-            model.Announcements = new List<string>
+            if (User.IsInRole("Admin"))
             {
-                "POE submission window opens Monday",
-                "Quiz 2 covers weeks 3-5"
-            };
+                model.Announcements = await _announcementRepository.GetLatestAsync(3);
+            }
 
             if (User.IsInRole("Lecturer"))
             {
                 var myModuleIds = (await _moduleRepository.GetByLecturerAsync(userId)).Select(m => m.ModuleId).ToHashSet();
+                model.Announcements = await _announcementRepository.GetForLecturerAsync(myModuleIds, 3);
                 model.UpcomingTasks = (await _assessmentRepository.GetUpcomingAsync(20))
                     .Where(a => myModuleIds.Contains(a.ModuleId))
                     .Take(5)
@@ -81,6 +83,7 @@ namespace ISMLTS_WebApp_.Controllers
             if (User.IsInRole("Student"))
             {
                 var myModuleIds = student?.Modules.Select(m => m.ModuleId).ToHashSet() ?? new HashSet<int>();
+                model.Announcements = await _announcementRepository.GetForStudentAsync(myModuleIds, 5);
                 model.UpcomingTasks = (await _assessmentRepository.GetUpcomingAsync(20))
                     .Where(a => myModuleIds.Contains(a.ModuleId))
                     .Take(5)

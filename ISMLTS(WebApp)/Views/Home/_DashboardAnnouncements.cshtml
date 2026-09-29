@@ -1,0 +1,17 @@
+@model List<Announcement>
+
+<div class="panel h-100">
+    <h5><i class="bi bi-megaphone" aria-hidden="true"></i> Latest announcements</h5>
+    @if (Model.Any())
+    {
+        @foreach (var a in Model)
+        {
+            <partial name="_AnnouncementItem" model="a" />
+        }
+        <a asp-controller="Announcements" asp-action="Index" class="small d-inline-block mt-2">All announcements <i class="bi bi-arrow-right" aria-hidden="true"></i></a>
+    }
+    else
+    {
+        <p class="text-muted mb-0">Nothing posted yet.</p>
+    }
+</div>

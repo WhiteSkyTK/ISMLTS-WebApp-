@@ -42,5 +42,14 @@ namespace ISMLTS_WebApp_.Services
                 || (announcement.Audience == AnnouncementAudiences.Students && role == Roles.Student)
                 || (announcement.Audience == AnnouncementAudiences.Lecturers && role == Roles.Lecturer);
         }
+
+        // "XADAD7112", "Everyone", "All students" or "All lecturers"
+        public static string Describe(Announcement announcement) =>
+            announcement.Module?.Code ?? announcement.Audience switch
+            {
+                AnnouncementAudiences.Students => "All students",
+                AnnouncementAudiences.Lecturers => "All lecturers",
+                _ => "Everyone"
+            };
     }
 }

@@ -17,6 +17,10 @@
         <a asp-controller="Modules" asp-action="Index" class="quick-action-btn"><i class="bi bi-journal-bookmark" aria-hidden="true"></i><span>Manage modules</span></a>
         <a asp-controller="Courses" asp-action="Index" class="quick-action-btn"><i class="bi bi-collection" aria-hidden="true"></i><span>Manage courses</span></a>
         <a asp-controller="Admins" asp-action="Index" class="quick-action-btn"><i class="bi bi-shield-lock" aria-hidden="true"></i><span>Manage admins</span></a>
+        <a asp-controller="Announcements" asp-action="Create" class="quick-action-btn"><i class="bi bi-megaphone" aria-hidden="true"></i><span>Post announcement</span></a>
+    </div>
+    <div class="mt-4">
+        <partial name="_DashboardAnnouncements" model="Model.Announcements" />
     </div>
 }
 
@@ -27,23 +31,30 @@
         <a asp-controller="Attendance" asp-action="Index" class="quick-action-btn"><i class="bi bi-qr-code-scan" aria-hidden="true"></i><span>Take a register</span></a>
         <a asp-controller="Marks" asp-action="Index" class="quick-action-btn"><i class="bi bi-clipboard-check" aria-hidden="true"></i><span>Capture marks</span></a>
         <a asp-controller="Tickets" asp-action="Index" class="quick-action-btn"><i class="bi bi-chat-dots" aria-hidden="true"></i><span>Answer tickets</span></a>
-        <span class="quick-action-btn is-soon"><i class="bi bi-megaphone" aria-hidden="true"></i><span>New announcement <small class="soon-tag">Soon</small></span></span>
+        <a asp-controller="Announcements" asp-action="Create" class="quick-action-btn"><i class="bi bi-megaphone" aria-hidden="true"></i><span>New announcement</span></a>
     </div>
-    <div class="panel">
-        <h5><i class="bi bi-calendar-event" aria-hidden="true"></i> Upcoming due dates you have set</h5>
-        @if (Model.UpcomingTasks.Any())
-        {
-            <ul class="mb-0">
-                @foreach (var t in Model.UpcomingTasks)
+    <div class="row g-3">
+        <div class="col-lg-6">
+            <div class="panel h-100">
+                <h5><i class="bi bi-calendar-event" aria-hidden="true"></i> Upcoming due dates you have set</h5>
+                @if (Model.UpcomingTasks.Any())
                 {
-                    <li><span class="badge task-badge task-@t.Type.ToLowerInvariant()">@t.Type</span> @t.Title — @t.DueDate.ToString("ddd, dd MMM")</li>
+                    <ul class="mb-0">
+                        @foreach (var t in Model.UpcomingTasks)
+                        {
+                            <li><span class="badge task-badge task-@t.Type.ToLowerInvariant()">@t.Type</span> @t.Title — @t.DueDate.ToString("ddd, dd MMM")</li>
+                        }
+                    </ul>
                 }
-            </ul>
-        }
-        else
-        {
-            <p class="text-muted mb-0">Nothing due soon. Add assessments under Assessments.</p>
-        }
+                else
+                {
+                    <p class="text-muted mb-0">Nothing due soon. Add assessments under Assessments.</p>
+                }
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <partial name="_DashboardAnnouncements" model="Model.Announcements" />
+        </div>
     </div>
 }
 
@@ -69,12 +80,11 @@
                         }
                         else
                         {
-                            <ul class="mb-0">
-                                @foreach (var a in Model.Announcements)
-                                {
-                                    <li>@a</li>
-                                }
-                            </ul>
+                            @foreach (var a in Model.Announcements)
+                            {
+                                <partial name="_AnnouncementItem" model="a" />
+                            }
+                            <a asp-controller="Announcements" asp-action="Index" class="small d-inline-block mt-2">All announcements <i class="bi bi-arrow-right" aria-hidden="true"></i></a>
                         }
                     </div>
                     <div class="tab-pane fade" id="tabWorkToDo" role="tabpanel">

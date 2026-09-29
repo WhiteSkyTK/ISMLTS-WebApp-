@@ -1,47 +1,17 @@
-@model ISMLTS_WebApp_.Models.Module
-@using Microsoft.AspNetCore.Mvc.Rendering
+@model Module
 @{
     ViewData["Title"] = "Edit Module";
 }
 
-<h1>Edit Module</h1>
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="ModuleId" />
-            <div class="form-group">
-                <label asp-for="Code" class="control-label"></label>
-                <input asp-for="Code" class="form-control" />
-                <span asp-validation-for="Code" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Name" class="control-label"></label>
-                <input asp-for="Name" class="form-control" />
-                <span asp-validation-for="Name" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="LecturerId" class="control-label">Lecturer</label>
-                <select asp-for="LecturerId" class="form-control" asp-items="@(new SelectList(ViewBag.Lecturers, "LecturerId", "FullName"))"></select>
-                <span asp-validation-for="LecturerId" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Term" class="control-label"></label>
-                <select asp-for="Term" class="form-control">
-                    <option value="Term1">Term 1</option>
-                    <option value="Term2">Term 2</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label asp-for="CourseId" class="control-label">Course</label>
-                <select asp-for="CourseId" class="form-control" asp-items="@(new SelectList(ViewBag.Courses, "CourseId", "Display"))">
-                    <option value="">-- Unassigned --</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-rosebank" />
-            </div>
-        </form>
-    </div>
+<partial name="_PageHeader" model='new PageHeaderModel { Title = "Edit module", Subtitle = Model.Code, BackUrl = Url.Action("Index"), BackText = "Modules" }' />
+
+<div class="panel form-panel">
+    <form asp-action="Edit" method="post">
+        <input type="hidden" asp-for="ModuleId" />
+        <partial name="_ModuleFields" model="Model" />
+        <div class="form-actions">
+            <button type="submit" class="btn btn-rosebank" data-loading="Saving…"><i class="bi bi-check-lg" aria-hidden="true"></i> Save changes</button>
+            <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+        </div>
+    </form>
 </div>
-<div><a asp-action="Index">Back to List</a></div>

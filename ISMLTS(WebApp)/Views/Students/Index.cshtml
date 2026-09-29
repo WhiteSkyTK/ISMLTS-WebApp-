@@ -1,32 +1,54 @@
-@model IEnumerable<ISMLTS_WebApp_.Models.Student>
+@model PagedList<Student>
 @{
     ViewData["Title"] = "Students";
+    ViewData["SearchLabel"] = "Search by name, email or programme";
 }
 
-<h1>Students</h1>
-<p><a asp-action="Create" class="btn btn-rosebank">+ Add Student</a></p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>@Html.DisplayNameFor(model => model.FullName)</th>
-            <th>@Html.DisplayNameFor(model => model.Email)</th>
-            <th>@Html.DisplayNameFor(model => model.Programme)</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td>@Html.DisplayFor(modelItem => item.FullName)</td>
-                <td>@Html.DisplayFor(modelItem => item.Email)</td>
-                <td>@Html.DisplayFor(modelItem => item.Programme)</td>
-                <td>
-                    <a asp-action="Edit" asp-route-id="@item.StudentId">Edit</a> |
-                    <a asp-action="Details" asp-route-id="@item.StudentId">Details</a> |
-                    <a asp-action="Delete" asp-route-id="@item.StudentId">Delete</a>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+<partial name="_PageHeader" model='new PageHeaderModel { Title = "Students", Subtitle = "Everyone who can log in as a student.", ActionUrl = Url.Action("Create"), ActionText = "Add student" }' />
+
+<div class="panel">
+    <partial name="_ListSearch" model="Model" />
+    @if (Model.Items.Any())
+    {
+        <div class="table-scroll">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th scope="col">Name</th>
+                        <th scope="col">Email</th>
+                        <th scope="col">Programme</th>
+                        <th scope="col"><span class="visually-hidden">Actions</span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var s in Model.Items)
+                    {
+                        <tr>
+                            <td class="fw-medium">@s.FullName</td>
+                            <td>@s.Email</td>
+                            <td>@(s.Programme ?? "—")</td>
+                            <td>
+                                <div class="row-actions">
+                                    <a asp-action="Details" asp-route-id="@s.StudentId" class="btn btn-icon" data-bs-toggle="tooltip" data-bs-title="View" aria-label="View @s.FullName"><i class="bi bi-eye" aria-hidden="true"></i></a>
+                                    <a asp-action="Edit" asp-route-id="@s.StudentId" class="btn btn-icon" data-bs-toggle="tooltip" data-bs-title="Edit" aria-label="Edit @s.FullName"><i class="bi bi-pencil" aria-hidden="true"></i></a>
+                                    <form asp-action="Delete" asp-route-id="@s.StudentId" method="post" data-confirm="Delete @s.FullName? Their marks, submissions, tickets and attendance are deleted too.">
+                                        <button type="submit" class="btn btn-icon btn-icon-danger" data-bs-toggle="tooltip" data-bs-title="Delete" aria-label="Delete @s.FullName"><i class="bi bi-trash" aria-hidden="true"></i></button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <partial name="_Pager" model="Model" />
+    }
+    else if (!string.IsNullOrEmpty(Model.Query))
+    {
+        <partial name="_EmptyState" model='new EmptyStateModel { Icon = "bi-search", Title = "No students match that search", Message = "Try part of a name or email address." }' />
+    }
+    else
+    {
+        <partial name="_EmptyState" model='new EmptyStateModel { Icon = "bi-people", Title = "No students yet", Message = "Add students so they can log in, then enrol them in modules.", ActionUrl = Url.Action("Create"), ActionText = "Add student" }' />
+    }
+</div>

@@ -1,55 +1,71 @@
-﻿@model IEnumerable<ISMLTS_WebApp_.Models.AttendanceSession>
+@model IEnumerable<AttendanceSession>
 @{
     ViewData["Title"] = "Attendance";
+    string moduleDisplay = ViewBag.ModuleDisplay;
 }
 
-<h1>@ViewBag.ModuleDisplay — Attendance</h1>
-<a asp-action="Index" class="btn btn-outline-secondary btn-sm mb-3">&larr; All Modules</a>
+<partial name="_PageHeader" model='new PageHeaderModel { Title = "Attendance", Subtitle = moduleDisplay, BackUrl = Url.Action("Index"), BackText = "All modules" }' />
 
 <div class="panel mb-4">
-    <form asp-action="Start" method="post" data-geo-form>
+    <form asp-action="Start" method="post" data-geo-form class="d-flex flex-wrap align-items-center gap-3">
         <input type="hidden" name="moduleId" value="@ViewBag.ModuleId" />
         <input type="hidden" name="latitude" />
         <input type="hidden" name="longitude" />
-        <button type="submit" class="btn btn-rosebank"><i class="bi bi-qr-code" aria-hidden="true"></i> Start attendance session</button>
-        <p class="small text-muted mt-2 mb-0" data-geo-status>Your browser will ask for your location. It's saved as the classroom position students are checked against.</p>
+        <button type="submit" class="btn btn-rosebank btn-lg" data-loading="Starting…"><i class="bi bi-qr-code" aria-hidden="true"></i> Start attendance session</button>
+        <p class="small text-muted mb-0 flex-grow-1" data-geo-status><i class="bi bi-geo-alt" aria-hidden="true"></i> Your browser asks for your location. It is saved as the classroom position that student scans are checked against.</p>
     </form>
 </div>
 
-<table class="table align-middle">
-    <thead><tr><th>Started</th><th>Present</th><th>Status</th><th><span class="visually-hidden">Actions</span></th></tr></thead>
-    <tbody>
-        @foreach (var s in Model)
-        {
-            <tr>
-                <td>@s.StartedAt.ToLocalTime().ToString("ddd, dd MMM yyyy HH:mm")</td>
-                <td>@s.Records.Count</td>
-                <td>
-                    @if (s.IsOpen)
+<div class="panel">
+    <h5><i class="bi bi-clock-history" aria-hidden="true"></i> Past sessions</h5>
+    @if (Model.Any())
+    {
+        <div class="table-scroll">
+            <table class="table align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th scope="col">Started</th>
+                        <th scope="col">Present</th>
+                        <th scope="col">Status</th>
+                        <th scope="col"><span class="visually-hidden">Actions</span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var s in Model)
                     {
-                        <span class="badge bg-success">Open</span>
+                        <tr>
+                            <td>@s.StartedAt.ToLocalTime().ToString("ddd, dd MMM yyyy HH:mm")</td>
+                            <td>@s.Records.Count</td>
+                            <td>
+                                @if (s.IsOpen)
+                                {
+                                    <span class="badge text-bg-success">Open</span>
+                                }
+                                else
+                                {
+                                    <span class="badge text-bg-secondary">Closed</span>
+                                }
+                            </td>
+                            <td>
+                                <div class="row-actions">
+                                    @if (s.IsOpen)
+                                    {
+                                        <a asp-action="Live" asp-route-id="@s.SessionId" class="btn btn-icon" data-bs-toggle="tooltip" data-bs-title="Show QR code" aria-label="Show the QR code"><i class="bi bi-qr-code" aria-hidden="true"></i></a>
+                                    }
+                                    <a asp-action="Details" asp-route-id="@s.SessionId" class="btn btn-icon" data-bs-toggle="tooltip" data-bs-title="Register" aria-label="Open the register"><i class="bi bi-list-check" aria-hidden="true"></i></a>
+                                </div>
+                            </td>
+                        </tr>
                     }
-                    else
-                    {
-
-                        <span class="badge bg-secondary">Closed</span>
-                    }
-                </td>
-                <td class="text-end">
-                    @if (s.IsOpen)
-                    {
-                        <a asp-action="Live" asp-route-id="@s.SessionId" class="btn btn-rosebank btn-sm">Show QR</a>
-                    }
-                    <a asp-action="Details" asp-route-id="@s.SessionId" class="btn btn-outline-secondary btn-sm">Register</a>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
-@if (!Model.Any())
-{
-    <p class="text-muted">No sessions yet.</p>
-}
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <partial name="_EmptyState" model='new EmptyStateModel { Icon = "bi-qr-code-scan", Title = "No sessions yet", Message = "Start a session in class and students scan the QR code to mark themselves present." }' />
+    }
+</div>
 
 @section Scripts {
     <script src="~/js/attendance.js" asp-append-version="true"></script>

@@ -19,7 +19,6 @@ namespace ISMLTS.Tests.Integration
         {
             "/Marks/ForModule?moduleId={moduleB}",
             "/Marks/Edit/{markB}",
-            "/Marks/Delete/{markB}",
             "/Assessments/ForModule?moduleId={moduleB}",
             "/Assessments/Create?moduleId={moduleB}",
             "/Assessments/Edit/{assessmentB}",

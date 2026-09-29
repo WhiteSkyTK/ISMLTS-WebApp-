@@ -81,6 +81,7 @@ namespace ISMLTS_WebApp_.Controllers
             };
             await _attendanceRepository.AddAsync(session);
             await _attendanceRepository.SaveChangesAsync();
+            this.Toast($"Attendance is open for {_options.SessionMinutes} minutes. Show this QR code to the class.", ToastTypes.Info);
             return RedirectToAction(nameof(Live), new { id = session.SessionId });
         }
 
@@ -117,6 +118,7 @@ namespace ISMLTS_WebApp_.Controllers
 
             session.IsClosed = true; // tracked entity, so SaveChanges picks this up
             await _attendanceRepository.SaveChangesAsync();
+            this.Toast("Session closed. Anyone who missed it can be marked present here.");
             return RedirectToAction(nameof(Details), new { id });
         }
 
@@ -154,6 +156,7 @@ namespace ISMLTS_WebApp_.Controllers
                     IsManual = true
                 });
                 await _attendanceRepository.SaveChangesAsync();
+                this.Toast($"{enrolled.First(s => s.StudentId == studentId).FullName} was marked present.");
             }
             return RedirectToAction(nameof(Details), new { id });
         }
@@ -169,6 +172,7 @@ namespace ISMLTS_WebApp_.Controllers
 
             _attendanceRepository.RemoveRecord(record);
             await _attendanceRepository.SaveChangesAsync();
+            this.Toast($"{record.Student?.FullName} was removed from this register.", ToastTypes.Info);
             return RedirectToAction(nameof(Details), new { id });
         }
 
@@ -219,7 +223,7 @@ namespace ISMLTS_WebApp_.Controllers
             });
             await _attendanceRepository.SaveChangesAsync();
 
-            TempData["ScanSuccess"] = $"You're marked present for {session.Module?.Code}.";
+            this.Toast($"You're marked present for {session.Module?.Code}.");
             return RedirectToAction(nameof(MyAttendance));
         }
 

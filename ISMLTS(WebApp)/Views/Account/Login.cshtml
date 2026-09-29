@@ -1,24 +1,61 @@
-﻿@model ISMLTS_WebApp_.Models.LoginViewModel
+@model LoginViewModel
 @{
     ViewData["Title"] = "Log In";
+    var returnUrl = ViewData["ReturnUrl"] as string;
+}
+@section Styles {
+    <link rel="stylesheet" href="~/css/login.css" asp-append-version="true" />
 }
 
-<div class="row justify-content-center">
-    <div class="col-md-6 col-lg-4">
-        <h2>Log In</h2>
-        <div class="card p-4">
-            <form asp-action="Login" asp-route-returnUrl="@ViewData["ReturnUrl"]" method="post">
-                <div asp-validation-summary="All" class="text-danger"></div>
+<div class="auth-shell">
+    <div class="auth-card">
+        <section class="auth-brand" aria-label="About ISMLTS">
+            <i class="bi bi-mortarboard-fill auth-watermark" aria-hidden="true"></i>
+            <div>
+                <span class="auth-logo"><i class="bi bi-mortarboard-fill" aria-hidden="true"></i></span>
+                <h2>Your studies, in one place</h2>
+                <p>Marks, attendance, assessments and questions for your lecturers, all tracked for you.</p>
+            </div>
+            <ul class="auth-points">
+                <li><i class="bi bi-graph-up-arrow" aria-hidden="true"></i> Early warning when a module average drops below 50%</li>
+                <li><i class="bi bi-qr-code-scan" aria-hidden="true"></i> Scan in to lectures with your phone</li>
+                <li><i class="bi bi-journal-check" aria-hidden="true"></i> Every due date and submission in one list</li>
+            </ul>
+            <span class="auth-campus">IIE Rosebank College</span>
+        </section>
+
+        <div class="auth-form">
+            <div class="auth-mobile-brand"><i class="bi bi-mortarboard-fill" aria-hidden="true"></i> ISMLTS</div>
+            <h1>Welcome back</h1>
+            <p class="text-muted mb-4">Log in with your college email address. Admins use their username.</p>
+
+            @if (!string.IsNullOrEmpty(returnUrl) && ViewData.ModelState.IsValid)
+            {
+                <div class="alert alert-info py-2 small" role="status"><i class="bi bi-lock" aria-hidden="true"></i> Log in to continue to that page.</div>
+            }
+
+            <form asp-action="Login" asp-route-returnUrl="@returnUrl" method="post">
+                <div asp-validation-summary="All" class="alert alert-danger py-2 small" role="alert"></div>
                 <div class="mb-3">
                     <label asp-for="EmailOrUsername" class="form-label"></label>
-                    <input asp-for="EmailOrUsername" class="form-control" autocomplete="username" />
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-person" aria-hidden="true"></i></span>
+                        <input asp-for="EmailOrUsername" class="form-control" autocomplete="username" placeholder="name@rosebank.iie.ac.za" autofocus />
+                    </div>
                 </div>
                 <div class="mb-3">
                     <label asp-for="Password" class="form-label"></label>
-                    <input asp-for="Password" class="form-control" autocomplete="current-password" />
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-lock" aria-hidden="true"></i></span>
+                        <input asp-for="Password" class="form-control" autocomplete="current-password" data-capslock-hint="capsLockHint" />
+                        <button type="button" class="btn btn-outline-secondary" data-password-toggle="Password" aria-label="Show password" aria-pressed="false"><i class="bi bi-eye" aria-hidden="true"></i></button>
+                    </div>
+                    <div id="capsLockHint" class="form-text text-warning-emphasis" hidden><i class="bi bi-capslock-fill" aria-hidden="true"></i> Caps Lock is on</div>
                 </div>
-                <button type="submit" class="btn btn-rosebank w-100">Log In</button>
+                <button type="submit" class="btn btn-rosebank btn-lg w-100 mt-2" data-loading="Logging in…"><i class="bi bi-box-arrow-in-right" aria-hidden="true"></i> Log in</button>
             </form>
+
+            <p class="auth-footnote"><i class="bi bi-question-circle" aria-hidden="true"></i> Forgot your password? The admin office can reset it for you.</p>
         </div>
     </div>
 </div>

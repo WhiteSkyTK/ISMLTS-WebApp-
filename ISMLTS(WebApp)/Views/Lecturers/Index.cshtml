@@ -1,30 +1,54 @@
-@model IEnumerable<ISMLTS_WebApp_.Models.Lecturer>
+@model PagedList<Lecturer>
 @{
     ViewData["Title"] = "Lecturers";
+    ViewData["SearchLabel"] = "Search by name or email";
 }
 
-<h1>Lecturers</h1>
-<p><a asp-action="Create" class="btn btn-rosebank">+ Add Lecturer</a></p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>@Html.DisplayNameFor(model => model.FullName)</th>
-            <th>@Html.DisplayNameFor(model => model.Email)</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td>@Html.DisplayFor(modelItem => item.FullName)</td>
-                <td>@Html.DisplayFor(modelItem => item.Email)</td>
-                <td>
-                    <a asp-action="Edit" asp-route-id="@item.LecturerId">Edit</a> |
-                    <a asp-action="Details" asp-route-id="@item.LecturerId">Details</a> |
-                    <a asp-action="Delete" asp-route-id="@item.LecturerId">Delete</a>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+<partial name="_PageHeader" model='new PageHeaderModel { Title = "Lecturers", Subtitle = "Lecturers can only see and mark the modules assigned to them.", ActionUrl = Url.Action("Create"), ActionText = "Add lecturer" }' />
+
+<div class="panel">
+    <partial name="_ListSearch" model="Model" />
+    @if (Model.Items.Any())
+    {
+        <div class="table-scroll">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th scope="col">Name</th>
+                        <th scope="col">Email</th>
+                        <th scope="col">Modules</th>
+                        <th scope="col"><span class="visually-hidden">Actions</span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var l in Model.Items)
+                    {
+                        <tr>
+                            <td class="fw-medium">@l.FullName</td>
+                            <td>@l.Email</td>
+                            <td>@l.Modules.Count</td>
+                            <td>
+                                <div class="row-actions">
+                                    <a asp-action="Details" asp-route-id="@l.LecturerId" class="btn btn-icon" data-bs-toggle="tooltip" data-bs-title="View" aria-label="View @l.FullName"><i class="bi bi-eye" aria-hidden="true"></i></a>
+                                    <a asp-action="Edit" asp-route-id="@l.LecturerId" class="btn btn-icon" data-bs-toggle="tooltip" data-bs-title="Edit" aria-label="Edit @l.FullName"><i class="bi bi-pencil" aria-hidden="true"></i></a>
+                                    <form asp-action="Delete" asp-route-id="@l.LecturerId" method="post" data-confirm="Delete @l.FullName? They won't be able to log in any more.">
+                                        <button type="submit" class="btn btn-icon btn-icon-danger" data-bs-toggle="tooltip" data-bs-title="Delete" aria-label="Delete @l.FullName"><i class="bi bi-trash" aria-hidden="true"></i></button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <partial name="_Pager" model="Model" />
+    }
+    else if (!string.IsNullOrEmpty(Model.Query))
+    {
+        <partial name="_EmptyState" model='new EmptyStateModel { Icon = "bi-search", Title = "No lecturers match that search", Message = "Try part of a name or email address." }' />
+    }
+    else
+    {
+        <partial name="_EmptyState" model='new EmptyStateModel { Icon = "bi-person-badge", Title = "No lecturers yet", Message = "Add a lecturer, then assign them modules.", ActionUrl = Url.Action("Create"), ActionText = "Add lecturer" }' />
+    }
+</div>

@@ -1,0 +1,19 @@
+@model PageHeaderModel
+
+<div class="page-header">
+    <div>
+        @if (Model.BackUrl != null)
+        {
+            <a href="@Model.BackUrl" class="page-header-back"><i class="bi bi-arrow-left" aria-hidden="true"></i> @Model.BackText</a>
+        }
+        <h1>@Model.Title</h1>
+        @if (Model.Subtitle != null)
+        {
+            <p class="page-header-subtitle">@Model.Subtitle</p>
+        }
+    </div>
+    @if (Model.ActionUrl != null)
+    {
+        <a href="@Model.ActionUrl" class="btn btn-rosebank"><i class="bi @Model.ActionIcon" aria-hidden="true"></i> @Model.ActionText</a>
+    }
+</div>

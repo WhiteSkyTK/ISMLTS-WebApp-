@@ -1,21 +1,8 @@
-﻿@model IEnumerable<ISMLTS_WebApp_.Models.Module>
+@model IEnumerable<Module>
 @{
     ViewData["Title"] = "Attendance";
+    ViewData["PickerIcon"] = "bi-qr-code";
 }
 
-<h1>Attendance</h1>
-<p class="text-muted">Pick a module to start a register or review past sessions.</p>
-<div class="row g-3">
-    @foreach (var m in Model)
-    {
-        <div class="col-md-4">
-            <a asp-action="ForModule" asp-route-moduleId="@m.ModuleId" class="quick-action-btn w-100">
-                <i class="bi bi-qr-code" aria-hidden="true"></i><span>@m.Code — @m.Name</span>
-            </a>
-        </div>
-    }
-</div>
-@if (!Model.Any())
-{
-    <p class="text-muted">You're not assigned to any modules yet.</p>
-}
+<partial name="_PageHeader" model='new PageHeaderModel { Title = "Attendance", Subtitle = "Pick a module to start a register or look at past sessions." }' />
+<partial name="_ModulePicker" model="Model" />

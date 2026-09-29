@@ -1,37 +1,18 @@
-﻿@model ISMLTS_WebApp_.Models.Mark
+@model Mark
 @{
     ViewData["Title"] = "Edit Mark";
+    var subtitle = $"{Model.Student?.FullName} · {Model.Module?.Code}";
 }
 
-<h1>Edit Mark</h1>
-<p><strong>@Model.Student?.FullName</strong> — @Model.Module?.Code</p>
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div asp-validation-summary="All" class="text-danger"></div>
-            <input type="hidden" asp-for="MarkId" />
-            <input type="hidden" asp-for="StudentId" />
-            <input type="hidden" asp-for="ModuleId" />
-            <div class="form-group">
-                <label asp-for="AssessmentName" class="control-label"></label>
-                <input asp-for="AssessmentName" class="form-control" />
-            </div>
-            <div class="form-group">
-                <label asp-for="Score" class="control-label"></label>
-                <input asp-for="Score" class="form-control" type="number" step="0.5" min="0" />
-            </div>
-            <div class="form-group">
-                <label asp-for="MaxScore" class="control-label"></label>
-                <input asp-for="MaxScore" class="form-control" type="number" step="0.5" min="0.5" />
-            </div>
-            <div class="form-group">
-                <label asp-for="DateCaptured" class="control-label"></label>
-                <input asp-for="DateCaptured" class="form-control" type="date" />
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-rosebank" />
-            </div>
-        </form>
-    </div>
+<partial name="_PageHeader" model='new PageHeaderModel { Title = "Edit mark", Subtitle = subtitle, BackUrl = Url.Action("ForModule", new { moduleId = Model.ModuleId }), BackText = "Module marks" }' />
+
+<div class="panel form-panel">
+    <form asp-action="Edit" method="post">
+        <input type="hidden" asp-for="MarkId" />
+        <partial name="_MarkFields" model="Model" />
+        <div class="form-actions">
+            <button type="submit" class="btn btn-rosebank" data-loading="Saving…"><i class="bi bi-check-lg" aria-hidden="true"></i> Save changes</button>
+            <a asp-action="ForModule" asp-route-moduleId="@Model.ModuleId" class="btn btn-outline-secondary">Cancel</a>
+        </div>
+    </form>
 </div>
-<div><a asp-action="ForModule" asp-route-moduleId="@Model.ModuleId">Back to Module Marks</a></div>

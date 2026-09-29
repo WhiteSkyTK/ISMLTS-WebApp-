@@ -68,10 +68,12 @@ else
                         @if (allowRemove)
                         {
                             <td>
-                                <form asp-action="RemoveRecord" asp-route-id="@Model.SessionId" method="post">
-                                    <input type="hidden" name="recordId" value="@r.RecordId" />
-                                    <button type="submit" class="btn btn-outline-danger btn-sm">Remove</button>
-                                </form>
+                                <div class="row-actions">
+                                    <form asp-action="RemoveRecord" asp-route-id="@Model.SessionId" method="post" data-confirm="Remove @r.Student?.FullName from this register? They will show as absent." data-confirm-label="Remove">
+                                        <input type="hidden" name="recordId" value="@r.RecordId" />
+                                        <button type="submit" class="btn btn-icon btn-icon-danger" data-bs-toggle="tooltip" data-bs-title="Remove" aria-label="Remove @r.Student?.FullName from this register"><i class="bi bi-x-lg" aria-hidden="true"></i></button>
+                                    </form>
+                                </div>
                             </td>
                         }
                     </tr>

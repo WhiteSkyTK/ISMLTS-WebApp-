@@ -1,0 +1,29 @@
+@model IEnumerable<Module>
+@{
+    var icon = ViewData["PickerIcon"] as string ?? "bi-journal-bookmark";
+}
+
+@* The lecturer's own modules as tiles; each opens that module's page in the current section *@
+@if (Model.Any())
+{
+    <div class="row g-3">
+        @foreach (var m in Model.OrderBy(m => m.Code))
+        {
+            <div class="col-sm-6 col-lg-4">
+                <a asp-action="ForModule" asp-route-moduleId="@m.ModuleId" class="quick-action-btn module-tile">
+                    <i class="bi @icon" aria-hidden="true"></i>
+                    <span>
+                        <strong class="d-block font-monospace">@m.Code</strong>
+                        <span class="small text-muted">@m.Name</span>
+                    </span>
+                </a>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <div class="panel">
+        <partial name="_EmptyState" model='new EmptyStateModel { Icon = "bi-journal-x", Title = "No modules are assigned to you yet", Message = "An admin sets the lecturer on each module. Ask them to add you to yours." }' />
+    </div>
+}

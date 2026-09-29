@@ -1,14 +1,25 @@
-@model ISMLTS_WebApp_.Models.Lecturer
+@model Lecturer
 @{
     ViewData["Title"] = "Lecturer Details";
+    var modules = ViewBag.Modules as List<Module> ?? new List<Module>();
 }
 
-<h1>Lecturer Details</h1>
-<dl class="row">
-    <dt class="col-sm-2">@Html.DisplayNameFor(model => model.FullName)</dt>
-    <dd class="col-sm-10">@Html.DisplayFor(model => model.FullName)</dd>
-    <dt class="col-sm-2">@Html.DisplayNameFor(model => model.Email)</dt>
-    <dd class="col-sm-10">@Html.DisplayFor(model => model.Email)</dd>
-</dl>
-<a asp-action="Edit" asp-route-id="@Model?.LecturerId">Edit</a> |
-<a asp-action="Index">Back to List</a>
+<partial name="_PageHeader" model='new PageHeaderModel { Title = Model.FullName, Subtitle = "Lecturer", BackUrl = Url.Action("Index"), BackText = "Lecturers", ActionUrl = Url.Action("Edit", new { id = Model.LecturerId }), ActionText = "Edit", ActionIcon = "bi-pencil" }' />
+
+<div class="panel form-panel">
+    <dl class="row detail-list mb-0">
+        <dt class="col-sm-4">Email</dt>
+        <dd class="col-sm-8">@Model.Email</dd>
+        <dt class="col-sm-4">Modules</dt>
+        <dd class="col-sm-8 mb-0">
+            @if (modules.Any())
+            {
+                @string.Join(", ", modules.Select(m => m.Code))
+            }
+            else
+            {
+                <span class="text-muted">No modules assigned yet</span>
+            }
+        </dd>
+    </dl>
+</div>

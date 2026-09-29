@@ -1,31 +1,24 @@
-@model ISMLTS_WebApp_.Models.Lecturer
+@model Lecturer
 @{
     ViewData["Title"] = "Add Lecturer";
 }
 
-<h1>Add Lecturer</h1>
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="FullName" class="control-label"></label>
-                <input asp-for="FullName" class="form-control" />
-                <span asp-validation-for="FullName" class="text-danger"></span>
+<partial name="_PageHeader" model='new PageHeaderModel { Title = "Add lecturer", BackUrl = Url.Action("Index"), BackText = "Lecturers" }' />
+
+<div class="panel form-panel">
+    <form asp-action="Create" method="post">
+        <partial name="_LecturerFields" model="Model" />
+        <div class="mb-3">
+            <label for="password" class="form-label">Temporary password</label>
+            <div class="input-group">
+                <input id="password" name="password" type="password" class="form-control" minlength="8" autocomplete="new-password" required aria-describedby="passwordHelp" />
+                <button type="button" class="btn btn-outline-secondary" data-password-toggle="password" aria-label="Show password" aria-pressed="false"><i class="bi bi-eye" aria-hidden="true"></i></button>
             </div>
-            <div class="form-group">
-                <label asp-for="Email" class="control-label"></label>
-                <input asp-for="Email" class="form-control" />
-                <span asp-validation-for="Email" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label for="password" class="control-label">Temporary Password</label>
-                <input id="password" name="password" type="password" class="form-control" minlength="8" autocomplete="new-password" required />
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-rosebank" />
-            </div>
-        </form>
-    </div>
+            <div id="passwordHelp" class="form-text">At least 8 characters. Give it to the lecturer privately.</div>
+        </div>
+        <div class="form-actions">
+            <button type="submit" class="btn btn-rosebank" data-loading="Saving…"><i class="bi bi-check-lg" aria-hidden="true"></i> Add lecturer</button>
+            <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+        </div>
+    </form>
 </div>
-<div><a asp-action="Index">Back to List</a></div>

@@ -1,26 +1,38 @@
-﻿@model ISMLTS_WebApp_.Models.EnrolmentViewModel
+@model EnrolmentViewModel
 @{
     ViewData["Title"] = "Enrol Students";
+    ViewData["FilterLabel"] = "Find a student";
 }
 
-<h1>Enrol Students — @Model.ModuleName</h1>
+<partial name="_PageHeader" model='new PageHeaderModel { Title = "Enrol students", Subtitle = Model.ModuleName, BackUrl = Url.Action("Index"), BackText = "Modules" }' />
+
 <form asp-action="Enrol" asp-route-id="@Model.ModuleId" method="post">
-    <div class="panel mb-3" style="max-width:500px;">
-        @for (var i = 0; i < Model.Students.Count; i++)
+    <div class="panel form-panel">
+        @if (Model.Students.Any())
         {
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox"
-                       name="selectedStudentIds" value="@Model.Students[i].StudentId"
-                       id="student_@Model.Students[i].StudentId"
-                       checked="@Model.Students[i].IsEnrolled" />
-                <label class="form-check-label" for="student_@Model.Students[i].StudentId">@Model.Students[i].FullName</label>
+            <partial name="_TableFilter" model='"#enrolList"' />
+            <fieldset id="enrolList">
+                <legend class="form-label">Tick everyone who takes this module</legend>
+                @for (var i = 0; i < Model.Students.Count; i++)
+                {
+                    <div class="form-check py-1" data-filter-item>
+                        <input class="form-check-input" type="checkbox"
+                               name="selectedStudentIds" value="@Model.Students[i].StudentId"
+                               id="student_@Model.Students[i].StudentId"
+                               checked="@Model.Students[i].IsEnrolled" />
+                        <label class="form-check-label" for="student_@Model.Students[i].StudentId">@Model.Students[i].FullName</label>
+                    </div>
+                }
+            </fieldset>
+            <p class="text-muted small mb-0" data-filter-empty hidden>No students match that name.</p>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-rosebank" data-loading="Saving…"><i class="bi bi-check-lg" aria-hidden="true"></i> Save enrolment</button>
+                <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
             </div>
         }
-        @if (!Model.Students.Any())
+        else
         {
-            <p class="text-muted mb-0">No students exist yet — add some under Students first.</p>
+            <partial name="_EmptyState" model='new EmptyStateModel { Icon = "bi-people", Title = "No students exist yet", Message = "Add students first, then come back to enrol them.", ActionUrl = Url.Action("Create", "Students"), ActionText = "Add student" }' />
         }
     </div>
-    <button type="submit" class="btn btn-rosebank">Save Enrolment</button>
-    <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
 </form>

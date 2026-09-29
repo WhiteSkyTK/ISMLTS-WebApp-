@@ -1,0 +1,14 @@
+@model string
+
+@switch (Model)
+{
+    case "Late":
+        <span class="badge text-bg-danger">Late</span>
+        break;
+    case "Submitted":
+        <span class="badge text-bg-success">Submitted</span>
+        break;
+    default:
+        <span class="badge text-bg-secondary">Not submitted</span>
+        break;
+}

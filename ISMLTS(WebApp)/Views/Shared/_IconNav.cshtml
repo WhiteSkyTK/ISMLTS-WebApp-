@@ -1,0 +1,43 @@
+@{
+    // Shortcuts per role. Pages that exist link straight through; pages planned for Phase 3/4 show "Soon".
+    var items = new List<(string Icon, string Label, string? Controller, string? Action)>();
+    if (User.IsInRole("Student"))
+    {
+        items.Add(("bi-qr-code-scan", "Scan In", "Attendance", "Scan"));
+        items.Add(("bi-journal-check", "Work To Do", "Assessments", "MyAssessments"));
+        items.Add(("bi-graph-up", "My Progress", null, null));
+        items.Add(("bi-trophy", "Awards", null, null));
+        items.Add(("bi-folder2-open", "Portfolio", null, null));
+        items.Add(("bi-book", "IIE Library", null, null));
+    }
+    else if (User.IsInRole("Lecturer"))
+    {
+        items.Add(("bi-qr-code", "Take Register", "Attendance", "Index"));
+        items.Add(("bi-clipboard-check", "Capture Marks", "Marks", "Index"));
+        items.Add(("bi-clipboard-data", "Quick Eval", null, null));
+        items.Add(("bi-graph-up", "Class Insights", null, null));
+        items.Add(("bi-book", "IIE Library", null, null));
+    }
+    else if (User.IsInRole("Admin"))
+    {
+        items.Add(("bi-person-plus", "Add Student", "Students", "Create"));
+        items.Add(("bi-journal-plus", "Add Module", "Modules", "Create"));
+        items.Add(("bi-upload", "Bulk Import", null, null));
+        items.Add(("bi-bar-chart", "Reports", null, null));
+    }
+    items.Add(("bi-question-circle", "Help", null, null));
+}
+
+<nav class="icon-nav-row" aria-label="Shortcuts">
+    @foreach (var item in items)
+    {
+        if (item.Controller != null)
+        {
+            <a class="icon-nav-item" asp-controller="@item.Controller" asp-action="@item.Action"><i class="bi @item.Icon" aria-hidden="true"></i><span>@item.Label</span></a>
+        }
+        else
+        {
+            <span class="icon-nav-item is-soon"><i class="bi @item.Icon" aria-hidden="true"></i><span>@item.Label</span><small class="soon-tag">Soon</small></span>
+        }
+    }
+</nav>

@@ -1,0 +1,13 @@
+@model Lecturer
+
+<div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+<div class="mb-3">
+    <label asp-for="FullName" class="form-label"></label>
+    <input asp-for="FullName" class="form-control" autocomplete="off" />
+    <span asp-validation-for="FullName" class="text-danger small"></span>
+</div>
+<div class="mb-3">
+    <label asp-for="Email" class="form-label"></label>
+    <input asp-for="Email" class="form-control" autocomplete="off" />
+    <span asp-validation-for="Email" class="text-danger small"></span>
+</div>

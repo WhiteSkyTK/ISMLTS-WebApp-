@@ -1,24 +1,23 @@
-@model ISMLTS_WebApp_.Models.Admin
+@model Admin
 @{
     ViewData["Title"] = "Edit Admin";
 }
 
-<h1>Edit Admin</h1>
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="AdminId" />
-            <div class="form-group">
-                <label asp-for="Username" class="control-label"></label>
-                <input asp-for="Username" class="form-control" />
-                <span asp-validation-for="Username" class="text-danger"></span>
-            </div>
-            
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-rosebank" />
-            </div>
-        </form>
-    </div>
+<partial name="_PageHeader" model='new PageHeaderModel { Title = "Edit admin", Subtitle = Model.Username, BackUrl = Url.Action("Index"), BackText = "Admins" }' />
+
+<div class="panel form-panel">
+    <form asp-action="Edit" method="post">
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+        <input type="hidden" asp-for="AdminId" />
+        <input type="hidden" asp-for="Role" />
+        <div class="mb-3">
+            <label asp-for="Username" class="form-label"></label>
+            <input asp-for="Username" class="form-control" autocomplete="off" />
+            <span asp-validation-for="Username" class="text-danger small"></span>
+        </div>
+        <div class="form-actions">
+            <button type="submit" class="btn btn-rosebank" data-loading="Saving…"><i class="bi bi-check-lg" aria-hidden="true"></i> Save changes</button>
+            <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+        </div>
+    </form>
 </div>
-<div><a asp-action="Index">Back to List</a></div>

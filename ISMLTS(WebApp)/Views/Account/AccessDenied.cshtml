@@ -1,5 +1,6 @@
-﻿@{
+@using ISMLTS_WebApp_.Services
+@{
     ViewData["Title"] = "Access Denied";
 }
-<h2>Access Denied</h2>
-<p>You don't have permission to view this page.</p>
+
+<partial name="_StatusMessage" model="StatusPages.Describe(403)" />

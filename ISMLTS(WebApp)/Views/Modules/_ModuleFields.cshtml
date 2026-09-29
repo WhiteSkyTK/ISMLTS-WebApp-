@@ -1,0 +1,35 @@
+@model Module
+
+<div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+<div class="row g-3">
+    <div class="col-sm-5">
+        <label asp-for="Code" class="form-label"></label>
+        <input asp-for="Code" class="form-control font-monospace" placeholder="XADAD7112" autocomplete="off" />
+        <span asp-validation-for="Code" class="text-danger small"></span>
+    </div>
+    <div class="col-sm-7">
+        <label asp-for="Name" class="form-label"></label>
+        <input asp-for="Name" class="form-control" autocomplete="off" />
+        <span asp-validation-for="Name" class="text-danger small"></span>
+    </div>
+    <div class="col-sm-7">
+        <label asp-for="LecturerId" class="form-label"></label>
+        <select asp-for="LecturerId" class="form-select" asp-items="@(new SelectList(ViewBag.Lecturers, "LecturerId", "FullName"))">
+            <option value="">Choose a lecturer</option>
+        </select>
+        <span asp-validation-for="LecturerId" class="text-danger small"></span>
+    </div>
+    <div class="col-sm-5">
+        <label asp-for="Term" class="form-label"></label>
+        <select asp-for="Term" class="form-select">
+            <option value="Term1">Term 1</option>
+            <option value="Term2">Term 2</option>
+        </select>
+    </div>
+    <div class="col-12">
+        <label asp-for="CourseId" class="form-label"></label>
+        <select asp-for="CourseId" class="form-select" asp-items="@(new SelectList(ViewBag.Courses, "CourseId", "Display"))">
+            <option value="">Not in a course</option>
+        </select>
+    </div>
+</div>

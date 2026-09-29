@@ -13,5 +13,16 @@ namespace ISMLTS_WebApp_.Repositories
 
         public async Task<bool> UsernameExistsAsync(string username, int exceptAdminId = 0) =>
             await _dbSet.AnyAsync(a => a.Username == username && a.AdminId != exceptAdminId);
+
+        public async Task<PagedList<Admin>> SearchAsync(string? query, int page)
+        {
+            var admins = _dbSet.AsNoTracking();
+            if (!string.IsNullOrWhiteSpace(query))
+            {
+                var term = query.Trim();
+                admins = admins.Where(a => a.Username.Contains(term));
+            }
+            return await admins.OrderBy(a => a.Username).ToPagedListAsync(page, query);
+        }
     }
 }

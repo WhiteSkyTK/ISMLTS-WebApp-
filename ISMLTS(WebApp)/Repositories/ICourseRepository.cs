@@ -6,5 +6,6 @@ namespace ISMLTS_WebApp_.Repositories
     {
         Task<Course?> GetByIdWithModulesAsync(int id);
         Task<bool> CodeExistsAsync(string code, int exceptCourseId = 0);
+        Task<PagedList<Course>> SearchAsync(string? query, int page);
     }
 }

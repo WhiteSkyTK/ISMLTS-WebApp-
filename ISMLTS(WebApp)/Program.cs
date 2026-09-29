@@ -83,6 +83,9 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
+// Empty 400/404/405 responses (NotFound(), bad antiforgery tokens, unknown URLs) get a styled page
+app.UseStatusCodePagesWithReExecute("/Status/{0}");
+
 app.UseHttpsRedirection();
 
 // Forces "." as the decimal separator for posted numbers (marks, GPS), whatever the server's regional settings.

@@ -16,6 +16,7 @@ namespace ISMLTS_WebApp_.Models
         public string Name { get; set; } = string.Empty;
 
         [ForeignKey(nameof(Lecturer))]
+        [Display(Name = "Lecturer")]
         public int LecturerId { get; set; }
         public Lecturer? Lecturer { get; set; }
 
@@ -23,6 +24,7 @@ namespace ISMLTS_WebApp_.Models
         public string Term { get; set; } = "Term1"; // Term1 or Term2
 
         [ForeignKey(nameof(Course))]
+        [Display(Name = "Course")]
         public int? CourseId { get; set; }
         public Course? Course { get; set; }
 

@@ -13,6 +13,7 @@ namespace ISMLTS_WebApp_.Models
         public Student? Student { get; set; }
 
         [ForeignKey(nameof(Module))]
+        [Display(Name = "Module")]
         public int ModuleId { get; set; }
         public Module? Module { get; set; }
 
@@ -26,6 +27,7 @@ namespace ISMLTS_WebApp_.Models
         public string Status { get; set; } = "Open"; // Open, In Progress, Resolved
 
         [MaxLength(1000)]
+        [Display(Name = "Response")]
         public string? LecturerResponse { get; set; }
 
         public DateTime DateOpened { get; set; } = DateTime.UtcNow;

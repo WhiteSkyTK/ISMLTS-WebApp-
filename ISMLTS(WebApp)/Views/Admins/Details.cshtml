@@ -1,14 +1,15 @@
-@model ISMLTS_WebApp_.Models.Admin
+@model Admin
 @{
     ViewData["Title"] = "Admin Details";
 }
 
-<h1>Admin Details</h1>
-<dl class="row">
-    <dt class="col-sm-2">@Html.DisplayNameFor(model => model.Username)</dt>
-    <dd class="col-sm-10">@Html.DisplayFor(model => model.Username)</dd>
-    <dt class="col-sm-2">@Html.DisplayNameFor(model => model.Role)</dt>
-    <dd class="col-sm-10">@Html.DisplayFor(model => model.Role)</dd>
-</dl>
-<a asp-action="Edit" asp-route-id="@Model?.AdminId">Edit</a> |
-<a asp-action="Index">Back to List</a>
+<partial name="_PageHeader" model='new PageHeaderModel { Title = Model.Username, Subtitle = "Admin", BackUrl = Url.Action("Index"), BackText = "Admins", ActionUrl = Url.Action("Edit", new { id = Model.AdminId }), ActionText = "Edit", ActionIcon = "bi-pencil" }' />
+
+<div class="panel form-panel">
+    <dl class="row detail-list mb-0">
+        <dt class="col-sm-4">Username</dt>
+        <dd class="col-sm-8">@Model.Username</dd>
+        <dt class="col-sm-4">Role</dt>
+        <dd class="col-sm-8 mb-0">@Model.Role</dd>
+    </dl>
+</div>

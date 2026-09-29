@@ -1,17 +1,9 @@
-﻿@model ISMLTS_WebApp_.Models.AttendanceLiveViewModel
+@model AttendanceLiveViewModel
 @{
     ViewData["Title"] = "Live Attendance";
 }
 
-<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
-    <h1 class="mb-0">@Model.Session.Module?.Code — Attendance</h1>
-    <div class="d-flex gap-2">
-        <a asp-action="Details" asp-route-id="@Model.Session.SessionId" class="btn btn-outline-secondary">Register</a>
-        <form asp-action="Close" asp-route-id="@Model.Session.SessionId" method="post">
-            <button type="submit" class="btn btn-danger">Close session</button>
-        </form>
-    </div>
-</div>
+<partial name="_PageHeader" model='new PageHeaderModel { Title = $"{Model.Session.Module?.Code} attendance", Subtitle = "Students scan the code with their phone camera.", BackUrl = Url.Action("ForModule", new { moduleId = Model.Session.ModuleId }), BackText = "Sessions", ActionUrl = Url.Action("Details", new { id = Model.Session.SessionId }), ActionText = "Open register", ActionIcon = "bi-list-check" }' />
 
 <div class="row g-4">
     <div class="col-lg-5">
@@ -19,19 +11,22 @@
             @if (Model.Session.IsOpen)
             {
                 <img src="@Model.QrDataUri" alt="QR code to mark attendance for @Model.Session.Module?.Code" class="img-fluid mb-3" />
-                <p class="text-muted mb-1">No camera? Students enter this code under My Attendance:</p>
+                <p class="text-muted mb-1">No camera? Students type this code under My Attendance:</p>
                 <p class="display-5 fw-bold font-monospace mb-1">@Model.Session.Code</p>
-                <p class="mb-0">Closes in <strong data-seconds-left="@Model.SecondsLeft"></strong></p>
+                <p class="mb-3">Closes in <strong data-seconds-left="@Model.SecondsLeft"></strong></p>
+                <form asp-action="Close" asp-route-id="@Model.Session.SessionId" method="post" data-confirm="Close this session now? Students won't be able to scan in any more." data-confirm-label="Close session">
+                    <button type="submit" class="btn btn-outline-danger"><i class="bi bi-stop-circle" aria-hidden="true"></i> Close session</button>
+                </form>
             }
             else
             {
-                <p class="text-muted mb-0">This session is closed.</p>
+                <partial name="_EmptyState" model='new EmptyStateModel { Icon = "bi-lock", Title = "This session is closed", Message = "Open the register to mark anyone who missed it." }' />
             }
         </div>
     </div>
     <div class="col-lg-7">
         <div class="panel">
-            <h5><i class="bi bi-people" aria-hidden="true"></i> Present (updates every 10 seconds)</h5>
+            <h5><i class="bi bi-people" aria-hidden="true"></i> Present <span class="small text-muted fw-normal">(updates every 10 seconds)</span></h5>
             <div data-refresh-url="@Url.Action("Records", new { id = Model.Session.SessionId })">
                 <partial name="_Records" model="Model.Session" />
             </div>

@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using ISMLTS_WebApp_.Extensions;
 using ISMLTS_WebApp_.Models;
 using ISMLTS_WebApp_.Repositories;
 using ISMLTS_WebApp_.Services;
@@ -19,7 +20,8 @@ namespace ISMLTS_WebApp_.Controllers
             _adminRepository = adminRepository;
         }
 
-        public async Task<IActionResult> Index() => View(await _adminRepository.GetAllAsync());
+        public async Task<IActionResult> Index(string? q, int page = 1) =>
+            View(await _adminRepository.SearchAsync(q, page));
 
         public async Task<IActionResult> Details(int id)
         {
@@ -42,7 +44,10 @@ namespace ISMLTS_WebApp_.Controllers
 
             admin.PasswordHash = BCrypt.Net.BCrypt.HashPassword(password);
             await _adminRepository.AddAsync(admin);
-            return await TrySaveAsync(admin.Username, 0) ? RedirectToAction(nameof(Index)) : View(admin);
+            if (!await TrySaveAsync(admin.Username, 0)) return View(admin);
+
+            this.Toast($"Admin {admin.Username} was added.");
+            return RedirectToAction(nameof(Index));
         }
 
         public async Task<IActionResult> Edit(int id)
@@ -67,26 +72,29 @@ namespace ISMLTS_WebApp_.Controllers
             admin.Role = input.Role;
 
             _adminRepository.Update(admin);
-            return await TrySaveAsync(input.Username, id) ? RedirectToAction(nameof(Index)) : View(input);
+            if (!await TrySaveAsync(input.Username, id)) return View(input);
+
+            this.Toast($"Changes to {admin.Username} were saved.");
+            return RedirectToAction(nameof(Index));
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)
         {
             var admin = await _adminRepository.GetByIdAsync(id);
             if (admin == null) return NotFound();
-            return View(admin);
-        }
 
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var admin = await _adminRepository.GetByIdAsync(id);
-            if (admin != null)
+            // Deleting yourself would leave this session signed in as nobody
+            if (admin.AdminId == User.GetUserId())
             {
-                _adminRepository.Delete(admin);
-                await _adminRepository.SaveChangesAsync();
+                this.Toast("You can't delete your own account. Ask another admin to do it.", ToastTypes.Danger);
+                return RedirectToAction(nameof(Index));
             }
+
+            _adminRepository.Delete(admin);
+            await _adminRepository.SaveChangesAsync();
+            this.Toast($"Admin {admin.Username} was deleted.");
             return RedirectToAction(nameof(Index));
         }
 

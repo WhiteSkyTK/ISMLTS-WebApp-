@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using ISMLTS_WebApp_.Extensions;
 using ISMLTS_WebApp_.Models;
 using ISMLTS_WebApp_.Repositories;
 
@@ -18,7 +19,8 @@ namespace ISMLTS_WebApp_.Controllers
             _courseRepository = courseRepository;
         }
 
-        public async Task<IActionResult> Index() => View(await _courseRepository.GetAllAsync());
+        public async Task<IActionResult> Index(string? q, int page = 1) =>
+            View(await _courseRepository.SearchAsync(q, page));
 
         public async Task<IActionResult> Details(int id)
         {
@@ -36,7 +38,10 @@ namespace ISMLTS_WebApp_.Controllers
             await CheckCodeIsFreeAsync(course.Code, 0);
             if (!ModelState.IsValid) return View(course);
             await _courseRepository.AddAsync(course);
-            return await TrySaveAsync(course.Code, 0) ? RedirectToAction(nameof(Index)) : View(course);
+            if (!await TrySaveAsync(course.Code, 0)) return View(course);
+
+            this.Toast($"{course.Code} was added.");
+            return RedirectToAction(nameof(Index));
         }
 
         public async Task<IActionResult> Edit(int id)
@@ -61,26 +66,22 @@ namespace ISMLTS_WebApp_.Controllers
             course.Name = input.Name;
 
             _courseRepository.Update(course);
-            return await TrySaveAsync(input.Code, id) ? RedirectToAction(nameof(Index)) : View(input);
+            if (!await TrySaveAsync(input.Code, id)) return View(input);
+
+            this.Toast($"Changes to {course.Code} were saved.");
+            return RedirectToAction(nameof(Index));
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)
         {
             var course = await _courseRepository.GetByIdAsync(id);
             if (course == null) return NotFound();
-            return View(course);
-        }
 
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var course = await _courseRepository.GetByIdAsync(id);
-            if (course != null)
-            {
-                _courseRepository.Delete(course);
-                await _courseRepository.SaveChangesAsync();
-            }
+            _courseRepository.Delete(course);
+            await _courseRepository.SaveChangesAsync();
+            this.Toast($"{course.Code} was deleted. Its modules are now unassigned.");
             return RedirectToAction(nameof(Index));
         }
 

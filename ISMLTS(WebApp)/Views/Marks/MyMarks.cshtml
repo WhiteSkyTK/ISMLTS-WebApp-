@@ -1,34 +1,60 @@
-﻿@model List<ISMLTS_WebApp_.Models.MyModuleMarks>
+@model List<MyModuleMarks>
+@using System.Globalization
 @{
     ViewData["Title"] = "My Marks";
 }
 
-<h1>My Marks</h1>
-@foreach (var mod in Model)
-{
-    <div class="panel mb-3">
-        <div class="d-flex justify-content-between align-items-center mb-2">
-            <h5 class="mb-0">@mod.ModuleDisplay</h5>
-            @if (mod.IsAtRisk)
-            {
-                <span class="badge bg-danger">At Risk</span>
-            }
-            else
-            {
+<partial name="_PageHeader" model='new PageHeaderModel { Title = "My marks", Subtitle = "An average below 50% puts a module at risk. Talk to your lecturer early if you see a red badge." }' />
 
-                <span class="badge bg-success">On Track</span>
-            }
-        </div>
-        <ul class="mb-1">
-            @foreach (var m in mod.Marks)
-            {
-                <li>@m.AssessmentName: @m.Score/@m.MaxScore (@m.Percentage%)</li>
-            }
-        </ul>
-        <div class="small text-muted">Average: @mod.AveragePercentage%</div>
+@if (Model.Any())
+{
+    <div class="row g-3">
+        @foreach (var module in Model)
+        {
+            <div class="col-lg-6">
+                <div class="panel h-100">
+                    <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
+                        <h2 class="h5 mb-0">@module.ModuleDisplay</h2>
+                        @if (module.IsAtRisk)
+                        {
+                            <span class="badge text-bg-danger">At risk</span>
+                        }
+                        else
+                        {
+                            <span class="badge text-bg-success">On track</span>
+                        }
+                    </div>
+                    <div class="d-flex align-items-center gap-2 mb-3">
+                        <progress class="w-100" value="@module.AveragePercentage.ToString(CultureInfo.InvariantCulture)" max="100" aria-label="@module.ModuleDisplay average">@module.AveragePercentage%</progress>
+                        <span class="fw-semibold">@module.AveragePercentage%</span>
+                    </div>
+                    <table class="table table-sm mb-0">
+                        <thead>
+                            <tr>
+                                <th scope="col">Assessment</th>
+                                <th scope="col">Score</th>
+                                <th scope="col">%</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var m in module.Marks.OrderBy(m => m.DateCaptured))
+                            {
+                                <tr>
+                                    <td>@m.AssessmentName</td>
+                                    <td>@m.Score.ToString("0.##")/@m.MaxScore.ToString("0.##")</td>
+                                    <td>@m.Percentage%</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        }
     </div>
 }
-@if (!Model.Any())
+else
 {
-    <p class="text-muted">No marks captured yet.</p>
+    <div class="panel">
+        <partial name="_EmptyState" model='new EmptyStateModel { Icon = "bi-clipboard", Title = "No marks yet", Message = "Your marks show here as soon as your lecturers capture them." }' />
+    </div>
 }

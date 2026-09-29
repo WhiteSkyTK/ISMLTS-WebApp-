@@ -1,31 +1,53 @@
-﻿@model IEnumerable<ISMLTS_WebApp_.Models.Assessment>
+@model IEnumerable<Assessment>
+@using ISMLTS_WebApp_.Services
 @{
     ViewData["Title"] = "Assessments";
+    int moduleId = ViewBag.ModuleId;
+    string moduleDisplay = ViewBag.ModuleDisplay;
 }
 
-<h1>@ViewBag.ModuleDisplay — Assessments</h1>
-<a asp-action="Index" class="btn btn-outline-secondary btn-sm mb-3">&larr; All Modules</a>
-<p><a asp-action="Create" asp-route-moduleId="@ViewBag.ModuleId" class="btn btn-rosebank">+ Add Assessment</a></p>
+<partial name="_PageHeader" model='new PageHeaderModel { Title = "Assessments", Subtitle = moduleDisplay, BackUrl = Url.Action("Index"), BackText = "All modules", ActionUrl = Url.Action("Create", new { moduleId }), ActionText = "Add assessment" }' />
 
-<table class="table">
-    <thead><tr><th>Name</th><th>Type</th><th>Due Date</th><th></th></tr></thead>
-    <tbody>
-        @foreach (var a in Model)
-        {
-            <tr>
-                <td>@a.Name</td>
-                <td><span class="badge task-badge task-@a.Type.ToLower()">@a.Type</span></td>
-                <td>@a.DueDate.ToString("ddd, dd MMM yyyy")</td>
-                <td>
-                    <a asp-action="Submissions" asp-route-id="@a.AssessmentId">View Submissions</a> |
-                    <a asp-action="Edit" asp-route-id="@a.AssessmentId">Edit</a> |
-                    <a asp-action="Delete" asp-route-id="@a.AssessmentId">Delete</a>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
-@if (!Model.Any())
-{
-    <p class="text-muted">No assessments for this module yet.</p>
-}
+<div class="panel">
+    @if (Model.Any())
+    {
+        <div class="table-scroll">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th scope="col">Name</th>
+                        <th scope="col">Type</th>
+                        <th scope="col">Due</th>
+                        <th scope="col"><span class="visually-hidden">Actions</span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var a in Model)
+                    {
+                        <tr>
+                            <td class="fw-medium">@a.Name</td>
+                            <td><span class="badge task-badge task-@a.Type.ToLowerInvariant()">@a.Type</span></td>
+                            <td>
+                                @a.DueDate.ToString("ddd, dd MMM yyyy")
+                                <span class="table-row-sub @(DueDates.IsOverdue(a.DueDate, DateTime.Today) ? "text-danger" : null)">@DueDates.Describe(a.DueDate, DateTime.Today)</span>
+                            </td>
+                            <td>
+                                <div class="row-actions">
+                                    <a asp-action="Submissions" asp-route-id="@a.AssessmentId" class="btn btn-icon" data-bs-toggle="tooltip" data-bs-title="Submissions" aria-label="Submissions for @a.Name"><i class="bi bi-inbox" aria-hidden="true"></i></a>
+                                    <a asp-action="Edit" asp-route-id="@a.AssessmentId" class="btn btn-icon" data-bs-toggle="tooltip" data-bs-title="Edit" aria-label="Edit @a.Name"><i class="bi bi-pencil" aria-hidden="true"></i></a>
+                                    <form asp-action="Delete" asp-route-id="@a.AssessmentId" method="post" data-confirm="Delete @a.Name? Every submission for it is deleted too.">
+                                        <button type="submit" class="btn btn-icon btn-icon-danger" data-bs-toggle="tooltip" data-bs-title="Delete" aria-label="Delete @a.Name"><i class="bi bi-trash" aria-hidden="true"></i></button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <partial name="_EmptyState" model='new EmptyStateModel { Icon = "bi-journal-plus", Title = "No assessments yet", Message = "Add ICE tasks, quizzes, POEs and projects so students can see what is due.", ActionUrl = Url.Action("Create", new { moduleId }), ActionText = "Add assessment" }' />
+    }
+</div>

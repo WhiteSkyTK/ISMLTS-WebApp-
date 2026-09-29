@@ -156,9 +156,15 @@ a.icon-nav-item:focus-visible {
     color: var(--rb-muted);
 }
 
+/* Phones show icons only; the labels stay available to screen readers */
 @media (max-width: 576px) {
-    .icon-nav-item > span {
-        display: none;
+    .icon-nav-item > span, .soon-tag {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip-path: inset(50%);
+        white-space: nowrap;
     }
 
     .icon-nav-item {

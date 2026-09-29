@@ -11,7 +11,7 @@
     @if (Model.Rows.Any())
     {
         <div class="stat-inline">
-            <div><strong>@Model.Rows.Count</strong><span class="small text-muted">students</span></div>
+            <div><strong>@Model.Rows.Count</strong><span class="small text-muted">@(Model.Rows.Count == 1 ? "student" : "students")</span></div>
             <div><strong>@atRisk</strong><span class="small text-muted">at risk (average below 50%)</span></div>
         </div>
         <partial name="_TableFilter" model='"#marksTable"' />
@@ -39,7 +39,7 @@
                                 @foreach (var m in row.Marks.OrderBy(m => m.DateCaptured))
                                 {
                                     <div class="mark-line">
-                                        <span>@m.AssessmentName: <strong>@m.Score/@m.MaxScore</strong> <span class="text-muted">(@m.Percentage%)</span></span>
+                                        <span>@m.AssessmentName: <strong>@m.Score.ToString("0.##")/@m.MaxScore.ToString("0.##")</strong> <span class="text-muted">(@m.Percentage%)</span></span>
                                         <a asp-action="Edit" asp-route-id="@m.MarkId" class="btn btn-icon" data-bs-toggle="tooltip" data-bs-title="Edit mark" aria-label="Edit the @m.AssessmentName mark for @row.FullName"><i class="bi bi-pencil" aria-hidden="true"></i></a>
                                         <form asp-action="Delete" asp-route-id="@m.MarkId" method="post" data-confirm="Delete the @m.AssessmentName mark for @row.FullName?">
                                             <button type="submit" class="btn btn-icon btn-icon-danger" data-bs-toggle="tooltip" data-bs-title="Delete mark" aria-label="Delete the @m.AssessmentName mark for @row.FullName"><i class="bi bi-trash" aria-hidden="true"></i></button>

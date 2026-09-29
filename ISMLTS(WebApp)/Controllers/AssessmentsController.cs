@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using ISMLTS_WebApp_.Extensions;
 using ISMLTS_WebApp_.Models;
 using ISMLTS_WebApp_.Repositories;
+using ISMLTS_WebApp_.Services;
 
 namespace ISMLTS_WebApp_.Controllers
 {
@@ -133,7 +134,7 @@ namespace ISMLTS_WebApp_.Controllers
                     FullName = s.FullName,
                     SubmissionId = sub?.SubmissionId,
                     SubmittedAt = sub?.SubmittedAt,
-                    Link = sub?.Link,
+                    Link = LinkValidator.IsWebLink(sub?.Link) ? sub?.Link : null, // hides links saved before validation existed
                     Status = sub?.Status ?? "Not Submitted"
                 };
             }).ToList();
@@ -205,7 +206,17 @@ namespace ISMLTS_WebApp_.Controllers
             var idClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (idClaim == null || !int.TryParse(idClaim, out var studentId)) return Forbid();
 
-            if (await GetEnrolledAssessmentAsync(id, studentId) == null) return NotFound();
+            var assessment = await GetEnrolledAssessmentAsync(id, studentId);
+            if (assessment == null) return NotFound();
+
+            link = link?.Trim();
+            if (!LinkValidator.IsWebLink(link))
+            {
+                ModelState.AddModelError(nameof(Submission.Link), "Paste the full link to your work, starting with https://");
+                ViewBag.AssessmentDisplay = $"{assessment.Name} ({assessment.Module?.Code})";
+                ViewBag.DueDate = assessment.DueDate;
+                return View(new Submission { AssessmentId = id, StudentId = studentId, Link = link });
+            }
 
             var existing = await _submissionRepository.GetByAssessmentAndStudentAsync(id, studentId);
             if (existing == null)

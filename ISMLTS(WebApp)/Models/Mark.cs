@@ -17,15 +17,18 @@ namespace ISMLTS_WebApp_.Models
         public Module? Module { get; set; }
 
         [Required, MaxLength(100)]
+        [Display(Name = "Assessment")]
         public string AssessmentName { get; set; } = string.Empty;
 
         [Range(0, 1000)]
         public decimal Score { get; set; }
 
         [Range(0.01, 1000)]
+        [Display(Name = "Out of")]
         public decimal MaxScore { get; set; } = 100;
 
         [DataType(DataType.Date)]
+        [Display(Name = "Date captured")]
         public DateTime DateCaptured { get; set; } = DateTime.Today;
 
         [NotMapped]
@@ -35,7 +38,7 @@ namespace ISMLTS_WebApp_.Models
         {
             if (Score > MaxScore)
             {
-                yield return new ValidationResult("Score cannot be more than Max Score.", new[] { nameof(Score) });
+                yield return new ValidationResult("The score can't be more than the total it's out of.", new[] { nameof(Score) });
             }
         }
     }

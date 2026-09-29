@@ -10,7 +10,7 @@ namespace ISMLTS_WebApp_.Models
         [Required, MaxLength(100)]
         public string Username { get; set; } = string.Empty;
 
-        //[Required]
+        // No [Required]: set from a hashed password field, never bound from a form
         public string PasswordHash { get; set; } = string.Empty;
 
         [Required, MaxLength(50)]

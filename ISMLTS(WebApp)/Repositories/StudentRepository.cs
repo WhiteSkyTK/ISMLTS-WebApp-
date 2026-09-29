@@ -21,5 +21,17 @@ namespace ISMLTS_WebApp_.Repositories
 
         public async Task<bool> EmailExistsAsync(string email, int exceptStudentId = 0) =>
             await _dbSet.AnyAsync(s => s.Email == email && s.StudentId != exceptStudentId);
+
+        public async Task<PagedList<Student>> SearchAsync(string? query, int page)
+        {
+            var students = _dbSet.AsNoTracking();
+            if (!string.IsNullOrWhiteSpace(query))
+            {
+                var term = query.Trim();
+                students = students.Where(s => s.FullName.Contains(term) || s.Email.Contains(term)
+                    || (s.Programme != null && s.Programme.Contains(term)));
+            }
+            return await students.OrderBy(s => s.FullName).ToPagedListAsync(page, query);
+        }
     }
 }

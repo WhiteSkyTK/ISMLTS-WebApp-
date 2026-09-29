@@ -1,30 +1,59 @@
-@model IEnumerable<ISMLTS_WebApp_.Models.Admin>
+@model PagedList<Admin>
+@using ISMLTS_WebApp_.Extensions
 @{
     ViewData["Title"] = "Admins";
+    ViewData["SearchLabel"] = "Search by username";
+    var myId = User.GetUserId();
 }
 
-<h1>Admins</h1>
-<p><a asp-action="Create" class="btn btn-rosebank">+ Add Admin</a></p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>@Html.DisplayNameFor(model => model.Username)</th>
-            <th>@Html.DisplayNameFor(model => model.Role)</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td>@Html.DisplayFor(modelItem => item.Username)</td>
-                <td>@Html.DisplayFor(modelItem => item.Role)</td>
-                <td>
-                    <a asp-action="Edit" asp-route-id="@item.AdminId">Edit</a> |
-                    <a asp-action="Details" asp-route-id="@item.AdminId">Details</a> |
-                    <a asp-action="Delete" asp-route-id="@item.AdminId">Delete</a>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+<partial name="_PageHeader" model='new PageHeaderModel { Title = "Admins", Subtitle = "Admins manage accounts, modules and courses.", ActionUrl = Url.Action("Create"), ActionText = "Add admin" }' />
+
+<div class="panel">
+    <partial name="_ListSearch" model="Model" />
+    @if (Model.Items.Any())
+    {
+        <div class="table-scroll">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th scope="col">Username</th>
+                        <th scope="col">Role</th>
+                        <th scope="col"><span class="visually-hidden">Actions</span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var a in Model.Items)
+                    {
+                        <tr>
+                            <td class="fw-medium">
+                                @a.Username
+                                @if (a.AdminId == myId)
+                                {
+                                    <span class="badge text-bg-light ms-1">You</span>
+                                }
+                            </td>
+                            <td>@a.Role</td>
+                            <td>
+                                <div class="row-actions">
+                                    <a asp-action="Details" asp-route-id="@a.AdminId" class="btn btn-icon" data-bs-toggle="tooltip" data-bs-title="View" aria-label="View @a.Username"><i class="bi bi-eye" aria-hidden="true"></i></a>
+                                    <a asp-action="Edit" asp-route-id="@a.AdminId" class="btn btn-icon" data-bs-toggle="tooltip" data-bs-title="Edit" aria-label="Edit @a.Username"><i class="bi bi-pencil" aria-hidden="true"></i></a>
+                                    @if (a.AdminId != myId)
+                                    {
+                                        <form asp-action="Delete" asp-route-id="@a.AdminId" method="post" data-confirm="Delete admin @a.Username? They won't be able to log in any more.">
+                                            <button type="submit" class="btn btn-icon btn-icon-danger" data-bs-toggle="tooltip" data-bs-title="Delete" aria-label="Delete @a.Username"><i class="bi bi-trash" aria-hidden="true"></i></button>
+                                        </form>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <partial name="_Pager" model="Model" />
+    }
+    else
+    {
+        <partial name="_EmptyState" model='new EmptyStateModel { Icon = "bi-search", Title = "No admins match that search", Message = "Try part of a username." }' />
+    }
+</div>

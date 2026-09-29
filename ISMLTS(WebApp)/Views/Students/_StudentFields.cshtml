@@ -1,0 +1,23 @@
+@model Student
+@{
+    var programmes = ViewBag.Programmes as List<string> ?? new List<string>();
+}
+
+<div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+<div class="mb-3">
+    <label asp-for="FullName" class="form-label"></label>
+    <input asp-for="FullName" class="form-control" autocomplete="off" />
+    <span asp-validation-for="FullName" class="text-danger small"></span>
+</div>
+<div class="mb-3">
+    <label asp-for="Email" class="form-label"></label>
+    <input asp-for="Email" class="form-control" autocomplete="off" />
+    <span asp-validation-for="Email" class="text-danger small"></span>
+</div>
+<div class="mb-3">
+    <label asp-for="Programme" class="form-label"></label>
+    <select asp-for="Programme" class="form-select" asp-items="@(new SelectList(programmes))">
+        <option value="">Not set</option>
+    </select>
+    <span asp-validation-for="Programme" class="text-danger small"></span>
+</div>

@@ -1,27 +1,29 @@
-@model ISMLTS_WebApp_.Models.Admin
+@model Admin
 @{
     ViewData["Title"] = "Add Admin";
 }
 
-<h1>Add Admin</h1>
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="Username" class="control-label"></label>
-                <input asp-for="Username" class="form-control" />
-                <span asp-validation-for="Username" class="text-danger"></span>
+<partial name="_PageHeader" model='new PageHeaderModel { Title = "Add admin", BackUrl = Url.Action("Index"), BackText = "Admins" }' />
+
+<div class="panel form-panel">
+    <form asp-action="Create" method="post">
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+        <div class="mb-3">
+            <label asp-for="Username" class="form-label"></label>
+            <input asp-for="Username" class="form-control" autocomplete="off" />
+            <span asp-validation-for="Username" class="text-danger small"></span>
+        </div>
+        <div class="mb-3">
+            <label for="password" class="form-label">Temporary password</label>
+            <div class="input-group">
+                <input id="password" name="password" type="password" class="form-control" minlength="8" autocomplete="new-password" required aria-describedby="passwordHelp" />
+                <button type="button" class="btn btn-outline-secondary" data-password-toggle="password" aria-label="Show password" aria-pressed="false"><i class="bi bi-eye" aria-hidden="true"></i></button>
             </div>
-            
-            <div class="form-group">
-                <label for="password" class="control-label">Temporary Password</label>
-                <input id="password" name="password" type="password" class="form-control" minlength="8" autocomplete="new-password" required />
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-rosebank" />
-            </div>
-        </form>
-    </div>
+            <div id="passwordHelp" class="form-text">At least 8 characters.</div>
+        </div>
+        <div class="form-actions">
+            <button type="submit" class="btn btn-rosebank" data-loading="Saving…"><i class="bi bi-check-lg" aria-hidden="true"></i> Add admin</button>
+            <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+        </div>
+    </form>
 </div>
-<div><a asp-action="Index">Back to List</a></div>

@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using ISMLTS_WebApp_.Extensions;
 using ISMLTS_WebApp_.Models;
 using ISMLTS_WebApp_.Repositories;
 using ISMLTS_WebApp_.Services;
@@ -14,26 +15,30 @@ namespace ISMLTS_WebApp_.Controllers
 
         private readonly IStudentRepository _studentRepository;
         private readonly ILecturerRepository _lecturerRepository;
+        private readonly ICourseRepository _courseRepository;
 
-        public StudentsController(IStudentRepository studentRepository, ILecturerRepository lecturerRepository)
+        public StudentsController(IStudentRepository studentRepository, ILecturerRepository lecturerRepository, ICourseRepository courseRepository)
         {
             _studentRepository = studentRepository;
             _lecturerRepository = lecturerRepository;
+            _courseRepository = courseRepository;
         }
 
-        public async Task<IActionResult> Index()
-        {
-            return View(await _studentRepository.GetAllAsync());
-        }
+        public async Task<IActionResult> Index(string? q, int page = 1) =>
+            View(await _studentRepository.SearchAsync(q, page));
 
         public async Task<IActionResult> Details(int id)
         {
-            var student = await _studentRepository.GetByIdAsync(id);
+            var student = await _studentRepository.GetByIdWithModulesAsync(id);
             if (student == null) return NotFound();
             return View(student);
         }
 
-        public IActionResult Create() => View();
+        public async Task<IActionResult> Create()
+        {
+            await LoadProgrammesAsync(null);
+            return View();
+        }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -43,17 +48,26 @@ namespace ISMLTS_WebApp_.Controllers
                 ModelState.AddModelError(string.Empty, PasswordRules.TooShortMessage);
             await CheckEmailIsFreeAsync(student.Email, 0);
 
-            if (!ModelState.IsValid) return View(student);
+            if (ModelState.IsValid)
+            {
+                student.PasswordHash = BCrypt.Net.BCrypt.HashPassword(password);
+                await _studentRepository.AddAsync(student);
+                if (await TrySaveAsync(student.Email, 0))
+                {
+                    this.Toast($"{student.FullName} was added.");
+                    return RedirectToAction(nameof(Index));
+                }
+            }
 
-            student.PasswordHash = BCrypt.Net.BCrypt.HashPassword(password);
-            await _studentRepository.AddAsync(student);
-            return await TrySaveAsync(student.Email, 0) ? RedirectToAction(nameof(Index)) : View(student);
+            await LoadProgrammesAsync(student.Programme);
+            return View(student);
         }
 
         public async Task<IActionResult> Edit(int id)
         {
             var student = await _studentRepository.GetByIdAsync(id);
             if (student == null) return NotFound();
+            await LoadProgrammesAsync(student.Programme);
             return View(student);
         }
 
@@ -63,37 +77,48 @@ namespace ISMLTS_WebApp_.Controllers
         {
             if (id != input.StudentId) return NotFound();
             await CheckEmailIsFreeAsync(input.Email, id);
-            if (!ModelState.IsValid) return View(input);
 
-            var student = await _studentRepository.GetByIdAsync(id);
-            if (student == null) return NotFound();
+            if (ModelState.IsValid)
+            {
+                var student = await _studentRepository.GetByIdAsync(id);
+                if (student == null) return NotFound();
 
-            student.FullName = input.FullName;
-            student.Email = input.Email;
-            student.Programme = input.Programme;
+                student.FullName = input.FullName;
+                student.Email = input.Email;
+                student.Programme = input.Programme;
 
-            _studentRepository.Update(student);
-            return await TrySaveAsync(input.Email, id) ? RedirectToAction(nameof(Index)) : View(input);
+                _studentRepository.Update(student);
+                if (await TrySaveAsync(input.Email, id))
+                {
+                    this.Toast($"Changes to {student.FullName} were saved.");
+                    return RedirectToAction(nameof(Index));
+                }
+            }
+
+            await LoadProgrammesAsync(input.Programme);
+            return View(input);
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)
         {
             var student = await _studentRepository.GetByIdAsync(id);
             if (student == null) return NotFound();
-            return View(student);
+
+            _studentRepository.Delete(student);
+            await _studentRepository.SaveChangesAsync();
+            this.Toast($"{student.FullName} was deleted.");
+            return RedirectToAction(nameof(Index));
         }
 
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        // Programmes are the college's courses; an older free-text value stays selectable so editing doesn't lose it
+        private async Task LoadProgrammesAsync(string? current)
         {
-            var student = await _studentRepository.GetByIdAsync(id);
-            if (student != null)
-            {
-                _studentRepository.Delete(student);
-                await _studentRepository.SaveChangesAsync();
-            }
-            return RedirectToAction(nameof(Index));
+            var names = (await _courseRepository.GetAllAsync()).Select(c => c.Name).OrderBy(n => n).ToList();
+            if (!string.IsNullOrWhiteSpace(current) && !names.Contains(current))
+                names.Insert(0, current);
+            ViewBag.Programmes = names;
         }
 
         // Login looks up lecturers and students by email, so an email must be unique across both

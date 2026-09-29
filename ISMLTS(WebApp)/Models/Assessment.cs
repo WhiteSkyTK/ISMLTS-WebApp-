@@ -19,6 +19,7 @@ namespace ISMLTS_WebApp_.Models
         public string Type { get; set; } = "ICE"; // ICE, Quiz, POE, Project
 
         [Required, DataType(DataType.Date)]
+        [Display(Name = "Due date")]
         public DateTime DueDate { get; set; }
 
         [MaxLength(500)]

@@ -1,27 +1,16 @@
-﻿@model ISMLTS_WebApp_.Models.Course
+@model Course
 @{
     ViewData["Title"] = "Add Course";
 }
 
-<h1>Add Course</h1>
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="Code" class="control-label">Code (e.g. ADAD0701)</label>
-                <input asp-for="Code" class="form-control" />
-                <span asp-validation-for="Code" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Name" class="control-label"></label>
-                <input asp-for="Name" class="form-control" />
-                <span asp-validation-for="Name" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-rosebank" />
-            </div>
-        </form>
-    </div>
+<partial name="_PageHeader" model='new PageHeaderModel { Title = "Add course", BackUrl = Url.Action("Index"), BackText = "Courses" }' />
+
+<div class="panel form-panel">
+    <form asp-action="Create" method="post">
+        <partial name="_CourseFields" model="Model" />
+        <div class="form-actions">
+            <button type="submit" class="btn btn-rosebank" data-loading="Saving…"><i class="bi bi-check-lg" aria-hidden="true"></i> Add course</button>
+            <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+        </div>
+    </form>
 </div>
-<div><a asp-action="Index">Back to List</a></div>

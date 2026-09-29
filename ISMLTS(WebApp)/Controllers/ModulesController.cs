@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using ISMLTS_WebApp_.Extensions;
 using ISMLTS_WebApp_.Models;
 using ISMLTS_WebApp_.Repositories;
 
@@ -28,7 +29,8 @@ namespace ISMLTS_WebApp_.Controllers
             _courseRepository = courseRepository;
         }
 
-        public async Task<IActionResult> Index() => View(await _moduleRepository.GetAllWithLecturerAsync());
+        public async Task<IActionResult> Index(string? q, int page = 1) =>
+            View(await _moduleRepository.SearchAsync(q, page));
 
         public async Task<IActionResult> Details(int id)
         {
@@ -51,7 +53,11 @@ namespace ISMLTS_WebApp_.Controllers
             if (ModelState.IsValid)
             {
                 await _moduleRepository.AddAsync(module);
-                if (await TrySaveAsync(module.Code, 0)) return RedirectToAction(nameof(Index));
+                if (await TrySaveAsync(module.Code, 0))
+                {
+                    this.Toast($"{module.Code} was added. Enrol students next.");
+                    return RedirectToAction(nameof(Enrol), new { id = module.ModuleId });
+                }
             }
 
             await LoadFormData();
@@ -84,30 +90,27 @@ namespace ISMLTS_WebApp_.Controllers
                 module.CourseId = input.CourseId;
 
                 _moduleRepository.Update(module);
-                if (await TrySaveAsync(input.Code, id)) return RedirectToAction(nameof(Index));
+                if (await TrySaveAsync(input.Code, id))
+                {
+                    this.Toast($"Changes to {module.Code} were saved.");
+                    return RedirectToAction(nameof(Index));
+                }
             }
 
             await LoadFormData();
             return View(input);
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)
         {
             var module = await _moduleRepository.GetByIdAsync(id);
             if (module == null) return NotFound();
-            return View(module);
-        }
 
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var module = await _moduleRepository.GetByIdAsync(id);
-            if (module != null)
-            {
-                _moduleRepository.Delete(module);
-                await _moduleRepository.SaveChangesAsync();
-            }
+            _moduleRepository.Delete(module);
+            await _moduleRepository.SaveChangesAsync();
+            this.Toast($"{module.Code} was deleted.");
             return RedirectToAction(nameof(Index));
         }
 
@@ -124,7 +127,7 @@ namespace ISMLTS_WebApp_.Controllers
             {
                 ModuleId = module.ModuleId,
                 ModuleName = $"{module.Code} - {module.Name}",
-                Students = allStudents.Select(s => new EnrolmentRow
+                Students = allStudents.OrderBy(s => s.FullName).Select(s => new EnrolmentRow
                 {
                     StudentId = s.StudentId,
                     FullName = s.FullName,
@@ -150,6 +153,7 @@ namespace ISMLTS_WebApp_.Controllers
 
             _moduleRepository.Update(module);
             await _moduleRepository.SaveChangesAsync();
+            this.Toast($"{module.Students.Count} student(s) are now enrolled in {module.Code}.");
             return RedirectToAction(nameof(Index));
         }
 
@@ -178,8 +182,10 @@ namespace ISMLTS_WebApp_.Controllers
         private async Task LoadFormData()
         {
             ViewBag.Lecturers = (await _lecturerRepository.GetAllAsync())
+                .OrderBy(l => l.FullName)
                 .Select(l => new { l.LecturerId, l.FullName }).ToList();
             ViewBag.Courses = (await _courseRepository.GetAllAsync())
+                .OrderBy(c => c.Code)
                 .Select(c => new { c.CourseId, Display = $"{c.Code} - {c.Name}" }).ToList();
         }
     }

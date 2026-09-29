@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using ISMLTS_WebApp_.Extensions;
 using ISMLTS_WebApp_.Models;
 using ISMLTS_WebApp_.Repositories;
 using ISMLTS_WebApp_.Services;
@@ -14,19 +15,23 @@ namespace ISMLTS_WebApp_.Controllers
 
         private readonly ILecturerRepository _lecturerRepository;
         private readonly IStudentRepository _studentRepository;
+        private readonly IModuleRepository _moduleRepository;
 
-        public LecturersController(ILecturerRepository lecturerRepository, IStudentRepository studentRepository)
+        public LecturersController(ILecturerRepository lecturerRepository, IStudentRepository studentRepository, IModuleRepository moduleRepository)
         {
             _lecturerRepository = lecturerRepository;
             _studentRepository = studentRepository;
+            _moduleRepository = moduleRepository;
         }
 
-        public async Task<IActionResult> Index() => View(await _lecturerRepository.GetAllAsync());
+        public async Task<IActionResult> Index(string? q, int page = 1) =>
+            View(await _lecturerRepository.SearchAsync(q, page));
 
         public async Task<IActionResult> Details(int id)
         {
             var lecturer = await _lecturerRepository.GetByIdAsync(id);
             if (lecturer == null) return NotFound();
+            ViewBag.Modules = (await _moduleRepository.GetByLecturerAsync(id)).OrderBy(m => m.Code).ToList();
             return View(lecturer);
         }
 
@@ -44,7 +49,10 @@ namespace ISMLTS_WebApp_.Controllers
 
             lecturer.PasswordHash = BCrypt.Net.BCrypt.HashPassword(password);
             await _lecturerRepository.AddAsync(lecturer);
-            return await TrySaveAsync(lecturer.Email, 0) ? RedirectToAction(nameof(Index)) : View(lecturer);
+            if (!await TrySaveAsync(lecturer.Email, 0)) return View(lecturer);
+
+            this.Toast($"{lecturer.FullName} was added.");
+            return RedirectToAction(nameof(Index));
         }
 
         public async Task<IActionResult> Edit(int id)
@@ -69,26 +77,29 @@ namespace ISMLTS_WebApp_.Controllers
             lecturer.Email = input.Email;
 
             _lecturerRepository.Update(lecturer);
-            return await TrySaveAsync(input.Email, id) ? RedirectToAction(nameof(Index)) : View(input);
+            if (!await TrySaveAsync(input.Email, id)) return View(input);
+
+            this.Toast($"Changes to {lecturer.FullName} were saved.");
+            return RedirectToAction(nameof(Index));
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)
         {
             var lecturer = await _lecturerRepository.GetByIdAsync(id);
             if (lecturer == null) return NotFound();
-            return View(lecturer);
-        }
 
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var lecturer = await _lecturerRepository.GetByIdAsync(id);
-            if (lecturer != null)
+            // Modules can't be left without a lecturer (the foreign key is Restrict)
+            if ((await _moduleRepository.GetByLecturerAsync(id)).Any())
             {
-                _lecturerRepository.Delete(lecturer);
-                await _lecturerRepository.SaveChangesAsync();
+                this.Toast($"{lecturer.FullName} still teaches modules. Give them to another lecturer under Modules first.", ToastTypes.Danger);
+                return RedirectToAction(nameof(Index));
             }
+
+            _lecturerRepository.Delete(lecturer);
+            await _lecturerRepository.SaveChangesAsync();
+            this.Toast($"{lecturer.FullName} was deleted.");
             return RedirectToAction(nameof(Index));
         }
 

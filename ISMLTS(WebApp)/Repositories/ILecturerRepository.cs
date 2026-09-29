@@ -7,5 +7,6 @@ namespace ISMLTS_WebApp_.Repositories
     {
         Task<Lecturer?> GetByEmailAsync(string email);
         Task<bool> EmailExistsAsync(string email, int exceptLecturerId = 0);
+        Task<PagedList<Lecturer>> SearchAsync(string? query, int page);
     }
 }

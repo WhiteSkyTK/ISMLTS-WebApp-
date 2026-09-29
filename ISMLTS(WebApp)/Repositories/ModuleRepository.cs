@@ -17,10 +17,20 @@ namespace ISMLTS_WebApp_.Repositories
         public async Task<IEnumerable<Module>> GetByLecturerAsync(int lecturerId) =>
             await _dbSet.Where(m => m.LecturerId == lecturerId).ToListAsync();
 
-        public async Task<IEnumerable<Module>> GetAllWithLecturerAsync() =>
-    await _dbSet.Include(m => m.Lecturer).ToListAsync();
+        public async Task<PagedList<Module>> SearchAsync(string? query, int page)
+        {
+            var modules = _dbSet.AsNoTracking().Include(m => m.Lecturer).Include(m => m.Course).AsQueryable();
+            if (!string.IsNullOrWhiteSpace(query))
+            {
+                var term = query.Trim();
+                modules = modules.Where(m => m.Code.Contains(term) || m.Name.Contains(term)
+                    || (m.Lecturer != null && m.Lecturer.FullName.Contains(term)));
+            }
+            return await modules.OrderBy(m => m.Code).ToPagedListAsync(page, query);
+        }
 
         public async Task<Module?> GetByIdWithDetailsAsync(int id) =>
-            await _dbSet.Include(m => m.Lecturer).Include(m => m.Students).FirstOrDefaultAsync(m => m.ModuleId == id);
+            await _dbSet.Include(m => m.Lecturer).Include(m => m.Course).Include(m => m.Students)
+                .FirstOrDefaultAsync(m => m.ModuleId == id);
     }
 }

@@ -66,8 +66,10 @@ builder.Services.AddScoped<IAttendanceRepository, AttendanceRepository>();
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 builder.Services.AddScoped<INotificationSettingRepository, NotificationSettingRepository>();
 builder.Services.AddScoped<IAnnouncementRepository, AnnouncementRepository>();
+builder.Services.AddScoped<IMarkChangeRepository, MarkChangeRepository>();
 
 builder.Services.Configure<AttendanceOptions>(builder.Configuration.GetSection("Attendance"));
+builder.Services.Configure<RiskOptions>(builder.Configuration.GetSection("Risk"));
 builder.Services.AddSingleton<IAttendanceVerifier, AttendanceVerifier>();
 builder.Services.AddSingleton<IQrCodeService, QrCodeService>();
 builder.Services.AddScoped<ICourseService, CourseService>();

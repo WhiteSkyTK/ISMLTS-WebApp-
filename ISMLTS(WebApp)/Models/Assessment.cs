@@ -24,5 +24,15 @@ namespace ISMLTS_WebApp_.Models
 
         [MaxLength(500)]
         public string? Description { get; set; }
+
+        [Range(0.5, 1000)]
+        [Display(Name = "Marked out of")]
+        public decimal MaxScore { get; set; } = 100;
+
+        // Until released, students can't see marks for this assessment
+        [Display(Name = "Marks released")]
+        public bool MarksReleased { get; set; }
+
+        public DateTime? MarksReleasedAt { get; set; }
     }
 }

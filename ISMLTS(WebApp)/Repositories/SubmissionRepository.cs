@@ -16,5 +16,12 @@ namespace ISMLTS_WebApp_.Repositories
 
         public async Task<IEnumerable<Submission>> GetByStudentAsync(int studentId) =>
             await _dbSet.Include(s => s.Assessment).Where(s => s.StudentId == studentId).ToListAsync();
+
+        public async Task<List<Submission>> GetByAssessmentsAsync(IReadOnlyCollection<int> assessmentIds) =>
+            await _dbSet.AsNoTracking()
+                .Include(s => s.Student)
+                .Include(s => s.Assessment).ThenInclude(a => a!.Module)
+                .Where(s => assessmentIds.Contains(s.AssessmentId))
+                .ToListAsync();
     }
 }

@@ -7,5 +7,6 @@ namespace ISMLTS_WebApp_.Repositories
         Task<IEnumerable<Submission>> GetByAssessmentAsync(int assessmentId);
         Task<Submission?> GetByAssessmentAndStudentAsync(int assessmentId, int studentId);
         Task<IEnumerable<Submission>> GetByStudentAsync(int studentId);
+        Task<List<Submission>> GetByAssessmentsAsync(IReadOnlyCollection<int> assessmentIds);
     }
 }

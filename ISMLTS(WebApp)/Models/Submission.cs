@@ -27,7 +27,8 @@ namespace ISMLTS_WebApp_.Models
             get
             {
                 if (SubmittedAt == null) return "Not Submitted";
-                return Assessment != null && SubmittedAt > Assessment.DueDate ? "Late" : "Submitted";
+                // SubmittedAt is UTC; DueDate is a local calendar date, so anything on the due day counts as on time
+                return Assessment != null && SubmittedAt.Value.ToLocalTime().Date > Assessment.DueDate.Date ? "Late" : "Submitted";
             }
         }
     }

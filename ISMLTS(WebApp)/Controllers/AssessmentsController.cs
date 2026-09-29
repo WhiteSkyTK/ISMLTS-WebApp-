@@ -1,5 +1,4 @@
-﻿using System.Security.Claims;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ISMLTS_WebApp_.Extensions;
 using ISMLTS_WebApp_.Models;
@@ -151,8 +150,7 @@ namespace ISMLTS_WebApp_.Controllers
         [Authorize(Roles = "Student")]
         public async Task<IActionResult> MyAssessments()
         {
-            var idClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (idClaim == null || !int.TryParse(idClaim, out var studentId)) return Forbid();
+            if (User.GetUserId() is not int studentId) return Forbid();
 
             var student = await _studentRepository.GetByIdWithModulesAsync(studentId);
             if (student == null) return NotFound();
@@ -185,8 +183,7 @@ namespace ISMLTS_WebApp_.Controllers
         [HttpGet]
         public async Task<IActionResult> Submit(int id)
         {
-            var idClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (idClaim == null || !int.TryParse(idClaim, out var studentId)) return Forbid();
+            if (User.GetUserId() is not int studentId) return Forbid();
 
             var assessment = await GetEnrolledAssessmentAsync(id, studentId);
             if (assessment == null) return NotFound();
@@ -203,8 +200,7 @@ namespace ISMLTS_WebApp_.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Submit(int id, string? link)
         {
-            var idClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (idClaim == null || !int.TryParse(idClaim, out var studentId)) return Forbid();
+            if (User.GetUserId() is not int studentId) return Forbid();
 
             var assessment = await GetEnrolledAssessmentAsync(id, studentId);
             if (assessment == null) return NotFound();
@@ -221,13 +217,13 @@ namespace ISMLTS_WebApp_.Controllers
             var existing = await _submissionRepository.GetByAssessmentAndStudentAsync(id, studentId);
             if (existing == null)
             {
-                existing = new Submission { AssessmentId = id, StudentId = studentId, Link = link, SubmittedAt = DateTime.Now };
+                existing = new Submission { AssessmentId = id, StudentId = studentId, Link = link, SubmittedAt = DateTime.UtcNow };
                 await _submissionRepository.AddAsync(existing);
             }
             else
             {
                 existing.Link = link;
-                existing.SubmittedAt = DateTime.Now;
+                existing.SubmittedAt = DateTime.UtcNow;
                 _submissionRepository.Update(existing);
             }
 

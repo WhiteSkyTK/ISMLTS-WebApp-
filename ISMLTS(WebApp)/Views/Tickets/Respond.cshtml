@@ -4,7 +4,7 @@
 }
 
 <h1>@Model.Subject</h1>
-<p class="text-muted">@Model.Student?.FullName — @Model.Module?.Code — opened @Model.DateOpened.ToString("dd MMM yyyy, HH:mm")</p>
+<p class="text-muted">@Model.Student?.FullName — @Model.Module?.Code — opened @Model.DateOpened.ToLocalTime().ToString("dd MMM yyyy, HH:mm")</p>
 <div class="panel mb-3" style="max-width:600px;"><p>@Model.Description</p></div>
 
 <div class="row">

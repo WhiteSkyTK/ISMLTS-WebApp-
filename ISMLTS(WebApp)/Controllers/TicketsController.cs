@@ -1,5 +1,4 @@
-﻿using System.Security.Claims;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ISMLTS_WebApp_.Extensions;
 using ISMLTS_WebApp_.Models;
@@ -25,8 +24,7 @@ namespace ISMLTS_WebApp_.Controllers
         [Authorize(Roles = "Lecturer")]
         public async Task<IActionResult> Index()
         {
-            var idClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (idClaim == null || !int.TryParse(idClaim, out var lecturerId)) return Forbid();
+            if (User.GetUserId() is not int lecturerId) return Forbid();
             return View(await _ticketRepository.GetByLecturerAsync(lecturerId));
         }
 
@@ -56,7 +54,7 @@ namespace ISMLTS_WebApp_.Controllers
 
             ticket.Status = status;
             ticket.LecturerResponse = lecturerResponse;
-            ticket.DateResolved = status == "Resolved" ? DateTime.Now : null;
+            ticket.DateResolved = status == "Resolved" ? DateTime.UtcNow : null;
 
             _ticketRepository.Update(ticket);
             await _ticketRepository.SaveChangesAsync();
@@ -66,8 +64,7 @@ namespace ISMLTS_WebApp_.Controllers
         [Authorize(Roles = "Student")]
         public async Task<IActionResult> MyTickets()
         {
-            var idClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (idClaim == null || !int.TryParse(idClaim, out var studentId)) return Forbid();
+            if (User.GetUserId() is not int studentId) return Forbid();
             return View(await _ticketRepository.GetByStudentAsync(studentId));
         }
 
@@ -75,8 +72,7 @@ namespace ISMLTS_WebApp_.Controllers
         [HttpGet]
         public async Task<IActionResult> Create()
         {
-            var idClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (idClaim == null || !int.TryParse(idClaim, out var studentId)) return Forbid();
+            if (User.GetUserId() is not int studentId) return Forbid();
 
             var student = await _studentRepository.GetByIdWithModulesAsync(studentId);
             ViewBag.Modules = student?.Modules
@@ -90,8 +86,7 @@ namespace ISMLTS_WebApp_.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("ModuleId,Subject,Description")] Ticket ticket)
         {
-            var idClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (idClaim == null || !int.TryParse(idClaim, out var studentId)) return Forbid();
+            if (User.GetUserId() is not int studentId) return Forbid();
 
             if (!await _studentRepository.IsEnrolledAsync(studentId, ticket.ModuleId))
                 ModelState.AddModelError(nameof(Ticket.ModuleId), "Pick one of your modules.");

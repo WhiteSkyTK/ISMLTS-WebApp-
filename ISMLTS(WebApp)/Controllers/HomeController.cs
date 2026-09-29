@@ -1,6 +1,6 @@
 using System.Diagnostics;
-using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
+using ISMLTS_WebApp_.Extensions;
 using ISMLTS_WebApp_.Models;
 using ISMLTS_WebApp_.Repositories;
 
@@ -34,8 +34,7 @@ namespace ISMLTS_WebApp_.Controllers
 
             var model = new DashboardViewModel();
 
-            var idClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            int.TryParse(idClaim, out var userId);
+            var userId = User.GetUserId() ?? 0;
 
             if (User.IsInRole("Admin"))
             {
@@ -47,7 +46,7 @@ namespace ISMLTS_WebApp_.Controllers
             Student? student = null;
             if (User.IsInRole("Student"))
             {
-                student = idClaim != null ? await _studentRepository.GetByIdWithModulesAsync(userId) : null;
+                student = await _studentRepository.GetByIdWithModulesAsync(userId);
 
                 model.Courses = student?.Modules.Select(m => new CourseCard
                 {

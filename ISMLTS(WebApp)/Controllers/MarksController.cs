@@ -1,5 +1,4 @@
-﻿using System.Security.Claims;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ISMLTS_WebApp_.Extensions;
 using ISMLTS_WebApp_.Models;
@@ -153,8 +152,7 @@ namespace ISMLTS_WebApp_.Controllers
         [Authorize(Roles = "Student")]
         public async Task<IActionResult> MyMarks()
         {
-            var idClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (idClaim == null || !int.TryParse(idClaim, out var studentId)) return Forbid();
+            if (User.GetUserId() is not int studentId) return Forbid();
 
             var marks = await _markRepository.GetByStudentAsync(studentId);
             var byModule = marks.GroupBy(m => m.ModuleId).Select(g => new MyModuleMarks

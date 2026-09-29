@@ -124,6 +124,50 @@ namespace ISMLTS.Tests.Integration
             Assert.True(await _factory.WithDbAsync(db => db.Admins.AnyAsync(a => a.AdminId == id && a.Username == "renamed")));
         }
 
+        [Fact]
+        public async Task CoursePages_AddModulesThenEnrolAClassForOneTerm()
+        {
+            var client = Admin;
+            var data = _factory.Data;
+            var (courseId, studentId) = await _factory.WithDbAsync(async db =>
+            {
+                var course = new Course { Code = "TEST0101", Name = "Test Course" };
+                var student = new Student { FullName = "Course Student", Email = "course.student@students.test" };
+                db.AddRange(course, student);
+                (await db.Modules.FindAsync(data.ModuleBId))!.Term = "Term2";
+                await db.SaveChangesAsync();
+                return (course.CourseId, student.StudentId);
+            });
+            var id = Id(courseId);
+
+            var token = await IsmltsFactory.GetAntiforgeryTokenAsync(client, $"/Courses/Modules/{id}");
+            var modulesResponse = await client.PostAsync($"/Courses/Modules/{id}", new FormUrlEncodedContent(new[]
+            {
+                new KeyValuePair<string, string>("__RequestVerificationToken", token),
+                new KeyValuePair<string, string>("moduleIds", Id(data.ModuleAId)),
+                new KeyValuePair<string, string>("moduleIds", Id(data.ModuleBId))
+            }));
+            Assert.Equal(HttpStatusCode.Redirect, modulesResponse.StatusCode);
+            Assert.Contains("TEST0101 now has 2 module(s).", await client.GetStringAsync(modulesResponse.Headers.Location));
+
+            token = await IsmltsFactory.GetAntiforgeryTokenAsync(client, $"/Courses/Enrol/{id}");
+            var enrolResponse = await client.PostAsync($"/Courses/Enrol/{id}", new FormUrlEncodedContent(new[]
+            {
+                new KeyValuePair<string, string>("__RequestVerificationToken", token),
+                new KeyValuePair<string, string>("term", "Term2"),
+                new KeyValuePair<string, string>("mode", "enrol"),
+                new KeyValuePair<string, string>("selectedStudentIds", Id(studentId))
+            }));
+            Assert.Equal(HttpStatusCode.Redirect, enrolResponse.StatusCode);
+            Assert.Contains("Enrolled 1 student(s) in 1 Term 2 module(s) of TEST0101", await client.GetStringAsync(enrolResponse.Headers.Location));
+
+            var enrolledIn = await _factory.WithDbAsync(db => db.Students.Where(s => s.StudentId == studentId)
+                .SelectMany(s => s.Modules.Select(m => m.ModuleId)).ToListAsync());
+            Assert.Equal(new[] { data.ModuleBId }, enrolledIn);
+        }
+
+        private static string Id(int value) => value.ToString(CultureInfo.InvariantCulture);
+
         private static async Task<string> PostAndFollowAsync(HttpClient client, string url, string formPage)
         {
             var token = await IsmltsFactory.GetAntiforgeryTokenAsync(client, formPage);

@@ -67,6 +67,7 @@ builder.Services.AddScoped<IAttendanceRepository, AttendanceRepository>();
 builder.Services.Configure<AttendanceOptions>(builder.Configuration.GetSection("Attendance"));
 builder.Services.AddSingleton<IAttendanceVerifier, AttendanceVerifier>();
 builder.Services.AddSingleton<IQrCodeService, QrCodeService>();
+builder.Services.AddScoped<ICourseService, CourseService>();
 
 var app = builder.Build();
 

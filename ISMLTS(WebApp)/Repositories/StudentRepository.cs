@@ -33,5 +33,11 @@ namespace ISMLTS_WebApp_.Repositories
             }
             return await students.OrderBy(s => s.FullName).ToPagedListAsync(page, query);
         }
+
+        public async Task<IEnumerable<Student>> GetByIdsAsync(IEnumerable<int> ids)
+        {
+            var wanted = ids.Distinct().ToList();
+            return await _dbSet.Where(s => wanted.Contains(s.StudentId)).ToListAsync();
+        }
     }
 }

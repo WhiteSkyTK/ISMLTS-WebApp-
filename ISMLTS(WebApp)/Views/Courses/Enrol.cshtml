@@ -1,0 +1,70 @@
+@model CourseEnrolmentViewModel
+@{
+    ViewData["Title"] = "Enrol in Course";
+    ViewData["FilterLabel"] = "Find a student";
+}
+
+<partial name="_PageHeader" model='new PageHeaderModel { Title = "Enrol students in the course", Subtitle = Model.CourseDisplay, BackUrl = Url.Action("Details", new { id = Model.CourseId }), BackText = "Course" }' />
+
+@if (Model.TotalModules == 0)
+{
+    <div class="panel form-panel">
+        <partial name="_EmptyState" model='new EmptyStateModel { Icon = "bi-journal-plus", Title = "This course has no modules yet", Message = "Add modules to the course first, then enrol students in all of them at once.", ActionUrl = Url.Action("Modules", new { id = Model.CourseId }), ActionText = "Add modules" }' />
+    </div>
+}
+else
+{
+    <form asp-action="Enrol" asp-route-id="@Model.CourseId" method="post">
+        <div class="panel form-panel">
+            <div class="mb-3">
+                <label for="term" class="form-label">Enrol in</label>
+                <select id="term" name="term" class="form-select">
+                    <option value="All">Every module (@Model.TotalModules)</option>
+                    <option value="Term1">Term 1 modules only (@Model.Term1Modules)</option>
+                    <option value="Term2">Term 2 modules only (@Model.Term2Modules)</option>
+                </select>
+            </div>
+
+            @if (Model.Students.Any())
+            {
+                <partial name="_TableFilter" model='"#courseStudents"' />
+                <div class="form-check border-bottom pb-2 mb-2">
+                    <input class="form-check-input" type="checkbox" id="selectAll" data-check-all="#courseStudents" />
+                    <label class="form-check-label fw-medium" for="selectAll">Select everyone shown</label>
+                </div>
+                <div id="courseStudents">
+                    @foreach (var s in Model.Students)
+                    {
+                        <div class="form-check d-flex align-items-center gap-2 py-1" data-filter-item>
+                            <input class="form-check-input" type="checkbox" name="selectedStudentIds" value="@s.StudentId" id="student_@s.StudentId" />
+                            <label class="form-check-label flex-grow-1" for="student_@s.StudentId">
+                                @s.FullName <span class="table-row-sub d-inline ms-1">@s.Email</span>
+                            </label>
+                            @if (s.EnrolledModules == Model.TotalModules)
+                            {
+                                <span class="badge text-bg-success">All @Model.TotalModules modules</span>
+                            }
+                            else if (s.EnrolledModules > 0)
+                            {
+                                <span class="badge text-bg-warning">@s.EnrolledModules of @Model.TotalModules</span>
+                            }
+                            else
+                            {
+                                <span class="badge text-bg-light">Not enrolled</span>
+                            }
+                        </div>
+                    }
+                </div>
+                <p class="text-muted small mb-0" data-filter-empty hidden>No students match that name.</p>
+                <div class="form-actions">
+                    <button type="submit" name="mode" value="enrol" class="btn btn-rosebank" data-loading="Enrolling…"><i class="bi bi-person-plus" aria-hidden="true"></i> Enrol selected</button>
+                    <button type="submit" name="mode" value="remove" class="btn btn-outline-danger" data-loading="Removing…" data-confirm="Remove the selected students from these modules? Their marks and submissions are kept." data-confirm-label="Remove"><i class="bi bi-person-dash" aria-hidden="true"></i> Remove selected</button>
+                </div>
+            }
+            else
+            {
+                <partial name="_EmptyState" model='new EmptyStateModel { Icon = "bi-people", Title = "No students exist yet", ActionUrl = Url.Action("Create", "Students"), ActionText = "Add student" }' />
+            }
+        </div>
+    </form>
+}

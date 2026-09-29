@@ -1,0 +1,47 @@
+@model CourseModulesViewModel
+@{
+    ViewData["Title"] = "Course Modules";
+    ViewData["FilterLabel"] = "Find a module";
+}
+
+<partial name="_PageHeader" model='new PageHeaderModel { Title = "Modules in this course", Subtitle = Model.CourseDisplay, BackUrl = Url.Action("Details", new { id = Model.CourseId }), BackText = "Course" }' />
+
+<form asp-action="Modules" asp-route-id="@Model.CourseId" method="post">
+    <div class="panel form-panel">
+        @if (Model.Modules.Any())
+        {
+            <partial name="_TableFilter" model='"#courseModules"' />
+            <div id="courseModules">
+                @foreach (var group in Model.Modules.GroupBy(m => m.Term).OrderBy(g => g.Key))
+                {
+                    <fieldset class="mb-3">
+                        <legend class="form-label">@(group.Key == "Term2" ? "Term 2" : "Term 1")</legend>
+                        @foreach (var m in group)
+                        {
+                            <div class="form-check py-1" data-filter-item>
+                                <input class="form-check-input" type="checkbox" name="moduleIds" value="@m.ModuleId" id="module_@m.ModuleId" checked="@m.IsInCourse" />
+                                <label class="form-check-label" for="module_@m.ModuleId">
+                                    <span class="font-monospace">@m.Code</span> — @m.Name
+                                    @if (m.OtherCourseCode != null)
+                                    {
+                                        <span class="badge text-bg-light ms-1">now in @m.OtherCourseCode</span>
+                                    }
+                                </label>
+                            </div>
+                        }
+                    </fieldset>
+                }
+            </div>
+            <p class="text-muted small mb-0" data-filter-empty hidden>No modules match that search.</p>
+            <p class="form-text">A module belongs to one course. Ticking one that is in another course moves it here.</p>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-rosebank" data-loading="Saving…"><i class="bi bi-check-lg" aria-hidden="true"></i> Save modules</button>
+                <a asp-action="Details" asp-route-id="@Model.CourseId" class="btn btn-outline-secondary">Cancel</a>
+            </div>
+        }
+        else
+        {
+            <partial name="_EmptyState" model='new EmptyStateModel { Icon = "bi-journal-plus", Title = "No modules exist yet", Message = "Add modules first, then group them into this course.", ActionUrl = Url.Action("Create", "Modules"), ActionText = "Add module" }' />
+        }
+    </div>
+</form>

@@ -39,5 +39,8 @@ namespace ISMLTS_WebApp_.Repositories
             var wanted = ids.Distinct().ToList();
             return await _dbSet.Where(s => wanted.Contains(s.StudentId)).ToListAsync();
         }
+
+        public async Task<List<Student>> GetAllWithModulesAsync() =>
+            await _dbSet.AsNoTracking().Include(s => s.Modules).OrderBy(s => s.StudentId).ToListAsync();
     }
 }

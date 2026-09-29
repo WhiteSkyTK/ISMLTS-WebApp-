@@ -20,5 +20,11 @@ namespace ISMLTS_WebApp_.Repositories
                 .OrderBy(a => a.DueDate)
                 .Take(take)
                 .ToListAsync();
+
+        public async Task<List<Assessment>> GetDueBetweenAsync(DateTime fromDate, DateTime toDate) =>
+            await _dbSet.AsNoTracking().Include(a => a.Module)
+                .Where(a => a.DueDate >= fromDate && a.DueDate <= toDate)
+                .OrderBy(a => a.DueDate)
+                .ToListAsync();
     }
 }

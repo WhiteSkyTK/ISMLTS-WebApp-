@@ -25,12 +25,12 @@ One phase per session: plan briefly, implement, add tests, run `dotnet build` an
 - [x] Courses: tick a course's modules and enrol a class in all of them (per term) at once; the seeder keeps ADAD0701 with its 8 modules (4 per term)
 
 ## Phase 2 — Notifications and announcements
-- [ ] Notification entity (UserId, Role, Title, Message, Url, CreatedAt, IsRead) with repository and INotificationService
-- [ ] Triggers: assessment posted → enrolled students; mark captured/updated → that student; ticket raised → module lecturer; ticket answered → student; attendance session started → enrolled students ("Attendance is open for XADAD7112 — scan the QR in class", never include the code); lecturer marks a student present or removes a scan → that student; announcement posted → its audience
-- [ ] Bell: unread count, latest 8, clicking marks read and follows the link (local URLs only), "Mark all read", "View all" page with All/Unread filter; the "due soon" list stays as a second section
-- [ ] Announcement entity: lecturers post to their modules, admins post to everyone; the dashboard Announcements tab uses real data
-- [ ] Email for ticket replies (both directions) and a weekly "due this week" digest for students (Azure Communication Services), with an opt-out per user on a Notification settings page
-- [ ] Unit tests for NotificationService
+- [x] Notification entity (UserId, Role, Title, Message, Url, CreatedAt, IsRead) with repository and INotificationService
+- [x] Triggers: assessment posted → enrolled students; mark captured/updated → that student; ticket raised → module lecturer; ticket answered → student; attendance session started → enrolled students ("Attendance is open for XADAD7112 — scan the QR in class", never include the code); lecturer marks a student present or removes a scan → that student; announcement posted → its audience
+- [x] Bell: unread count, latest 8, clicking marks read and follows the link (local URLs only), "Mark all read", "View all" page with All/Unread filter; the "due soon" list stays as a second section
+- [x] Announcement entity: lecturers post to their modules, admins post to everyone; the dashboard Announcements tab uses real data
+- [x] Email for ticket replies (both directions) and a weekly "due this week" digest for students (Azure Communication Services), with an opt-out per user on a Notification settings page
+- [x] Unit tests for NotificationService
 
 ## Phase 3 — Marking and progress
 - [ ] Marks link to assessments: nullable `Mark.AssessmentId` + `Mark.Feedback`

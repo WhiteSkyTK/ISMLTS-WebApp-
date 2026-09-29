@@ -22,6 +22,7 @@ namespace ISMLTS_WebApp_.Controllers
         private readonly IAttendanceVerifier _verifier;
         private readonly IQrCodeService _qrCodeService;
         private readonly AttendanceOptions _options;
+        private readonly INotificationService _notifications;
 
         public AttendanceController(
             IAttendanceRepository attendanceRepository,
@@ -29,7 +30,8 @@ namespace ISMLTS_WebApp_.Controllers
             IStudentRepository studentRepository,
             IAttendanceVerifier verifier,
             IQrCodeService qrCodeService,
-            IOptions<AttendanceOptions> options)
+            IOptions<AttendanceOptions> options,
+            INotificationService notifications)
         {
             _attendanceRepository = attendanceRepository;
             _moduleRepository = moduleRepository;
@@ -37,6 +39,7 @@ namespace ISMLTS_WebApp_.Controllers
             _verifier = verifier;
             _qrCodeService = qrCodeService;
             _options = options.Value;
+            _notifications = notifications;
         }
 
         // ---------- Lecturer ----------
@@ -61,7 +64,8 @@ namespace ISMLTS_WebApp_.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Start(int moduleId, double? latitude, double? longitude)
         {
-            if (await GetOwnedModuleAsync(moduleId) == null) return NotFound();
+            var module = await GetOwnedModuleAsync(moduleId);
+            if (module == null) return NotFound();
 
             string code;
             do
@@ -81,6 +85,7 @@ namespace ISMLTS_WebApp_.Controllers
             };
             await _attendanceRepository.AddAsync(session);
             await _attendanceRepository.SaveChangesAsync();
+            await _notifications.AttendanceOpenedAsync(module);
             this.Toast($"Attendance is open for {_options.SessionMinutes} minutes. Show this QR code to the class.", ToastTypes.Info);
             return RedirectToAction(nameof(Live), new { id = session.SessionId });
         }
@@ -156,6 +161,7 @@ namespace ISMLTS_WebApp_.Controllers
                     IsManual = true
                 });
                 await _attendanceRepository.SaveChangesAsync();
+                await _notifications.MarkedPresentAsync(session.Module!, studentId);
                 this.Toast($"{enrolled.First(s => s.StudentId == studentId).FullName} was marked present.");
             }
             return RedirectToAction(nameof(Details), new { id });
@@ -172,6 +178,7 @@ namespace ISMLTS_WebApp_.Controllers
 
             _attendanceRepository.RemoveRecord(record);
             await _attendanceRepository.SaveChangesAsync();
+            await _notifications.ScanRemovedAsync(session!.Module!, record.StudentId);
             this.Toast($"{record.Student?.FullName} was removed from this register.", ToastTypes.Info);
             return RedirectToAction(nameof(Details), new { id });
         }

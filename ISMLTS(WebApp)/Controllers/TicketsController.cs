@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using ISMLTS_WebApp_.Extensions;
 using ISMLTS_WebApp_.Models;
 using ISMLTS_WebApp_.Repositories;
+using ISMLTS_WebApp_.Services;
 
 namespace ISMLTS_WebApp_.Controllers
 {
@@ -14,11 +15,13 @@ namespace ISMLTS_WebApp_.Controllers
 
         private readonly ITicketRepository _ticketRepository;
         private readonly IStudentRepository _studentRepository;
+        private readonly INotificationService _notifications;
 
-        public TicketsController(ITicketRepository ticketRepository, IStudentRepository studentRepository)
+        public TicketsController(ITicketRepository ticketRepository, IStudentRepository studentRepository, INotificationService notifications)
         {
             _ticketRepository = ticketRepository;
             _studentRepository = studentRepository;
+            _notifications = notifications;
         }
 
         [Authorize(Roles = "Lecturer")]
@@ -58,6 +61,7 @@ namespace ISMLTS_WebApp_.Controllers
 
             _ticketRepository.Update(ticket);
             await _ticketRepository.SaveChangesAsync();
+            await _notifications.TicketAnsweredAsync(ticket, ticket.Module!);
             this.Toast($"Your reply to {ticket.Student?.FullName} was saved ({status}).");
             return RedirectToAction(nameof(Index));
         }
@@ -104,6 +108,12 @@ namespace ISMLTS_WebApp_.Controllers
             ticket.StudentId = studentId;
             await _ticketRepository.AddAsync(ticket);
             await _ticketRepository.SaveChangesAsync();
+
+            var saved = await _ticketRepository.GetByIdWithDetailsAsync(ticket.TicketId);
+            if (saved?.Module != null)
+            {
+                await _notifications.TicketRaisedAsync(saved, saved.Module, saved.Student?.FullName ?? "A student");
+            }
             this.Toast("Your ticket was sent to your lecturer.");
             return RedirectToAction(nameof(MyTickets));
         }

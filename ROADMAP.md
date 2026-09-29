@@ -13,14 +13,15 @@ One phase per session: plan briefly, implement, add tests, run `dotnet build` an
 - [x] Integration tests (WebApplicationFactory, environment `Testing`, SQLite in-memory + EnsureCreated, DataSeeder skipped): anonymous users go to login, students get 403 on admin and lecturer pages, a lecturer can't open another lecturer's module
 
 ## Phase 1 — Everyday polish
-- [ ] Shared partials `_PageHeader` (title, subtitle, back link, primary action) and `_EmptyState`, used on every page
-- [ ] Toasts: the layout renders `TempData["Toast"]` as an auto-hiding Bootstrap toast; every create/edit/delete/submit sets one
-- [ ] `data-loading` on submit buttons (disable + spinner, no double posts); `data-confirm` deletes through one shared modal; retire the separate Delete pages
-- [ ] Row actions become small icon buttons with tooltips; tables get a search box (`data-table-filter`), sticky headers and horizontal scroll on mobile; admin lists paginate past 25 rows
-- [ ] Nav highlights the active link; admin nav gains Courses and Admins; the icon row becomes role-specific (pointing at Phase 3/4 pages); remove Language from the avatar menu
-- [ ] Styled 404, 403 and error pages via `UseStatusCodePagesWithReExecute`
-- [ ] Subtle motion (page fade-in, card hover lift, unread-badge pulse), all off under `prefers-reduced-motion`
-- [ ] Remove every remaining inline `style=""` from views
+- [x] Shared partials `_PageHeader` (title, subtitle, back link, primary action) and `_EmptyState`, used on every page
+- [x] Toasts: the layout renders `TempData["Toast"]` as an auto-hiding Bootstrap toast; every create/edit/delete/submit sets one
+- [x] `data-loading` on submit buttons (disable + spinner, no double posts); `data-confirm` deletes through one shared modal; retire the separate Delete pages
+- [x] Row actions become small icon buttons with tooltips; tables get a search box (`data-table-filter`), sticky headers and horizontal scroll on mobile; admin lists paginate past 25 rows
+- [x] Nav highlights the active link; admin nav gains Courses and Admins; the icon row becomes role-specific (pointing at Phase 3/4 pages); remove Language from the avatar menu
+- [x] Styled 404, 403 and error pages via `UseStatusCodePagesWithReExecute`
+- [x] Subtle motion (page fade-in, card hover lift, unread-badge pulse), all off under `prefers-reduced-motion`
+- [x] Remove every remaining inline `style=""` from views
+- [x] Log-in page redesign (brand panel, input icons, show/hide password, Caps Lock hint) and one button style set (`btn-rosebank`, `btn-outline-rosebank`, `btn-icon`)
 
 ## Phase 2 — Notifications and announcements
 - [ ] Notification entity (UserId, Role, Title, Message, Url, CreatedAt, IsRead) with repository and INotificationService
@@ -54,3 +55,44 @@ One phase per session: plan briefly, implement, add tests, run `dotnet build` an
 - [ ] `/api/v1` controllers with JWT bearer auth: login, my modules, marks, assessments, submit, tickets, notifications, attendance scan (same AttendanceVerifier)
 - [ ] Swagger UI in Development only; share the endpoint list with the Android teammate
 - [ ] Integration tests for the API auth rules
+
+---
+
+# Proposed — not approved yet
+
+Suggested after Phase 1. Nothing below gets built until it is approved and moved up into the list above.
+
+## Proposed additions to existing phases
+- Phase 2: optional email for ticket replies and a weekly "due this week" digest (Azure Communication Services), with an opt-out per user
+- Phase 3: lecturers release marks per assessment; students don't see a mark before it is released
+- Phase 3: CSV import of marks for a whole assessment, with a preview and per-row errors (same pattern as the Phase 4 user import)
+
+## Phase 6 — Go live on Azure
+Suggested right after Phase 2, so lecturers can try the real site and the Android teammate has a URL to build against.
+- [ ] GitHub Actions deploys to an App Service staging slot after the tests pass (OIDC login, no publish profile in the repo); swapping to production stays a manual step
+- [ ] `/health` endpoint that checks the database; the App Service health check uses it
+- [ ] Confirm on Azure that `RemoteIpAddress` is the student's IP (the login rate limit and the campus-network check both rely on it); add `UseForwardedHeaders` with the App Service proxy if it isn't
+- [ ] Application Insights for errors and slow requests, with no personal data in log messages
+- [ ] `.gitignore` covers `ISMLTS(WebApp)/bin`, `obj` and the test project's output; the tracked build output is removed from git
+- [ ] SonarCloud receives test coverage from CI (coverlet, OpenCover format)
+- [ ] Deployment runbook in README: required settings, first-run seeding, rollback
+
+## Phase 7 — File submissions
+- [ ] Students can upload a file (PDF, DOCX, ZIP; size limit from config) as well as, or instead of, a link; files go to a private Azure Blob container (Azurite locally), never under wwwroot
+- [ ] Lecturers download through short-lived SAS links, after the usual module ownership check
+- [ ] File type checked from the file's content, not only its extension; stored names are generated, not taken from the upload
+- [ ] Per assessment, the lecturer can close submissions at the due date or allow a late window
+- [ ] Earlier uploads are kept as history; the latest one counts
+- [ ] Unit tests for the file checks; integration tests that nobody else can download a student's file
+
+## Phase 8 — Terms and timetable
+- [ ] Term entity with start and end dates; "current term" drives the dashboards and the Archived filter (replaces the hard-coded `IsCurrentSemester = true`)
+- [ ] Timetable slots per module (day, time, venue); "Take register" goes straight to the class happening now
+- [ ] Attendance percentages count only the current term's sessions; cancelled classes can be excluded
+- [ ] Calendar page for each role with classes and due dates, plus an `.ics` feed students can subscribe to on their phone
+
+## Phase 9 — Data care and accessibility
+- [ ] Retention job clears attendance IP and GPS details after the period stated in the POPIA notice (config setting); marks are kept
+- [ ] Students can download their own data (marks, submissions, attendance) as CSV
+- [ ] Audit log of admin actions: accounts created or deleted, password resets, enrolment changes
+- [ ] Accessibility pass to WCAG 2.1 AA: keyboard-only walk-through of every role, contrast check of the palette, focus handling in dialogs, automated axe checks in CI

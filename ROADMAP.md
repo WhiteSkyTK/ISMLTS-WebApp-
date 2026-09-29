@@ -3,14 +3,14 @@
 One phase per session: plan briefly, implement, add tests, run `dotnet build` and `dotnet test`, then stop with a manual test checklist. Tick items here and keep the Status section of CLAUDE.md current. Commit per feature.
 
 ## Phase 0 — Lock down before going live
-- [ ] `[Authorize(Roles = "Admin")]` on StudentsController, LecturersController, AdminsController, ModulesController, CoursesController
-- [ ] Marks, Assessments, Tickets, Attendance: plain `[Authorize]` on the class, role attributes on each action (roles on class + action combine with AND)
-- [ ] Lecturer ownership checks in Marks, Assessments and Tickets, matching AttendanceController.GetOwnedModuleAsync
-- [ ] Replace every hand-written claims-parsing snippet with `User.GetUserId()`; stored timestamps use `DateTime.UtcNow`
-- [ ] Logout becomes a POST form with an antiforgery token
-- [ ] Rate-limit the login POST (built-in rate limiter, about 5 attempts per minute per IP) with a friendly message
-- [ ] Duplicate emails, usernames and codes show a validation message instead of crashing (check first, also catch DbUpdateException); passwords need at least 8 characters
-- [ ] Integration tests (WebApplicationFactory, environment `Testing`, SQLite in-memory + EnsureCreated, DataSeeder skipped): anonymous users go to login, students get 403 on admin and lecturer pages, a lecturer can't open another lecturer's module
+- [x] `[Authorize(Roles = "Admin")]` on StudentsController, LecturersController, AdminsController, ModulesController, CoursesController
+- [x] Marks, Assessments, Tickets, Attendance: plain `[Authorize]` on the class, role attributes on each action (roles on class + action combine with AND)
+- [x] Lecturer ownership checks in Marks, Assessments and Tickets, matching AttendanceController.GetOwnedModuleAsync
+- [x] Replace every hand-written claims-parsing snippet with `User.GetUserId()`; stored timestamps use `DateTime.UtcNow`
+- [x] Logout becomes a POST form with an antiforgery token
+- [x] Rate-limit the login POST (built-in rate limiter, about 5 attempts per minute per IP) with a friendly message
+- [x] Duplicate emails, usernames and codes show a validation message instead of crashing (check first, also catch DbUpdateException); passwords need at least 8 characters
+- [x] Integration tests (WebApplicationFactory, environment `Testing`, SQLite in-memory + EnsureCreated, DataSeeder skipped): anonymous users go to login, students get 403 on admin and lecturer pages, a lecturer can't open another lecturer's module
 
 ## Phase 1 — Everyday polish
 - [ ] Shared partials `_PageHeader` (title, subtitle, back link, primary action) and `_EmptyState`, used on every page

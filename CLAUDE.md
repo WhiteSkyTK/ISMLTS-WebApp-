@@ -47,6 +47,7 @@ Integrated School Management and Learning Tracking System for IIE Rosebank Colle
 
 ## Status
 Done: login (with returnUrl), CRUD for Students/Lecturers/Admins/Modules/Courses, enrolment, Marks with risk flag (average below 50%), Assessments with link submissions, Tickets, landing page, role dashboards, notification bell, QR attendance with campus-IP and GPS checks.
+Phase 0 done: role attributes on every controller, lecturer ownership and student enrolment checks, POST logout, login rate limit (`RateLimiting:LoginAttemptsPerMinute`, default 5 per IP), duplicate/password validation, http(s)-only submission links, integration tests in `ISMLTS.Tests/Integration`.
 Next: see ROADMAP.md:
 ## Roadmap
 ROADMAP.md holds the remaining work. One phase per session: plan briefly, implement, add tests, run `dotnet build` and `dotnet test`, then stop with a manual test checklist. Tick finished items there and keep Status here current.
@@ -71,7 +72,7 @@ xUnit project `ISMLTS.Tests` is in the solution and CI runs it on every push. Se
 ## Deployment
 Azure App Service (Windows) + Azure SQL. The connection string, `Seed__AdminPassword` and `Seed__LecturerPassword` live in App Service settings, never in the repo. `UseSqlServer` keeps `EnableRetryOnFailure()` because Azure SQL can pause and resume.
 xUnit tests for Services, Azure deployment, Web API endpoints for the Android app, file-upload submissions (Azure Blob).
-Known debt: older controllers repeat the claims-parsing snippet and use `DateTime.Now` (switch to `GetUserId()`/`UtcNow` when touched); Marks, Assessments and Tickets don't yet check lecturer ownership.
+Known debt: rows saved before Phase 0 stored local time in `Submission.SubmittedAt` and `Ticket.DateOpened`/`DateResolved`, so they now display 2 hours late; deleting a lecturer who still has modules crashes on the Restrict foreign key.
 
 ## CI and commits
 - `.github/workflows/dotnet.yml`: `dotnet-version` must match the .csproj `TargetFramework`; `working-directory` must point at the folder holding the .sln

@@ -6,5 +6,6 @@ namespace ISMLTS_WebApp_.Repositories
     public interface ILecturerRepository : IRepository<Lecturer>
     {
         Task<Lecturer?> GetByEmailAsync(string email);
+        Task<bool> EmailExistsAsync(string email, int exceptLecturerId = 0);
     }
 }

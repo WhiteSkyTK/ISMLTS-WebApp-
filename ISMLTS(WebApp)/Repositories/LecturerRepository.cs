@@ -10,5 +10,8 @@ namespace ISMLTS_WebApp_.Repositories
 
         public async Task<Lecturer?> GetByEmailAsync(string email) =>
             await _dbSet.FirstOrDefaultAsync(l => l.Email == email);
+
+        public async Task<bool> EmailExistsAsync(string email, int exceptLecturerId = 0) =>
+            await _dbSet.AnyAsync(l => l.Email == email && l.LecturerId != exceptLecturerId);
     }
 }

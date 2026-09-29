@@ -5,5 +5,6 @@ namespace ISMLTS_WebApp_.Repositories
     public interface ICourseRepository : IRepository<Course>
     {
         Task<Course?> GetByIdWithModulesAsync(int id);
+        Task<bool> CodeExistsAsync(string code, int exceptCourseId = 0);
     }
 }

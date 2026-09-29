@@ -18,5 +18,8 @@ namespace ISMLTS_WebApp_.Repositories
 
         public async Task<bool> IsEnrolledAsync(int studentId, int moduleId) =>
             await _dbSet.AnyAsync(s => s.StudentId == studentId && s.Modules.Any(m => m.ModuleId == moduleId));
+
+        public async Task<bool> EmailExistsAsync(string email, int exceptStudentId = 0) =>
+            await _dbSet.AnyAsync(s => s.Email == email && s.StudentId != exceptStudentId);
     }
 }

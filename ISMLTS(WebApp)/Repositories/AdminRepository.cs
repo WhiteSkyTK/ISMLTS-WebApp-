@@ -10,5 +10,8 @@ namespace ISMLTS_WebApp_.Repositories
 
         public async Task<Admin?> GetByUsernameAsync(string username) =>
             await _dbSet.FirstOrDefaultAsync(a => a.Username == username);
+
+        public async Task<bool> UsernameExistsAsync(string username, int exceptAdminId = 0) =>
+            await _dbSet.AnyAsync(a => a.Username == username && a.AdminId != exceptAdminId);
     }
 }

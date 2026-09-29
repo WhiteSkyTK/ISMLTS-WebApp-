@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using ISMLTS_WebApp_.Models;
 using ISMLTS_WebApp_.Repositories;
 
@@ -8,6 +9,8 @@ namespace ISMLTS_WebApp_.Controllers
     [Authorize(Roles = "Admin")]
     public class ModulesController : Controller
     {
+        private const string CodeTakenMessage = "Another module already uses that code.";
+
         private readonly IModuleRepository _moduleRepository;
         private readonly ILecturerRepository _lecturerRepository;
         private readonly IStudentRepository _studentRepository;
@@ -44,14 +47,15 @@ namespace ISMLTS_WebApp_.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Code,Name,LecturerId,Term,CourseId")] Module module)
         {
-            if (!ModelState.IsValid)
+            await CheckCodeIsFreeAsync(module.Code, 0);
+            if (ModelState.IsValid)
             {
-                await LoadFormData();
-                return View(module);
+                await _moduleRepository.AddAsync(module);
+                if (await TrySaveAsync(module.Code, 0)) return RedirectToAction(nameof(Index));
             }
-            await _moduleRepository.AddAsync(module);
-            await _moduleRepository.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+
+            await LoadFormData();
+            return View(module);
         }
 
         public async Task<IActionResult> Edit(int id)
@@ -67,24 +71,24 @@ namespace ISMLTS_WebApp_.Controllers
         public async Task<IActionResult> Edit(int id, [Bind("ModuleId,Code,Name,LecturerId,Term,CourseId")] Module input)
         {
             if (id != input.ModuleId) return NotFound();
-            if (!ModelState.IsValid)
+            await CheckCodeIsFreeAsync(input.Code, id);
+            if (ModelState.IsValid)
             {
-                await LoadFormData();
-                return View(input);
+                var module = await _moduleRepository.GetByIdAsync(id);
+                if (module == null) return NotFound();
+
+                module.Code = input.Code;
+                module.Name = input.Name;
+                module.LecturerId = input.LecturerId;
+                module.Term = input.Term;
+                module.CourseId = input.CourseId;
+
+                _moduleRepository.Update(module);
+                if (await TrySaveAsync(input.Code, id)) return RedirectToAction(nameof(Index));
             }
 
-            var module = await _moduleRepository.GetByIdAsync(id);
-            if (module == null) return NotFound();
-
-            module.Code = input.Code;
-            module.Name = input.Name;
-            module.LecturerId = input.LecturerId;
-            module.Term = input.Term;
-            module.CourseId = input.CourseId;
-
-            _moduleRepository.Update(module);
-            await _moduleRepository.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            await LoadFormData();
+            return View(input);
         }
 
         public async Task<IActionResult> Delete(int id)
@@ -147,6 +151,28 @@ namespace ISMLTS_WebApp_.Controllers
             _moduleRepository.Update(module);
             await _moduleRepository.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
+        }
+
+        private async Task CheckCodeIsFreeAsync(string code, int moduleId)
+        {
+            if (!string.IsNullOrWhiteSpace(code) && await _moduleRepository.CodeExistsAsync(code, moduleId))
+                ModelState.AddModelError(nameof(Module.Code), CodeTakenMessage);
+        }
+
+        // Two saves racing past the check above are stopped by the unique index
+        private async Task<bool> TrySaveAsync(string code, int moduleId)
+        {
+            try
+            {
+                await _moduleRepository.SaveChangesAsync();
+                return true;
+            }
+            catch (DbUpdateException)
+            {
+                if (!await _moduleRepository.CodeExistsAsync(code, moduleId)) throw;
+                ModelState.AddModelError(nameof(Module.Code), CodeTakenMessage);
+                return false;
+            }
         }
 
         private async Task LoadFormData()

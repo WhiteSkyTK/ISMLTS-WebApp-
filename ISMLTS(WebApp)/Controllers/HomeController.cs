@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ISMLTS_WebApp_.Extensions;
 using ISMLTS_WebApp_.Models;
@@ -6,6 +7,7 @@ using ISMLTS_WebApp_.Repositories;
 
 namespace ISMLTS_WebApp_.Controllers
 {
+    [Authorize]
     public class HomeController : Controller
     {
         private readonly IStudentRepository _studentRepository;
@@ -28,6 +30,7 @@ namespace ISMLTS_WebApp_.Controllers
             _logger = logger;
         }
 
+        [AllowAnonymous]
         public async Task<IActionResult> Index()
         {
             if (User.Identity?.IsAuthenticated != true) return View("Landing");
@@ -89,8 +92,10 @@ namespace ISMLTS_WebApp_.Controllers
             return View(model);
         }
 
+        [AllowAnonymous]
         public IActionResult Privacy() => View();
 
+        [AllowAnonymous]
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error() =>
             View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });

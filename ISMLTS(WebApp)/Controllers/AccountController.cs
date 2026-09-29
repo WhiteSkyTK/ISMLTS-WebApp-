@@ -8,6 +8,7 @@ using ISMLTS_WebApp_.Repositories;
 
 namespace ISMLTS_WebApp_.Controllers
 {
+    [Authorize]
     public class AccountController : Controller
     {
         private readonly IStudentRepository _studentRepository;
@@ -24,6 +25,7 @@ namespace ISMLTS_WebApp_.Controllers
             _adminRepository = adminRepository;
         }
 
+        [AllowAnonymous]
         [HttpGet]
         public IActionResult Login(string? returnUrl = null)
         {
@@ -31,6 +33,7 @@ namespace ISMLTS_WebApp_.Controllers
             return View();
         }
 
+        [AllowAnonymous]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginViewModel model, string? returnUrl = null)
@@ -62,13 +65,15 @@ namespace ISMLTS_WebApp_.Controllers
             return RedirectToAction("Index", "Home");
         }
 
-        [Authorize]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Logout()
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             return RedirectToAction("Index", "Home");
         }
 
+        [AllowAnonymous]
         public IActionResult AccessDenied() => View();
 
         private async Task<(string Id, string Name, string Role)?> FindAccountAsync(string login, string password)

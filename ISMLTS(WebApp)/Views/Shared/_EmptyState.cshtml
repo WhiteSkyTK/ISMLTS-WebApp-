@@ -1,0 +1,14 @@
+@model EmptyStateModel
+
+<div class="empty-state">
+    <i class="bi @Model.Icon empty-state-icon" aria-hidden="true"></i>
+    <p class="empty-state-title">@Model.Title</p>
+    @if (Model.Message != null)
+    {
+        <p class="empty-state-message">@Model.Message</p>
+    }
+    @if (Model.ActionUrl != null)
+    {
+        <a href="@Model.ActionUrl" class="btn btn-rosebank btn-sm"><i class="bi bi-plus-lg" aria-hidden="true"></i> @Model.ActionText</a>
+    }
+</div>

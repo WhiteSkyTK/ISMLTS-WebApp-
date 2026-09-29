@@ -35,12 +35,6 @@ body {
     color: #1d2433;
 }
 
-h1 {
-    font-size: 1.75rem;
-    font-weight: 600;
-    color: var(--rb-navy);
-}
-
 .skip-link {
     position: absolute;
     top: 0.5rem;
@@ -270,7 +264,11 @@ footer {
     margin-bottom: 1.5rem;
 }
 
+    /* Scoped, not a global h1 rule: the landing hero relies on inheriting white text */
     .page-header h1 {
+        font-size: 1.75rem;
+        font-weight: 600;
+        color: var(--rb-navy);
         margin-bottom: 0;
     }
 
@@ -613,6 +611,12 @@ footer {
     margin: 3rem auto;
     text-align: center;
 }
+
+    .status-page h1 {
+        font-size: 1.75rem;
+        font-weight: 600;
+        color: var(--rb-navy);
+    }
 
 .status-icon {
     display: inline-flex;

@@ -78,7 +78,11 @@ namespace ISMLTS_WebApp_.Controllers
         }
 
         [AllowAnonymous]
-        public IActionResult AccessDenied() => View();
+        public IActionResult AccessDenied()
+        {
+            Response.StatusCode = StatusCodes.Status403Forbidden;
+            return View();
+        }
 
         private async Task<(string Id, string Name, string Role)?> FindAccountAsync(string login, string password)
         {

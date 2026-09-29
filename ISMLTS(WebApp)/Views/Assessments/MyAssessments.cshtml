@@ -1,40 +1,66 @@
-﻿@model List<ISMLTS_WebApp_.Models.MyAssessmentRow>
+@model List<MyAssessmentRow>
+@using ISMLTS_WebApp_.Services
 @{
     ViewData["Title"] = "My Assessments";
+    ViewData["FilterLabel"] = "Filter by name, module or type";
+    var toDo = Model.Count(r => r.Status == "Not Submitted");
 }
 
-<h1>My Assessments</h1>
-<table class="table">
-    <thead><tr><th>Assessment</th><th>Type</th><th>Due</th><th>Status</th><th></th></tr></thead>
-    <tbody>
-        @foreach (var r in Model)
-        {
-            <tr>
-                <td>@r.Name</td>
-                <td><span class="badge task-badge task-@r.Type.ToLower()">@r.Type</span></td>
-                <td>@r.DueDate.ToString("ddd, dd MMM")</td>
-                <td>
-                    @if (r.Status == "Not Submitted")
-                    {
-                        <span class="badge bg-secondary">Not Submitted</span>
-                    }
-                    else if (r.Status == "Late")
-                    {
+<partial name="_PageHeader" model='new PageHeaderModel { Title = "My assessments", Subtitle = "Everything set for your modules, soonest first." }' />
 
-                        <span class="badge bg-danger">Late</span>
-                    }
-                    else
+<div class="panel">
+    @if (Model.Any())
+    {
+        <div class="stat-inline">
+            <div><strong>@toDo</strong><span class="small text-muted">still to submit</span></div>
+            <div><strong>@(Model.Count - toDo)</strong><span class="small text-muted">submitted</span></div>
+        </div>
+        <partial name="_TableFilter" model='"#myAssessmentsTable"' />
+        <div class="table-scroll">
+            <table id="myAssessmentsTable" class="table align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th scope="col">Assessment</th>
+                        <th scope="col">Type</th>
+                        <th scope="col">Due</th>
+                        <th scope="col">Status</th>
+                        <th scope="col"><span class="visually-hidden">Actions</span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var r in Model)
                     {
-
-                        <span class="badge bg-success">Submitted</span>
+                        var overdue = r.Status == "Not Submitted" && DueDates.IsOverdue(r.DueDate, DateTime.Today);
+                        <tr>
+                            <td>
+                                <span class="fw-medium">@r.Name</span>
+                                <span class="table-row-sub font-monospace">@r.ModuleCode</span>
+                            </td>
+                            <td><span class="badge task-badge task-@r.Type.ToLowerInvariant()">@r.Type</span></td>
+                            <td>
+                                @r.DueDate.ToString("ddd, dd MMM")
+                                <span class="table-row-sub @(overdue ? "text-danger" : null)">@DueDates.Describe(r.DueDate, DateTime.Today)</span>
+                            </td>
+                            <td><partial name="_SubmissionStatus" model="r.Status" /></td>
+                            <td class="text-end">
+                                @if (r.Status == "Not Submitted")
+                                {
+                                    <a asp-action="Submit" asp-route-id="@r.AssessmentId" class="btn btn-rosebank btn-sm text-nowrap"><i class="bi bi-upload" aria-hidden="true"></i> Submit</a>
+                                }
+                                else
+                                {
+                                    <a asp-action="Submit" asp-route-id="@r.AssessmentId" class="btn btn-outline-rosebank btn-sm text-nowrap"><i class="bi bi-arrow-repeat" aria-hidden="true"></i> Update</a>
+                                }
+                            </td>
+                        </tr>
                     }
-                </td>
-                <td><a asp-action="Submit" asp-route-id="@r.AssessmentId" class="btn btn-rosebank btn-sm">@(r.Status == "Not Submitted" ? "Submit" : "Update Submission")</a></td>
-            </tr>
-        }
-    </tbody>
-</table>
-@if (!Model.Any())
-{
-    <p class="text-muted">No assessments yet.</p>
-}
+                </tbody>
+            </table>
+        </div>
+        <p class="text-muted small mt-2 mb-0" data-filter-empty hidden>Nothing matches that filter.</p>
+    }
+    else
+    {
+        <partial name="_EmptyState" model='new EmptyStateModel { Icon = "bi-journal-check", Title = "Nothing set yet", Message = "Assessments show here when your lecturers add them." }' />
+    }
+</div>

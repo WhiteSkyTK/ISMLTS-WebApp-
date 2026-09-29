@@ -1,0 +1,30 @@
+@model Assessment
+
+<div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+<input type="hidden" asp-for="ModuleId" />
+<div class="mb-3">
+    <label asp-for="Name" class="form-label"></label>
+    <input asp-for="Name" class="form-control" placeholder="e.g. ICE Task 3" autocomplete="off" />
+    <span asp-validation-for="Name" class="text-danger small"></span>
+</div>
+<div class="row g-3 mb-3">
+    <div class="col-sm-6">
+        <label asp-for="Type" class="form-label"></label>
+        <select asp-for="Type" class="form-select">
+            <option value="ICE">ICE</option>
+            <option value="Quiz">Quiz</option>
+            <option value="POE">POE</option>
+            <option value="Project">Project</option>
+        </select>
+    </div>
+    <div class="col-sm-6">
+        <label asp-for="DueDate" class="form-label"></label>
+        <input asp-for="DueDate" class="form-control" type="date" />
+        <span asp-validation-for="DueDate" class="text-danger small"></span>
+    </div>
+</div>
+<div class="mb-3">
+    <label asp-for="Description" class="form-label"></label>
+    <textarea asp-for="Description" class="form-control" rows="4" placeholder="What students need to hand in"></textarea>
+    <span asp-validation-for="Description" class="text-danger small"></span>
+</div>

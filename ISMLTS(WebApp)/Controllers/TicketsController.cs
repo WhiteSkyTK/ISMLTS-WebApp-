@@ -58,6 +58,7 @@ namespace ISMLTS_WebApp_.Controllers
 
             _ticketRepository.Update(ticket);
             await _ticketRepository.SaveChangesAsync();
+            this.Toast($"Your reply to {ticket.Student?.FullName} was saved ({status}).");
             return RedirectToAction(nameof(Index));
         }
 
@@ -103,6 +104,7 @@ namespace ISMLTS_WebApp_.Controllers
             ticket.StudentId = studentId;
             await _ticketRepository.AddAsync(ticket);
             await _ticketRepository.SaveChangesAsync();
+            this.Toast("Your ticket was sent to your lecturer.");
             return RedirectToAction(nameof(MyTickets));
         }
 

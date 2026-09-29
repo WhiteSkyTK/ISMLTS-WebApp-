@@ -78,10 +78,10 @@ namespace ISMLTS_WebApp_.Controllers
         {
             var module = await GetOwnedModuleAsync(mark.ModuleId);
             if (module == null || !await _studentRepository.IsEnrolledAsync(mark.StudentId, mark.ModuleId)) return NotFound();
+            var student = await _studentRepository.GetByIdAsync(mark.StudentId);
 
             if (!ModelState.IsValid)
             {
-                var student = await _studentRepository.GetByIdAsync(mark.StudentId);
                 ViewBag.ModuleDisplay = $"{module.Code} - {module.Name}";
                 ViewBag.StudentName = student?.FullName ?? "";
                 return View(mark);
@@ -89,6 +89,7 @@ namespace ISMLTS_WebApp_.Controllers
 
             await _markRepository.AddAsync(mark);
             await _markRepository.SaveChangesAsync();
+            this.Toast($"{mark.AssessmentName} mark saved for {student?.FullName}.");
             return RedirectToAction(nameof(ForModule), new { moduleId = mark.ModuleId });
         }
 
@@ -124,29 +125,22 @@ namespace ISMLTS_WebApp_.Controllers
 
             _markRepository.Update(mark);
             await _markRepository.SaveChangesAsync();
+            this.Toast($"{mark.AssessmentName} mark updated for {mark.Student?.FullName}.");
             return RedirectToAction(nameof(ForModule), new { moduleId = mark.ModuleId });
         }
 
         [Authorize(Roles = "Lecturer")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)
         {
             var mark = await GetOwnedMarkAsync(id);
             if (mark == null) return NotFound();
-            return View(mark);
-        }
 
-        [Authorize(Roles = "Lecturer")]
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var mark = await GetOwnedMarkAsync(id);
-            if (mark == null) return RedirectToAction(nameof(Index));
-
-            var moduleId = mark.ModuleId;
             _markRepository.Delete(mark);
             await _markRepository.SaveChangesAsync();
-            return RedirectToAction(nameof(ForModule), new { moduleId });
+            this.Toast($"{mark.AssessmentName} mark deleted for {mark.Student?.FullName}.");
+            return RedirectToAction(nameof(ForModule), new { moduleId = mark.ModuleId });
         }
 
         [Authorize(Roles = "Student")]

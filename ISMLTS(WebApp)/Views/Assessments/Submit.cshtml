@@ -1,23 +1,25 @@
-﻿@model ISMLTS_WebApp_.Models.Submission
+@model Submission
+@using ISMLTS_WebApp_.Services
 @{
     ViewData["Title"] = "Submit";
+    DateTime dueDate = ViewBag.DueDate;
+    string assessmentDisplay = ViewBag.AssessmentDisplay;
+    var subtitle = $"Due {dueDate:ddd, dd MMM yyyy} · {DueDates.Describe(dueDate, DateTime.Today)}";
 }
 
-<h1>@ViewBag.AssessmentDisplay</h1>
-<p class="text-muted">Due @(((DateTime)ViewBag.DueDate).ToString("ddd, dd MMM yyyy"))</p>
+<partial name="_PageHeader" model='new PageHeaderModel { Title = assessmentDisplay, Subtitle = subtitle, BackUrl = Url.Action("MyAssessments"), BackText = "My assessments" }' />
 
-<div class="row">
-    <div class="col-md-5">
-        <form asp-action="Submit" asp-route-id="@Model.AssessmentId" method="post">
-            <div class="form-group">
-                <label for="link" class="control-label">Link to your work (GitHub, Drive, etc.)</label>
-                <input id="link" name="link" type="url" class="form-control" value="@Model.Link" placeholder="https://..." maxlength="300" required />
-                <span asp-validation-for="Link" class="text-danger"></span>
-            </div>
-            <div class="form-group mt-2">
-                <input type="submit" value="Submit" class="btn btn-rosebank" />
-            </div>
-        </form>
-    </div>
+<div class="panel form-panel">
+    <form asp-action="Submit" asp-route-id="@Model.AssessmentId" method="post">
+        <div class="mb-3">
+            <label for="link" class="form-label">Link to your work</label>
+            <input id="link" name="link" type="url" class="form-control" value="@Model.Link" placeholder="https://github.com/…" maxlength="300" required aria-describedby="linkHelp" />
+            <span asp-validation-for="Link" class="text-danger small"></span>
+            <div id="linkHelp" class="form-text">A GitHub repository, OneDrive or Google Drive link. Make sure your lecturer can open it. Submitting again replaces your link.</div>
+        </div>
+        <div class="form-actions">
+            <button type="submit" class="btn btn-rosebank" data-loading="Submitting…"><i class="bi bi-upload" aria-hidden="true"></i> Submit</button>
+            <a asp-action="MyAssessments" class="btn btn-outline-secondary">Cancel</a>
+        </div>
+    </form>
 </div>
-<div class="mt-2"><a asp-action="MyAssessments">Back to My Assessments</a></div>

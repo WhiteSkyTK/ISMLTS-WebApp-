@@ -1,41 +1,53 @@
-﻿@model IEnumerable<ISMLTS_WebApp_.Models.Ticket>
+@model IEnumerable<Ticket>
 @{
     ViewData["Title"] = "Tickets";
+    ViewData["FilterLabel"] = "Filter by student, module or subject";
+    var open = Model.Count(t => t.Status != "Resolved");
 }
 
-<h1>Tickets</h1>
-<table class="table">
-    <thead><tr><th>Student</th><th>Module</th><th>Subject</th><th>Status</th><th>Opened</th><th></th></tr></thead>
-    <tbody>
-        @foreach (var t in Model)
-        {
-            <tr>
-                <td>@t.Student?.FullName</td>
-                <td>@t.Module?.Code</td>
-                <td>@t.Subject</td>
-                <td>
-                    @if (t.Status == "Open")
-                    {
-                        <span class="badge bg-danger">Open</span>
-                    }
-                    else if (t.Status == "In Progress")
-                    {
+<partial name="_PageHeader" model='new PageHeaderModel { Title = "Tickets", Subtitle = "Questions from students in your modules." }' />
 
-                        <span class="badge bg-warning text-dark">In Progress</span>
-                    }
-                    else
+<div class="panel">
+    @if (Model.Any())
+    {
+        <div class="stat-inline">
+            <div><strong>@open</strong><span class="small text-muted">waiting for a reply</span></div>
+        </div>
+        <partial name="_TableFilter" model='"#ticketsTable"' />
+        <div class="table-scroll">
+            <table id="ticketsTable" class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th scope="col">Subject</th>
+                        <th scope="col">Student</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Opened</th>
+                        <th scope="col"><span class="visually-hidden">Actions</span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var t in Model)
                     {
-
-                        <span class="badge bg-success">Resolved</span>
+                        <tr>
+                            <td>
+                                <span class="fw-medium">@t.Subject</span>
+                                <span class="table-row-sub font-monospace">@t.Module?.Code</span>
+                            </td>
+                            <td>@t.Student?.FullName</td>
+                            <td><partial name="_TicketStatus" model="t.Status" /></td>
+                            <td>@t.DateOpened.ToLocalTime().ToString("dd MMM, HH:mm")</td>
+                            <td class="text-end">
+                                <a asp-action="Respond" asp-route-id="@t.TicketId" class="btn @(t.Status == "Resolved" ? "btn-outline-rosebank" : "btn-rosebank") btn-sm text-nowrap"><i class="bi bi-reply" aria-hidden="true"></i> @(t.Status == "Resolved" ? "View" : "Respond")</a>
+                            </td>
+                        </tr>
                     }
-                </td>
-                <td>@t.DateOpened.ToLocalTime().ToString("dd MMM, HH:mm")</td>
-                <td><a asp-action="Respond" asp-route-id="@t.TicketId" class="btn btn-rosebank btn-sm">Respond</a></td>
-            </tr>
-        }
-    </tbody>
-</table>
-@if (!Model.Any())
-{
-    <p class="text-muted">No tickets yet.</p>
-}
+                </tbody>
+            </table>
+        </div>
+        <p class="text-muted small mt-2 mb-0" data-filter-empty hidden>No tickets match that filter.</p>
+    }
+    else
+    {
+        <partial name="_EmptyState" model='new EmptyStateModel { Icon = "bi-chat-dots", Title = "No tickets yet", Message = "When a student in one of your modules asks a question, it shows here." }' />
+    }
+</div>

@@ -1,48 +1,55 @@
-﻿@model ISMLTS_WebApp_.Models.AssessmentSubmissionsViewModel
+@model AssessmentSubmissionsViewModel
+@using ISMLTS_WebApp_.Services
 @{
     ViewData["Title"] = "Submissions";
+    ViewData["FilterLabel"] = "Find a student";
+    var submitted = Model.Rows.Count(r => r.Status != "Not Submitted");
+    var late = Model.Rows.Count(r => r.Status == "Late");
+    var subtitle = $"Due {Model.DueDate:ddd, dd MMM yyyy} · {DueDates.Describe(Model.DueDate, DateTime.Today)}";
 }
 
-<h1>@Model.AssessmentDisplay</h1>
-<p class="text-muted">Due @Model.DueDate.ToString("ddd, dd MMM yyyy")</p>
+<partial name="_PageHeader" model='new PageHeaderModel { Title = Model.AssessmentDisplay, Subtitle = subtitle, BackUrl = Url.Action("ForModule", new { moduleId = Model.ModuleId }), BackText = "Assessments" }' />
 
-<table class="table">
-    <thead><tr><th>Student</th><th>Status</th><th>Submitted</th><th>Link</th></tr></thead>
-    <tbody>
-        @foreach (var row in Model.Rows)
-        {
-            <tr>
-                <td>@row.FullName</td>
-                <td>
-                    @if (row.Status == "Not Submitted")
+<div class="panel">
+    @if (Model.Rows.Any())
+    {
+        <div class="stat-inline">
+            <div><strong>@submitted of @Model.Rows.Count</strong><span class="small text-muted">submitted</span></div>
+            <div><strong>@late</strong><span class="small text-muted">late</span></div>
+        </div>
+        <partial name="_TableFilter" model='"#submissionsTable"' />
+        <div class="table-scroll">
+            <table id="submissionsTable" class="table align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th scope="col">Student</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Submitted</th>
+                        <th scope="col"><span class="visually-hidden">Link</span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var row in Model.Rows.OrderBy(r => r.FullName))
                     {
-                        <span class="badge bg-secondary">Not Submitted</span>
+                        <tr>
+                            <td class="fw-medium">@row.FullName</td>
+                            <td><partial name="_SubmissionStatus" model="row.Status" /></td>
+                            <td>@(row.SubmittedAt?.ToLocalTime().ToString("dd MMM, HH:mm") ?? "—")</td>
+                            <td class="text-end">
+                                @if (!string.IsNullOrEmpty(row.Link))
+                                {
+                                    <a href="@row.Link" target="_blank" rel="noopener noreferrer" class="btn btn-outline-rosebank btn-sm text-nowrap"><i class="bi bi-box-arrow-up-right" aria-hidden="true"></i> Open work</a>
+                                }
+                            </td>
+                        </tr>
                     }
-                    else if (row.Status == "Late")
-                    {
-
-                        <span class="badge bg-danger">Late</span>
-                    }
-                    else
-                    {
-
-                        <span class="badge bg-success">Submitted</span>
-                    }
-                </td>
-                <td>@(row.SubmittedAt?.ToLocalTime().ToString("dd MMM, HH:mm") ?? "—")</td>
-                <td>@if (!string.IsNullOrEmpty(row.Link)) {
-                <a href="@row.Link" target="_blank" rel="noopener">Open</a>
-            } else
-            {
-
-                <span>—</span>
-            }
-</td>
-        </tr>
-                }
-    </tbody>
-</table>
-@if (!Model.Rows.Any())
-{
-    <p class="text-muted">No students enrolled in this module yet.</p>
-}
+                </tbody>
+            </table>
+        </div>
+        <p class="text-muted small mt-2 mb-0" data-filter-empty hidden>No students match that name.</p>
+    }
+    else
+    {
+        <partial name="_EmptyState" model='new EmptyStateModel { Icon = "bi-people", Title = "Nobody is enrolled in this module yet", Message = "An admin enrols students under Modules." }' />
+    }
+</div>

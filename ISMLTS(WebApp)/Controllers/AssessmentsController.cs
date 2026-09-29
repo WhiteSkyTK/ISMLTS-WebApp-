@@ -46,8 +46,9 @@ namespace ISMLTS_WebApp_.Controllers
         [HttpGet]
         public async Task<IActionResult> Create(int moduleId)
         {
-            if (await GetOwnedModuleAsync(moduleId) == null) return NotFound();
-            return View(new Assessment { ModuleId = moduleId, DueDate = DateTime.Today.AddDays(7) });
+            var module = await GetOwnedModuleAsync(moduleId);
+            if (module == null) return NotFound();
+            return View(new Assessment { ModuleId = moduleId, Module = module, DueDate = DateTime.Today.AddDays(7) });
         }
 
         [Authorize(Roles = "Lecturer")]
@@ -55,10 +56,17 @@ namespace ISMLTS_WebApp_.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("ModuleId,Name,Type,DueDate,Description")] Assessment assessment)
         {
-            if (await GetOwnedModuleAsync(assessment.ModuleId) == null) return NotFound();
-            if (!ModelState.IsValid) return View(assessment);
+            var module = await GetOwnedModuleAsync(assessment.ModuleId);
+            if (module == null) return NotFound();
+            if (!ModelState.IsValid)
+            {
+                assessment.Module = module;
+                return View(assessment);
+            }
+
             await _assessmentRepository.AddAsync(assessment);
             await _assessmentRepository.SaveChangesAsync();
+            this.Toast($"{assessment.Name} was added to {module.Code}.");
             return RedirectToAction(nameof(ForModule), new { moduleId = assessment.ModuleId });
         }
 
@@ -80,7 +88,11 @@ namespace ISMLTS_WebApp_.Controllers
             var assessment = await GetOwnedAssessmentAsync(id);
             if (assessment == null) return NotFound();
 
-            if (!ModelState.IsValid) return View(input);
+            if (!ModelState.IsValid)
+            {
+                input.Module = assessment.Module;
+                return View(input);
+            }
 
             assessment.Name = input.Name;
             assessment.Type = input.Type;
@@ -89,28 +101,22 @@ namespace ISMLTS_WebApp_.Controllers
 
             _assessmentRepository.Update(assessment);
             await _assessmentRepository.SaveChangesAsync();
+            this.Toast($"Changes to {assessment.Name} were saved.");
             return RedirectToAction(nameof(ForModule), new { moduleId = assessment.ModuleId });
         }
 
         [Authorize(Roles = "Lecturer")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)
         {
             var assessment = await GetOwnedAssessmentAsync(id);
             if (assessment == null) return NotFound();
-            return View(assessment);
-        }
-
-        [Authorize(Roles = "Lecturer")]
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var assessment = await GetOwnedAssessmentAsync(id);
-            if (assessment == null) return RedirectToAction(nameof(Index));
 
             var moduleId = assessment.ModuleId;
             _assessmentRepository.Delete(assessment);
             await _assessmentRepository.SaveChangesAsync();
+            this.Toast($"{assessment.Name} and its submissions were deleted.");
             return RedirectToAction(nameof(ForModule), new { moduleId });
         }
 
@@ -141,6 +147,7 @@ namespace ISMLTS_WebApp_.Controllers
             return View(new AssessmentSubmissionsViewModel
             {
                 AssessmentId = assessment.AssessmentId,
+                ModuleId = module.ModuleId,
                 AssessmentDisplay = $"{assessment.Name} ({module.Code})",
                 DueDate = assessment.DueDate,
                 Rows = rows
@@ -156,18 +163,18 @@ namespace ISMLTS_WebApp_.Controllers
             if (student == null) return NotFound();
 
             var mySubmissions = (await _submissionRepository.GetByStudentAsync(studentId)).ToDictionary(s => s.AssessmentId);
-            var myModuleIds = student.Modules.Select(m => m.ModuleId).ToHashSet();
 
             var rows = new List<MyAssessmentRow>();
-            foreach (var moduleId in myModuleIds)
+            foreach (var module in student.Modules)
             {
-                foreach (var a in await _assessmentRepository.GetByModuleAsync(moduleId))
+                foreach (var a in await _assessmentRepository.GetByModuleAsync(module.ModuleId))
                 {
                     mySubmissions.TryGetValue(a.AssessmentId, out var sub);
                     rows.Add(new MyAssessmentRow
                     {
                         AssessmentId = a.AssessmentId,
                         Name = a.Name,
+                        ModuleCode = module.Code,
                         Type = a.Type,
                         DueDate = a.DueDate,
                         Status = sub?.Status ?? "Not Submitted",
@@ -228,6 +235,7 @@ namespace ISMLTS_WebApp_.Controllers
             }
 
             await _submissionRepository.SaveChangesAsync();
+            this.Toast($"Your work for {assessment.Name} was submitted.");
             return RedirectToAction(nameof(MyAssessments));
         }
 

@@ -93,7 +93,7 @@
             continue;
         }
         const rows = [...target.querySelectorAll('tbody tr, [data-filter-item]')];
-        const noMatches = target.parentElement.querySelector('[data-filter-empty]');
+        const noMatches = (input.closest('.panel') ?? document).querySelector('[data-filter-empty]');
         input.addEventListener('input', () => {
             const term = input.value.trim().toLowerCase();
             let shown = 0;

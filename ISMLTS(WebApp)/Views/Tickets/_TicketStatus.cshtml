@@ -1,0 +1,14 @@
+@model string
+
+@switch (Model)
+{
+    case "Open":
+        <span class="badge text-bg-danger">Open</span>
+        break;
+    case "In Progress":
+        <span class="badge text-bg-warning">In progress</span>
+        break;
+    default:
+        <span class="badge text-bg-success">Resolved</span>
+        break;
+}

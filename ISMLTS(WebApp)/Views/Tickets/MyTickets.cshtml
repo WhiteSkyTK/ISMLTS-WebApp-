@@ -1,40 +1,42 @@
-﻿@model IEnumerable<ISMLTS_WebApp_.Models.Ticket>
+@model IEnumerable<Ticket>
 @{
     ViewData["Title"] = "My Tickets";
 }
 
-<h1>My Tickets</h1>
-<p><a asp-action="Create" class="btn btn-rosebank">+ Raise a Ticket</a></p>
-<table class="table">
-    <thead><tr><th>Module</th><th>Subject</th><th>Status</th><th>Response</th></tr></thead>
-    <tbody>
+<partial name="_PageHeader" model='new PageHeaderModel { Title = "My tickets", Subtitle = "Questions you have asked your lecturers.", ActionUrl = Url.Action("Create"), ActionText = "Raise a ticket" }' />
+
+@if (Model.Any())
+{
+    <div class="row g-3">
         @foreach (var t in Model)
         {
-            <tr>
-                <td>@t.Module?.Code</td>
-                <td>@t.Subject</td>
-                <td>
-                    @if (t.Status == "Open")
+            <div class="col-lg-6">
+                <div class="panel h-100">
+                    <div class="d-flex justify-content-between align-items-start gap-2 mb-1">
+                        <h2 class="h6 mb-0">@t.Subject</h2>
+                        <partial name="_TicketStatus" model="t.Status" />
+                    </div>
+                    <p class="small text-muted mb-2"><span class="font-monospace">@t.Module?.Code</span> · opened @t.DateOpened.ToLocalTime().ToString("dd MMM yyyy")</p>
+                    <p class="ticket-message small mb-2">@t.Description</p>
+                    @if (!string.IsNullOrWhiteSpace(t.LecturerResponse))
                     {
-                        <span class="badge bg-danger">Open</span>
-                    }
-                    else if (t.Status == "In Progress")
-                    {
-
-                        <span class="badge bg-warning text-dark">In Progress</span>
+                        <div class="border-start border-3 ps-3">
+                            <span class="small fw-semibold">Lecturer's reply</span>
+                            <p class="ticket-message mb-0">@t.LecturerResponse</p>
+                        </div>
                     }
                     else
                     {
-
-                        <span class="badge bg-success">Resolved</span>
+                        <p class="small text-muted mb-0"><i class="bi bi-hourglass-split" aria-hidden="true"></i> Waiting for a reply</p>
                     }
-                </td>
-                <td>@(t.LecturerResponse ?? "—")</td>
-            </tr>
+                </div>
+            </div>
         }
-    </tbody>
-</table>
-@if (!Model.Any())
+    </div>
+}
+else
 {
-    <p class="text-muted">No tickets raised yet.</p>
+    <div class="panel">
+        <partial name="_EmptyState" model='new EmptyStateModel { Icon = "bi-chat-dots", Title = "No tickets yet", Message = "Stuck on something? Ask the lecturer of any of your modules.", ActionUrl = Url.Action("Create"), ActionText = "Raise a ticket" }' />
+    </div>
 }

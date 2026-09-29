@@ -20,7 +20,7 @@
         public int TotalStudents { get; set; }
         public int TotalLecturers { get; set; }
         public int TotalModules { get; set; }
-        public List<string> Announcements { get; set; } = new();
+        public List<Announcement> Announcements { get; set; } = new();
         public List<UpcomingTask> UpcomingTasks { get; set; } = new();
         public List<CourseCard> Courses { get; set; } = new();
     }

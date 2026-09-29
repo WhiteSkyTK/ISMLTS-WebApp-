@@ -6,6 +6,8 @@
 
 <partial name="_PageHeader" model='new PageHeaderModel { Title = "Enrol students", Subtitle = Model.ModuleName, BackUrl = Url.Action("Index"), BackText = "Modules" }' />
 
+<div class="alert alert-info small form-panel" role="note"><i class="bi bi-lightbulb" aria-hidden="true"></i> Enrolling a whole class? Use <strong>Courses → Enrol students</strong> to put them in every module of the course at once. This page is for one-off changes.</div>
+
 <form asp-action="Enrol" asp-route-id="@Model.ModuleId" method="post">
     <div class="panel form-panel">
         @if (Model.Students.Any())

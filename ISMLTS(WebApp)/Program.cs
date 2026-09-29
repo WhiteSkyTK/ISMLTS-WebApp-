@@ -63,10 +63,32 @@ builder.Services.AddScoped<IAssessmentRepository, AssessmentRepository>();
 builder.Services.AddScoped<ISubmissionRepository, SubmissionRepository>();
 builder.Services.AddScoped<ITicketRepository, TicketRepository>();
 builder.Services.AddScoped<IAttendanceRepository, AttendanceRepository>();
+builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
+builder.Services.AddScoped<INotificationSettingRepository, NotificationSettingRepository>();
+builder.Services.AddScoped<IAnnouncementRepository, AnnouncementRepository>();
 
 builder.Services.Configure<AttendanceOptions>(builder.Configuration.GetSection("Attendance"));
 builder.Services.AddSingleton<IAttendanceVerifier, AttendanceVerifier>();
 builder.Services.AddSingleton<IQrCodeService, QrCodeService>();
+builder.Services.AddScoped<ICourseService, CourseService>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
+
+// Email goes through Azure Communication Services only when Email:ConnectionString and Email:From are set
+var emailSection = builder.Configuration.GetSection("Email");
+builder.Services.Configure<EmailOptions>(emailSection);
+if (emailSection.Get<EmailOptions>()?.IsConfigured == true)
+{
+    builder.Services.AddSingleton<IEmailSender, AcsEmailSender>();
+}
+else
+{
+    builder.Services.AddSingleton<IEmailSender, NullEmailSender>();
+}
+builder.Services.AddScoped<IWeeklyDigestSender, WeeklyDigestSender>();
+if (!isTesting)
+{
+    builder.Services.AddHostedService<WeeklyDigestService>();
+}
 
 var app = builder.Build();
 

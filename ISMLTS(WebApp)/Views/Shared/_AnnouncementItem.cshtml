@@ -1,0 +1,14 @@
+@model Announcement
+@using ISMLTS_WebApp_.Services
+@{
+    var preview = Model.Body.Length > 180 ? Model.Body[..177] + "…" : Model.Body;
+}
+
+<div class="announcement">
+    <a asp-controller="Announcements" asp-action="Details" asp-route-id="@Model.AnnouncementId" class="fw-semibold">@Model.Title</a>
+    <p class="ticket-message small mb-1">@preview</p>
+    <span class="announcement-meta">
+        <span class="badge text-bg-light">@AnnouncementAudience.Describe(Model)</span>
+        @Model.AuthorName · @TimeAgo.Describe(Model.CreatedAt, DateTime.UtcNow)
+    </span>
+</div>

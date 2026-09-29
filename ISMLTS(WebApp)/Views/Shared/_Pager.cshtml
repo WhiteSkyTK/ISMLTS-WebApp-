@@ -1,5 +1,12 @@
 @model IPagedList
+@using System.Globalization
 @using ISMLTS_WebApp_.Services
+@{
+    // Keep every current query value (search, filter) and swap in the page number
+    var current = Context.Request.Query.Where(q => q.Key != "page").ToDictionary(q => q.Key, q => q.Value.ToString());
+    Dictionary<string, string> PageLink(int number) =>
+        new(current) { ["page"] = number.ToString(CultureInfo.InvariantCulture) };
+}
 
 @if (Model.TotalCount > 0)
 {
@@ -10,16 +17,16 @@
             <nav aria-label="Pages">
                 <ul class="pagination pagination-sm mb-0">
                     <li class="page-item @(Model.Page == 1 ? "disabled" : null)">
-                        <a class="page-link" asp-route-page="@(Model.Page - 1)" asp-route-q="@Model.Query" aria-label="Previous page"><i class="bi bi-chevron-left" aria-hidden="true"></i></a>
+                        <a class="page-link" asp-all-route-data="PageLink(Model.Page - 1)" aria-label="Previous page"><i class="bi bi-chevron-left" aria-hidden="true"></i></a>
                     </li>
                     @foreach (var number in Pagination.Window(Model.Page, Model.TotalPages))
                     {
                         <li class="page-item @(number == Model.Page ? "active" : null)">
-                            <a class="page-link" asp-route-page="@number" asp-route-q="@Model.Query" aria-current="@(number == Model.Page ? "page" : null)">@number</a>
+                            <a class="page-link" asp-all-route-data="PageLink(number)" aria-current="@(number == Model.Page ? "page" : null)">@number</a>
                         </li>
                     }
                     <li class="page-item @(Model.Page == Model.TotalPages ? "disabled" : null)">
-                        <a class="page-link" asp-route-page="@(Model.Page + 1)" asp-route-q="@Model.Query" aria-label="Next page"><i class="bi bi-chevron-right" aria-hidden="true"></i></a>
+                        <a class="page-link" asp-all-route-data="PageLink(Model.Page + 1)" aria-label="Next page"><i class="bi bi-chevron-right" aria-hidden="true"></i></a>
                     </li>
                 </ul>
             </nav>

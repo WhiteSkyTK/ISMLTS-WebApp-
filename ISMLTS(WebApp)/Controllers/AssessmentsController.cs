@@ -14,17 +14,20 @@ namespace ISMLTS_WebApp_.Controllers
         private readonly ISubmissionRepository _submissionRepository;
         private readonly IModuleRepository _moduleRepository;
         private readonly IStudentRepository _studentRepository;
+        private readonly INotificationService _notifications;
 
         public AssessmentsController(
             IAssessmentRepository assessmentRepository,
             ISubmissionRepository submissionRepository,
             IModuleRepository moduleRepository,
-            IStudentRepository studentRepository)
+            IStudentRepository studentRepository,
+            INotificationService notifications)
         {
             _assessmentRepository = assessmentRepository;
             _submissionRepository = submissionRepository;
             _moduleRepository = moduleRepository;
             _studentRepository = studentRepository;
+            _notifications = notifications;
         }
 
         [Authorize(Roles = "Lecturer")]
@@ -66,7 +69,8 @@ namespace ISMLTS_WebApp_.Controllers
 
             await _assessmentRepository.AddAsync(assessment);
             await _assessmentRepository.SaveChangesAsync();
-            this.Toast($"{assessment.Name} was added to {module.Code}.");
+            await _notifications.AssessmentPostedAsync(assessment, module);
+            this.Toast($"{assessment.Name} was added to {module.Code}. Enrolled students have been notified.");
             return RedirectToAction(nameof(ForModule), new { moduleId = assessment.ModuleId });
         }
 

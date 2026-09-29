@@ -32,5 +32,13 @@ namespace ISMLTS_WebApp_.Repositories
         public async Task<Module?> GetByIdWithDetailsAsync(int id) =>
             await _dbSet.Include(m => m.Lecturer).Include(m => m.Course).Include(m => m.Students)
                 .FirstOrDefaultAsync(m => m.ModuleId == id);
+
+        // Tracked, so the course pages can move modules between courses
+        public async Task<List<Module>> GetAllWithCourseAsync() =>
+            await _dbSet.Include(m => m.Course).OrderBy(m => m.Term).ThenBy(m => m.Code).ToListAsync();
+
+        public async Task<List<Module>> GetByCourseWithStudentsAsync(int courseId) =>
+            await _dbSet.Include(m => m.Students).Where(m => m.CourseId == courseId)
+                .OrderBy(m => m.Term).ThenBy(m => m.Code).ToListAsync();
     }
 }

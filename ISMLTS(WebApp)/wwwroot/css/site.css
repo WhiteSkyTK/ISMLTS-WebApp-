@@ -35,12 +35,6 @@ body {
     color: #1d2433;
 }
 
-h1 {
-    font-size: 1.75rem;
-    font-weight: 600;
-    color: var(--rb-navy);
-}
-
 .skip-link {
     position: absolute;
     top: 0.5rem;
@@ -270,7 +264,11 @@ footer {
     margin-bottom: 1.5rem;
 }
 
+    /* Scoped, not a global h1 rule: the landing hero relies on inheriting white text */
     .page-header h1 {
+        font-size: 1.75rem;
+        font-weight: 600;
+        color: var(--rb-navy);
         margin-bottom: 0;
     }
 
@@ -604,7 +602,122 @@ footer {
 }
 
 .notif-dropdown {
-    width: 300px;
+    width: 22rem;
+    max-width: calc(100vw - 2rem);
+    overflow: hidden;
+}
+
+.notif-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--rb-border);
+}
+
+.notif-list {
+    max-height: 22rem;
+    overflow-y: auto;
+}
+
+/* Each notification is a small POST form so opening it marks it read */
+.notif-item {
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: none;
+    border: none;
+    border-bottom: 1px solid var(--rb-border);
+    padding: 0.65rem 1rem 0.65rem 1.5rem;
+    position: relative;
+    color: inherit;
+}
+
+    .notif-item:hover,
+    .notif-item:focus-visible {
+        background: var(--rb-page);
+    }
+
+    .notif-item.is-unread {
+        background: #F3F6FD;
+    }
+
+        .notif-item.is-unread::before {
+            content: "";
+            position: absolute;
+            left: 0.6rem;
+            top: 1.05rem;
+            width: 0.45rem;
+            height: 0.45rem;
+            border-radius: 50%;
+            background: var(--rb-blue);
+        }
+
+.notif-title {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.notif-message,
+.notif-time {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--rb-muted);
+}
+
+.notif-empty {
+    padding: 1rem;
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--rb-muted);
+}
+
+.notif-section {
+    padding: 0.75rem 1rem 0.5rem;
+    background: var(--rb-page);
+}
+
+.notif-section-title {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--rb-muted);
+}
+
+.notif-footer {
+    display: block;
+    text-align: center;
+    padding: 0.6rem;
+    font-size: 0.85rem;
+    border-top: 1px solid var(--rb-border);
+    text-decoration: none;
+}
+
+.notification-row {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+    padding: 0.85rem 0;
+    border-bottom: 1px solid var(--rb-border);
+}
+
+    .notification-row form {
+        margin-left: auto;
+    }
+
+.announcement {
+    padding: 0.85rem 0;
+    border-bottom: 1px solid var(--rb-border);
+}
+
+    .announcement:last-child {
+        border-bottom: none;
+    }
+
+.announcement-meta {
+    font-size: 0.8rem;
+    color: var(--rb-muted);
 }
 
 /* ===== Status pages (403, 404, 429, 500) ===== */
@@ -613,6 +726,12 @@ footer {
     margin: 3rem auto;
     text-align: center;
 }
+
+    .status-page h1 {
+        font-size: 1.75rem;
+        font-weight: 600;
+        color: var(--rb-navy);
+    }
 
 .status-icon {
     display: inline-flex;

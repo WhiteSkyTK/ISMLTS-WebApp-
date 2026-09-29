@@ -103,6 +103,8 @@
 
     .auth-form h1 {
         font-size: 1.6rem;
+        font-weight: 600;
+        color: var(--rb-navy);
         margin-bottom: 0.25rem;
     }
 

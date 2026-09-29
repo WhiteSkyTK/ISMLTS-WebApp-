@@ -18,18 +18,22 @@
         const message = confirmElement.querySelector('[data-confirm-message]');
         const okButton = confirmElement.querySelector('[data-confirm-ok]');
         let pendingForm = null;
+        let pendingSubmitter = null;
 
-        // Capture phase, so this runs before any other submit handler on the form
+        // Capture phase, so this runs before any other submit handler on the form.
+        // data-confirm can sit on the form, or on one submit button when a form has several.
         document.addEventListener('submit', (event) => {
             const form = event.target;
-            if (!(form instanceof HTMLFormElement) || !form.dataset.confirm || form.dataset.confirmed === 'true') {
+            const source = event.submitter?.dataset.confirm ? event.submitter : form;
+            if (!(form instanceof HTMLFormElement) || !source.dataset.confirm || form.dataset.confirmed === 'true') {
                 return;
             }
             event.preventDefault();
             event.stopPropagation();
             pendingForm = form;
-            message.textContent = form.dataset.confirm;
-            okButton.textContent = form.dataset.confirmLabel || 'Delete';
+            pendingSubmitter = event.submitter ?? null;
+            message.textContent = source.dataset.confirm;
+            okButton.textContent = source.dataset.confirmLabel || 'Delete';
             confirmModal.show();
         }, true);
 
@@ -39,7 +43,7 @@
             }
             pendingForm.dataset.confirmed = 'true';
             confirmModal.hide();
-            pendingForm.requestSubmit();
+            pendingForm.requestSubmit(pendingSubmitter);
         });
 
         confirmElement.addEventListener('hidden.bs.modal', () => {
@@ -106,6 +110,49 @@
             }
             if (noMatches) {
                 noMatches.hidden = shown > 0;
+            }
+        });
+    }
+
+    // ---------- Notification bell: opening it marks the notifications shown as read ----------
+    for (const bell of document.querySelectorAll('[data-notification-bell]')) {
+        const form = bell.parentElement.querySelector('form[data-mark-seen]');
+        if (!form) {
+            continue;
+        }
+        bell.addEventListener('shown.bs.dropdown', () => {
+            if (form.dataset.sent === 'true') {
+                return;
+            }
+            form.dataset.sent = 'true';
+            fetch(form.action, { method: 'POST', body: new FormData(form) })
+                .then((response) => (response.ok ? response.json() : Promise.reject(new Error(String(response.status)))))
+                .then((result) => {
+                    const badge = bell.querySelector('[data-notification-count]');
+                    if (result.unread > 0 && badge) {
+                        badge.textContent = result.unread > 9 ? '9+' : String(result.unread);
+                    } else {
+                        badge?.remove();
+                    }
+                    bell.setAttribute('aria-label', result.unread > 0 ? `Notifications, ${result.unread} unread` : 'Notifications');
+                })
+                .catch(() => {
+                    form.dataset.sent = 'false';
+                });
+        });
+    }
+
+    // ---------- data-check-all: one checkbox ticks every visible checkbox in a list ----------
+    for (const master of document.querySelectorAll('[data-check-all]')) {
+        const list = document.querySelector(master.dataset.checkAll);
+        if (!list) {
+            continue;
+        }
+        master.addEventListener('change', () => {
+            for (const box of list.querySelectorAll('input[type="checkbox"]')) {
+                if (!box.closest('[hidden]')) {
+                    box.checked = master.checked;
+                }
             }
         });
     }

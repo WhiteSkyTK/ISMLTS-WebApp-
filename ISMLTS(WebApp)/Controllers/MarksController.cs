@@ -13,15 +13,18 @@ namespace ISMLTS_WebApp_.Controllers
         private readonly IMarkRepository _markRepository;
         private readonly IModuleRepository _moduleRepository;
         private readonly IStudentRepository _studentRepository;
+        private readonly INotificationService _notifications;
 
         public MarksController(
             IMarkRepository markRepository,
             IModuleRepository moduleRepository,
-            IStudentRepository studentRepository)
+            IStudentRepository studentRepository,
+            INotificationService notifications)
         {
             _markRepository = markRepository;
             _moduleRepository = moduleRepository;
             _studentRepository = studentRepository;
+            _notifications = notifications;
         }
 
         [Authorize(Roles = "Lecturer")]
@@ -89,6 +92,7 @@ namespace ISMLTS_WebApp_.Controllers
 
             await _markRepository.AddAsync(mark);
             await _markRepository.SaveChangesAsync();
+            await _notifications.MarkSavedAsync(mark, module, updated: false);
             this.Toast($"{mark.AssessmentName} mark saved for {student?.FullName}.");
             return RedirectToAction(nameof(ForModule), new { moduleId = mark.ModuleId });
         }
@@ -125,6 +129,7 @@ namespace ISMLTS_WebApp_.Controllers
 
             _markRepository.Update(mark);
             await _markRepository.SaveChangesAsync();
+            await _notifications.MarkSavedAsync(mark, mark.Module!, updated: true);
             this.Toast($"{mark.AssessmentName} mark updated for {mark.Student?.FullName}.");
             return RedirectToAction(nameof(ForModule), new { moduleId = mark.ModuleId });
         }

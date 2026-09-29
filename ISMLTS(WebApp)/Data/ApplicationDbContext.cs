@@ -19,8 +19,21 @@ namespace ISMLTS_WebApp_.Data
         public DbSet<Ticket> Tickets => Set<Ticket>();
         public DbSet<AttendanceSession> AttendanceSessions => Set<AttendanceSession>();
         public DbSet<AttendanceRecord> AttendanceRecords => Set<AttendanceRecord>();
+        public DbSet<Notification> Notifications => Set<Notification>();
+        public DbSet<NotificationSetting> NotificationSettings => Set<NotificationSetting>();
+        public DbSet<Announcement> Announcements => Set<Announcement>();
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            // The bell asks "how many unread for this user" on every page
+            modelBuilder.Entity<Notification>()
+                .HasIndex(n => new { n.Role, n.UserId, n.IsRead });
+
+            modelBuilder.Entity<NotificationSetting>()
+                .HasIndex(s => new { s.Role, s.UserId }).IsUnique();
+
+            modelBuilder.Entity<Announcement>()
+                .HasOne(a => a.Module).WithMany().HasForeignKey(a => a.ModuleId).OnDelete(DeleteBehavior.Cascade);
+
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.Entity<Student>()

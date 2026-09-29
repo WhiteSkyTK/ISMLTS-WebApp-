@@ -1,0 +1,50 @@
+@model PagedList<Notification>
+@using ISMLTS_WebApp_.Services
+@{
+    ViewData["Title"] = "Notifications";
+    bool unreadOnly = ViewBag.UnreadOnly;
+    int unreadCount = ViewBag.UnreadCount;
+}
+
+<partial name="_PageHeader" model='new PageHeaderModel { Title = "Notifications", Subtitle = unreadCount == 0 ? "You are all caught up." : $"{unreadCount} unread" }' />
+
+<div class="panel">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
+        <ul class="nav nav-pills nav-pills-sm">
+            <li class="nav-item"><a class="nav-link @(unreadOnly ? null : "active")" asp-action="Index" aria-current="@(unreadOnly ? null : "page")">All</a></li>
+            <li class="nav-item"><a class="nav-link @(unreadOnly ? "active" : null)" asp-action="Index" asp-route-filter="unread" aria-current="@(unreadOnly ? "page" : null)">Unread</a></li>
+        </ul>
+        @if (unreadCount > 0)
+        {
+            <form asp-action="MarkAllRead" method="post">
+                <button type="submit" class="btn btn-outline-rosebank btn-sm" data-loading="Saving…"><i class="bi bi-check2-all" aria-hidden="true"></i> Mark all read</button>
+            </form>
+        }
+    </div>
+
+    @if (Model.Items.Any())
+    {
+        @foreach (var n in Model.Items)
+        {
+            <div class="notification-row">
+                <i class="bi @(n.IsRead ? "bi-bell" : "bi-bell-fill text-primary") fs-5" aria-hidden="true"></i>
+                <div>
+                    <span class="fw-semibold d-block">@n.Title</span>
+                    @if (!string.IsNullOrEmpty(n.Message))
+                    {
+                        <span class="d-block small text-muted">@n.Message</span>
+                    }
+                    <span class="d-block small text-muted">@TimeAgo.Describe(n.CreatedAt, DateTime.UtcNow)@(n.IsRead ? null : " · unread")</span>
+                </div>
+                <form asp-action="Open" asp-route-id="@n.NotificationId" method="post">
+                    <button type="submit" class="btn btn-outline-rosebank btn-sm text-nowrap">Open <i class="bi bi-arrow-right" aria-hidden="true"></i></button>
+                </form>
+            </div>
+        }
+        <partial name="_Pager" model="Model" />
+    }
+    else
+    {
+        <partial name="_EmptyState" model='new EmptyStateModel { Icon = "bi-bell", Title = unreadOnly ? "No unread notifications" : "No notifications yet", Message = "New marks, assessments, ticket replies and announcements show up here." }' />
+    }
+</div>

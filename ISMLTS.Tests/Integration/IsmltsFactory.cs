@@ -16,7 +16,7 @@ namespace ISMLTS.Tests.Integration
     public record SeedData(
         int AdminId,
         int LecturerAId, int LecturerBId,
-        int StudentId,
+        int StudentId, int OtherStudentId,
         int ModuleAId, int ModuleBId,
         string ModuleACode, string ModuleBCode,
         int AssessmentAId, int AssessmentBId,
@@ -118,7 +118,7 @@ namespace ISMLTS.Tests.Integration
             return new SeedData(
                 admin.AdminId,
                 lecturerA.LecturerId, lecturerB.LecturerId,
-                student.StudentId,
+                student.StudentId, otherStudent.StudentId,
                 moduleA.ModuleId, moduleB.ModuleId,
                 moduleA.Code, moduleB.Code,
                 assessmentA.AssessmentId, assessmentB.AssessmentId,

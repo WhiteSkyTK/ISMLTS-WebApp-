@@ -1,0 +1,33 @@
+@model NotificationSetting
+@{
+    ViewData["Title"] = "Notification Settings";
+    bool emailEnabled = ViewBag.EmailEnabled;
+    var isStudent = User.IsInRole(Roles.Student);
+}
+
+<partial name="_PageHeader" model='new PageHeaderModel { Title = "Notification settings", Subtitle = "The bell always shows everything. These choices are about email." }' />
+
+<div class="panel form-panel">
+    @if (!emailEnabled)
+    {
+        <div class="alert alert-info small" role="status"><i class="bi bi-info-circle" aria-hidden="true"></i> Email isn't switched on for this site yet. Your choices are saved for when it is.</div>
+    }
+    <form asp-action="Settings" method="post">
+        <div class="form-check form-switch mb-3">
+            <input asp-for="EmailEnabled" class="form-check-input" role="switch" />
+            <label asp-for="EmailEnabled" class="form-check-label">
+                @(isStudent ? "Email me when a lecturer replies to my ticket" : "Email me when a student raises a ticket in one of my modules")
+            </label>
+        </div>
+        @if (isStudent)
+        {
+            <div class="form-check form-switch mb-3">
+                <input asp-for="WeeklyDigest" class="form-check-input" role="switch" />
+                <label asp-for="WeeklyDigest" class="form-check-label"></label>
+            </div>
+        }
+        <div class="form-actions">
+            <button type="submit" class="btn btn-rosebank" data-loading="Saving…"><i class="bi bi-check-lg" aria-hidden="true"></i> Save settings</button>
+        </div>
+    </form>
+</div>

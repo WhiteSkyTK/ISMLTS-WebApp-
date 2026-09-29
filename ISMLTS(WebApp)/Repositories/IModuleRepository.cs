@@ -10,5 +10,7 @@ namespace ISMLTS_WebApp_.Repositories
         Task<IEnumerable<Module>> GetByLecturerAsync(int lecturerId);
         Task<PagedList<Module>> SearchAsync(string? query, int page);
         Task<Module?> GetByIdWithDetailsAsync(int id);
+        Task<List<Module>> GetAllWithCourseAsync();
+        Task<List<Module>> GetByCourseWithStudentsAsync(int courseId);
     }
 }

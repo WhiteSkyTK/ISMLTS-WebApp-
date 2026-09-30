@@ -375,6 +375,50 @@ footer {
     max-width: 24rem;
 }
 
+.table-facet {
+    width: auto;
+    max-width: 16rem;
+}
+
+/* Sortable headers: site.js wraps each th[data-sort] in one of these */
+.sort-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    font: inherit;
+    letter-spacing: inherit;
+    text-transform: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+
+    .sort-button:hover {
+        color: var(--rb-navy);
+    }
+
+    .sort-button:focus-visible {
+        outline: none;
+        border-radius: 0.25rem;
+        box-shadow: var(--rb-focus);
+    }
+
+.sort-icon {
+    font-size: 0.7rem;
+    opacity: 0.6;
+}
+
+th[aria-sort] .sort-button {
+    color: var(--rb-navy);
+}
+
+    th[aria-sort] .sort-icon {
+        opacity: 1;
+    }
+
 /* Scrolls both ways inside the panel so the header row can stick */
 .table-scroll {
     max-height: 70vh;

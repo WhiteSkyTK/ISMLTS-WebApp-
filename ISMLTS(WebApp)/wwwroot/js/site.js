@@ -17,6 +17,7 @@
         const confirmModal = bs.Modal.getOrCreateInstance(confirmElement);
         const message = confirmElement.querySelector('[data-confirm-message]');
         const okButton = confirmElement.querySelector('[data-confirm-ok]');
+        const icon = confirmElement.querySelector('[data-confirm-icon]');
         let pendingForm = null;
         let pendingSubmitter = null;
 
@@ -34,6 +35,11 @@
             pendingSubmitter = event.submitter ?? null;
             message.textContent = source.dataset.confirm;
             okButton.textContent = source.dataset.confirmLabel || 'Delete';
+            const primary = source.dataset.confirmTone === 'primary';
+            okButton.className = primary ? 'btn btn-rosebank' : 'btn btn-danger';
+            icon?.classList.toggle('bi-exclamation-triangle', !primary);
+            icon?.classList.toggle('text-danger', !primary);
+            icon?.classList.toggle('bi-question-circle', primary);
             confirmModal.show();
         }, true);
 
@@ -90,19 +96,36 @@
         }
     });
 
-    // ---------- data-table-filter: instant search over a table's rows or [data-filter-item]s ----------
-    for (const input of document.querySelectorAll('[data-table-filter]')) {
-        const target = document.querySelector(input.dataset.tableFilter);
+    // ---------- data-table-filter + data-table-facet: instant search and "Show" dropdowns over a table's rows ----------
+    // A facet select with data-facet="status" keeps rows whose data-status holds the chosen value (space-separated tokens).
+    const rowMatches = (row, control) => {
+        const value = control.value.trim().toLowerCase();
+        if (!value) {
+            return true;
+        }
+        if (control.dataset.tableFacet) {
+            return (row.dataset[control.dataset.facet] ?? '').toLowerCase().split(' ').includes(value);
+        }
+        return row.textContent.toLowerCase().includes(value);
+    };
+
+    const filterGroups = new Map();
+    for (const control of document.querySelectorAll('[data-table-filter], [data-table-facet]')) {
+        const selector = control.dataset.tableFilter ?? control.dataset.tableFacet;
+        filterGroups.set(selector, [...(filterGroups.get(selector) ?? []), control]);
+    }
+
+    for (const [selector, controls] of filterGroups) {
+        const target = document.querySelector(selector);
         if (!target) {
             continue;
         }
         const rows = [...target.querySelectorAll('tbody tr, [data-filter-item]')];
-        const noMatches = (input.closest('.panel') ?? document).querySelector('[data-filter-empty]');
-        input.addEventListener('input', () => {
-            const term = input.value.trim().toLowerCase();
+        const noMatches = (controls[0].closest('.panel') ?? document).querySelector('[data-filter-empty]');
+        const apply = () => {
             let shown = 0;
             for (const row of rows) {
-                const match = row.textContent.toLowerCase().includes(term);
+                const match = controls.every((control) => rowMatches(row, control));
                 row.hidden = !match;
                 if (match) {
                     shown++;
@@ -111,7 +134,72 @@
             if (noMatches) {
                 noMatches.hidden = shown > 0;
             }
-        });
+        };
+        for (const control of controls) {
+            control.addEventListener(control.tagName === 'SELECT' ? 'change' : 'input', apply);
+        }
+        // Browsers refill the controls when coming back to the page
+        if (controls.some((control) => control.value)) {
+            apply();
+        }
+    }
+
+    // ---------- table[data-sortable]: th[data-sort="text|number"] headers sort the rows on click ----------
+    // A cell's data-sort-value wins over its text; empty values always go to the bottom.
+    const collator = new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' });
+    const sortKey = (row, index, type) => {
+        const cell = row.cells[index];
+        const raw = (cell?.dataset.sortValue ?? cell?.textContent ?? '').trim();
+        if (type === 'number') {
+            const number = Number.parseFloat(raw);
+            return Number.isNaN(number) ? null : number;
+        }
+        return raw === '' ? null : raw;
+    };
+
+    for (const table of document.querySelectorAll('table[data-sortable]')) {
+        const body = table.tBodies[0];
+        const headers = [...table.querySelectorAll('thead th[data-sort]')];
+        const showState = () => {
+            for (const header of headers) {
+                const state = header.getAttribute('aria-sort');
+                const icon = header.querySelector('.sort-icon');
+                icon.classList.toggle('bi-chevron-expand', !state);
+                icon.classList.toggle('bi-caret-up-fill', state === 'ascending');
+                icon.classList.toggle('bi-caret-down-fill', state === 'descending');
+            }
+        };
+
+        for (const header of headers) {
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'sort-button';
+            button.append(...header.childNodes);
+            const icon = document.createElement('i');
+            icon.className = 'bi sort-icon';
+            icon.setAttribute('aria-hidden', 'true');
+            button.append(icon);
+            header.append(button);
+
+            button.addEventListener('click', () => {
+                const ascending = header.getAttribute('aria-sort') !== 'ascending';
+                for (const other of headers) {
+                    other.removeAttribute('aria-sort');
+                }
+                header.setAttribute('aria-sort', ascending ? 'ascending' : 'descending');
+                const keyed = [...body.rows].map((row) => ({ row, key: sortKey(row, header.cellIndex, header.dataset.sort) }));
+                keyed.sort((a, b) => {
+                    if (a.key === null || b.key === null) {
+                        return Number(a.key === null) - Number(b.key === null);
+                    }
+                    const order = typeof a.key === 'number' ? a.key - b.key : collator.compare(a.key, b.key);
+                    return ascending ? order : -order;
+                });
+                body.append(...keyed.map((item) => item.row));
+                showState();
+            });
+        }
+        showState();
     }
 
     // ---------- Notification bell: opening it marks the notifications shown as read ----------

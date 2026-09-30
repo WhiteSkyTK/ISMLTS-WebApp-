@@ -1,7 +1,9 @@
 @model string
 @{
     var label = ViewData["FilterLabel"] as string ?? "Filter this list";
-    var inputId = $"filter-{Model.TrimStart('#')}";
+    var target = Model.TrimStart('#');
+    var inputId = $"filter-{target}";
+    var facets = ViewData["TableFacets"] as List<TableFacet> ?? new List<TableFacet>();
 }
 
 @* Instant, in-page filtering; Model is the CSS selector of the table or list to filter *@
@@ -11,4 +13,16 @@
         <span class="input-group-text"><i class="bi bi-funnel" aria-hidden="true"></i></span>
         <input id="@inputId" type="search" class="form-control" placeholder="@label" data-table-filter="@Model" autocomplete="off" />
     </div>
+    @foreach (var facet in facets)
+    {
+        var facetId = $"facet-{target}-{facet.Name}";
+        <label for="@facetId" class="visually-hidden">@facet.Label</label>
+        <select id="@facetId" class="form-select table-facet" data-table-facet="@Model" data-facet="@facet.Name">
+            <option value="">@facet.AllText</option>
+            @foreach (var (value, text) in facet.Options)
+            {
+                <option value="@value">@text</option>
+            }
+        </select>
+    }
 </div>

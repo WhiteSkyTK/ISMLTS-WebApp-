@@ -423,6 +423,16 @@ footer {
     min-width: 9rem;
 }
 
+.stat-card-warning {
+    box-shadow: inset 4px 0 0 #dc3545, var(--rb-shadow);
+}
+
+.progress-list progress {
+    width: 55%;
+    vertical-align: middle;
+    margin-right: 0.35rem;
+}
+
 .stat-inline {
     display: flex;
     flex-wrap: wrap;

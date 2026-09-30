@@ -1,0 +1,96 @@
+@model MyProgressViewModel
+@using System.Globalization
+@{
+    ViewData["Title"] = "My Progress";
+    var summary = Model.Summary;
+    string Pct(decimal? value) => value is decimal v ? $"{v.ToString("0.#", CultureInfo.InvariantCulture)}%" : "—";
+}
+
+<partial name="_PageHeader" model='new PageHeaderModel { Title = "My progress", Subtitle = $"A module is at risk when your average drops below 50% or your attendance below {Model.AttendanceThreshold}%." }' />
+
+@if (Model.Modules.Any())
+{
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-lg-3"><div class="stat-card"><i class="bi bi-graph-up" aria-hidden="true"></i><div><h2 class="h3">@Pct(summary.OverallAverage)</h2><span>Overall average</span></div></div></div>
+        <div class="col-6 col-lg-3"><div class="stat-card"><i class="bi bi-qr-code-scan" aria-hidden="true"></i><div><h2 class="h3">@(summary.AttendancePercent is int a ? $"{a}%" : "—")</h2><span>Attendance</span></div></div></div>
+        <div class="col-6 col-lg-3"><div class="stat-card"><i class="bi bi-journal-check" aria-hidden="true"></i><div><h2 class="h3">@summary.Submitted of @summary.AssessmentCount</h2><span>Assessments submitted</span></div></div></div>
+        <div class="col-6 col-lg-3"><div class="stat-card @(summary.ModulesAtRisk > 0 ? "stat-card-warning" : null)"><i class="bi @(summary.ModulesAtRisk > 0 ? "bi-exclamation-triangle" : "bi-emoji-smile")" aria-hidden="true"></i><div><h2 class="h3">@summary.ModulesAtRisk of @summary.ModuleCount</h2><span>Modules at risk</span></div></div></div>
+    </div>
+
+    <div class="row g-3">
+        @foreach (var m in Model.Modules)
+        {
+            <div class="col-lg-6">
+                <div class="panel h-100">
+                    <div class="d-flex justify-content-between align-items-start gap-2 mb-3">
+                        <h2 class="h5 mb-0"><span class="font-monospace">@m.Code</span> <span class="d-block small text-muted fw-normal">@m.Name</span></h2>
+                        @if (m.AtRisk)
+                        {
+                            <span class="badge text-bg-danger">At risk</span>
+                        }
+                        else
+                        {
+                            <span class="badge text-bg-success">On track</span>
+                        }
+                    </div>
+                    <dl class="row detail-list progress-list mb-0">
+                        <dt class="col-sm-4">Average</dt>
+                        <dd class="col-sm-8">
+                            @if (m.Average is decimal average)
+                            {
+                                <progress value="@average.ToString(CultureInfo.InvariantCulture)" max="100" aria-label="@m.Code average">@Pct(average)</progress>
+                                <span class="fw-semibold">@Pct(average)</span>
+                            }
+                            else
+                            {
+                                <span class="text-muted">No released marks yet</span>
+                            }
+                        </dd>
+                        <dt class="col-sm-4">Attendance</dt>
+                        <dd class="col-sm-8">
+                            @if (m.AttendancePercent is int attendance)
+                            {
+                                <progress value="@attendance.ToString(CultureInfo.InvariantCulture)" max="100" aria-label="@m.Code attendance">@attendance%</progress>
+                                <span class="fw-semibold">@attendance%</span> <span class="small text-muted">(@m.SessionsAttended of @m.SessionsHeld)</span>
+                            }
+                            else
+                            {
+                                <span class="text-muted">No sessions yet</span>
+                            }
+                        </dd>
+                        <dt class="col-sm-4">Submitted</dt>
+                        <dd class="col-sm-8">@m.Submitted of @m.AssessmentCount</dd>
+                        <dt class="col-sm-4">Next due</dt>
+                        <dd class="col-sm-8 mb-0">
+                            @if (m.NextDue != null)
+                            {
+                                <a asp-controller="Assessments" asp-action="Submit" asp-route-id="@m.NextDue.AssessmentId">@m.NextDue.Name</a>
+                                <span class="table-row-sub">@ISMLTS_WebApp_.Services.DueDates.Describe(m.NextDue.DueDate, DateTime.Today)</span>
+                            }
+                            else
+                            {
+                                <span class="text-muted">Nothing outstanding</span>
+                            }
+                        </dd>
+                    </dl>
+                    @if (m.AtRisk)
+                    {
+                        <div class="alert alert-warning small mt-3 mb-0" role="note">
+                            @foreach (var reason in m.RiskReasons)
+                            {
+                                <span class="d-block"><i class="bi bi-exclamation-triangle" aria-hidden="true"></i> @reason</span>
+                            }
+                            <a asp-controller="Tickets" asp-action="Create" class="alert-link">Ask your lecturer for help</a>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <div class="panel">
+        <partial name="_EmptyState" model='new EmptyStateModel { Icon = "bi-journal-x", Title = "You are not enrolled in any modules yet", Message = "Your progress shows here once an admin enrols you." }' />
+    </div>
+}

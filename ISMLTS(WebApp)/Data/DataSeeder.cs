@@ -24,6 +24,8 @@ namespace ISMLTS_WebApp_.Data
         public static async Task SeedAsync(ApplicationDbContext context, IConfiguration configuration)
         {
             await context.Database.MigrateAsync();
+            // Demo data goes first so its accounts get the demo password; it only runs while there are no students
+            await DemoSeeder.SeedAsync(context, configuration);
             await SeedDataAsync(context, configuration);
         }
 

@@ -1,0 +1,78 @@
+@model QuickEvalViewModel
+@using System.Globalization
+@using ISMLTS_WebApp_.Services
+@{
+    ViewData["Title"] = "Quick Eval";
+    var current = Model.Current;
+    var subtitle = Model.Remaining == 0 ? "Nothing is waiting for a mark." : $"{Model.Position + 1} of {Model.Remaining} waiting for a mark, oldest due date first.";
+}
+
+<partial name="_PageHeader" model='new PageHeaderModel { Title = "Quick Eval", Subtitle = subtitle }' />
+
+@if (current?.Assessment != null)
+{
+    var assessment = current.Assessment;
+    var link = LinkValidator.IsWebLink(current.Link) ? current.Link : null;
+    <div class="row g-4">
+        <div class="col-lg-5">
+            <div class="panel h-100">
+                <h2 class="h5 mb-1">@current.Student?.FullName</h2>
+                <p class="text-muted mb-3">@assessment.Name · <span class="font-monospace">@assessment.Module?.Code</span></p>
+                <dl class="row detail-list mb-3">
+                    <dt class="col-sm-5">Due</dt>
+                    <dd class="col-sm-7">@assessment.DueDate.ToString("ddd, dd MMM yyyy")</dd>
+                    <dt class="col-sm-5">Submitted</dt>
+                    <dd class="col-sm-7">
+                        @current.SubmittedAt?.ToLocalTime().ToString("ddd, dd MMM, HH:mm")
+                        <partial name="~/Views/Assessments/_SubmissionStatus.cshtml" model="current.Status" />
+                    </dd>
+                    <dt class="col-sm-5">Marked out of</dt>
+                    <dd class="col-sm-7 mb-0">@MarkRules.Format(assessment.MaxScore)</dd>
+                </dl>
+                @if (link != null)
+                {
+                    <a href="@link" target="_blank" rel="noopener noreferrer" class="btn btn-outline-rosebank"><i class="bi bi-box-arrow-up-right" aria-hidden="true"></i> Open the work</a>
+                }
+            </div>
+        </div>
+        <div class="col-lg-7">
+            <div class="panel">
+                <form asp-action="QuickEval" method="post">
+                    <input type="hidden" name="assessmentId" value="@current.AssessmentId" />
+                    <input type="hidden" name="studentId" value="@current.StudentId" />
+                    <input type="hidden" name="skip" value="@Model.Position" />
+                    <div class="mb-3">
+                        <label for="score" class="form-label">Score</label>
+                        <div class="input-group gradebook-score">
+                            <input id="score" name="score" type="number" step="0.5" min="0" max="@MarkRules.Format(assessment.MaxScore)" value="@Model.Score?.ToString(CultureInfo.InvariantCulture)" class="form-control" required autofocus />
+                            <span class="input-group-text">/ @MarkRules.Format(assessment.MaxScore)</span>
+                        </div>
+                        <span asp-validation-for="Score" class="text-danger small"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label for="feedback" class="form-label">Feedback for the student</label>
+                        <textarea id="feedback" name="feedback" class="form-control" rows="6" maxlength="1000" placeholder="What went well, and what to work on">@Model.Feedback</textarea>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-rosebank" data-loading="Saving…"><i class="bi bi-check-lg" aria-hidden="true"></i> Save &amp; next</button>
+                        @if (Model.Position + 1 < Model.Remaining)
+                        {
+                            <a asp-action="QuickEval" asp-route-skip="@(Model.Position + 1)" class="btn btn-outline-secondary">Skip for now</a>
+                        }
+                        @if (Model.Position > 0)
+                        {
+                            <a asp-action="QuickEval" asp-route-skip="@(Model.Position - 1)" class="btn btn-link">Previous</a>
+                        }
+                    </div>
+                    <p class="form-text mb-0">@(assessment.MarksReleased ? "This assessment is released, so the student is told straight away." : "Students won't see this until you release the assessment's marks.")</p>
+                </form>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="panel">
+        <partial name="_EmptyState" model='new EmptyStateModel { Icon = "bi-check2-all", Title = "All caught up", Message = "Every piece of submitted work in your modules has a mark." }' />
+    </div>
+}

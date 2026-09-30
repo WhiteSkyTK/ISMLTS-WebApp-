@@ -4,6 +4,8 @@
     ViewData["Title"] = "Assessments";
     int moduleId = ViewBag.ModuleId;
     string moduleDisplay = ViewBag.ModuleDisplay;
+    int enrolled = ViewBag.EnrolledCount;
+    var markedCounts = ViewBag.MarkedCounts as Dictionary<int, int> ?? new Dictionary<int, int>();
 }
 
 <partial name="_PageHeader" model='new PageHeaderModel { Title = "Assessments", Subtitle = moduleDisplay, BackUrl = Url.Action("Index"), BackText = "All modules", ActionUrl = Url.Action("Create", new { moduleId }), ActionText = "Add assessment" }' />
@@ -18,6 +20,7 @@
                         <th scope="col">Name</th>
                         <th scope="col">Type</th>
                         <th scope="col">Due</th>
+                        <th scope="col">Marked</th>
                         <th scope="col"><span class="visually-hidden">Actions</span></th>
                     </tr>
                 </thead>
@@ -32,10 +35,26 @@
                                 <span class="table-row-sub @(DueDates.IsOverdue(a.DueDate, DateTime.Today) ? "text-danger" : null)">@DueDates.Describe(a.DueDate, DateTime.Today)</span>
                             </td>
                             <td>
+                                @(markedCounts.GetValueOrDefault(a.AssessmentId)) of @enrolled
+                                @if (a.MarksReleased)
+                                {
+                                    <span class="badge text-bg-success ms-1">Released</span>
+                                }
+                                else
+                                {
+                                    <span class="badge text-bg-light ms-1">Hidden from students</span>
+                                }
+                            </td>
+                            <td>
                                 <div class="row-actions">
+                                    <a asp-controller="Grading" asp-action="Gradebook" asp-route-id="@a.AssessmentId" class="btn btn-icon" data-bs-toggle="tooltip" data-bs-title="Gradebook" aria-label="Gradebook for @a.Name"><i class="bi bi-table" aria-hidden="true"></i></a>
                                     <a asp-action="Submissions" asp-route-id="@a.AssessmentId" class="btn btn-icon" data-bs-toggle="tooltip" data-bs-title="Submissions" aria-label="Submissions for @a.Name"><i class="bi bi-inbox" aria-hidden="true"></i></a>
+                                    <form asp-action="Release" asp-route-id="@a.AssessmentId" method="post">
+                                        <input type="hidden" name="released" value="@(a.MarksReleased ? "false" : "true")" />
+                                        <button type="submit" class="btn btn-icon" data-bs-toggle="tooltip" data-bs-title="@(a.MarksReleased ? "Hide marks from students" : "Release marks to students")" aria-label="@(a.MarksReleased ? "Hide" : "Release") marks for @a.Name"><i class="bi @(a.MarksReleased ? "bi-eye-slash" : "bi-send-check")" aria-hidden="true"></i></button>
+                                    </form>
                                     <a asp-action="Edit" asp-route-id="@a.AssessmentId" class="btn btn-icon" data-bs-toggle="tooltip" data-bs-title="Edit" aria-label="Edit @a.Name"><i class="bi bi-pencil" aria-hidden="true"></i></a>
-                                    <form asp-action="Delete" asp-route-id="@a.AssessmentId" method="post" data-confirm="Delete @a.Name? Every submission for it is deleted too.">
+                                    <form asp-action="Delete" asp-route-id="@a.AssessmentId" method="post" data-confirm="Delete @a.Name? Its submissions are deleted too. Marks already captured are kept.">
                                         <button type="submit" class="btn btn-icon btn-icon-danger" data-bs-toggle="tooltip" data-bs-title="Delete" aria-label="Delete @a.Name"><i class="bi bi-trash" aria-hidden="true"></i></button>
                                     </form>
                                 </div>

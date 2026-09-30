@@ -18,6 +18,7 @@ namespace ISMLTS_WebApp_.Services
 
         Task AssessmentPostedAsync(Assessment assessment, Module module);
         Task MarkSavedAsync(Mark mark, Module module, bool updated);
+        Task MarksReleasedAsync(Assessment assessment, Module module, IEnumerable<Mark> marks);
         Task TicketRaisedAsync(Ticket ticket, Module module, string studentName);
         Task TicketAnsweredAsync(Ticket ticket, Module module);
         Task AttendanceOpenedAsync(Module module);
@@ -108,6 +109,24 @@ namespace ISMLTS_WebApp_.Services
                 updated ? $"Mark updated: {mark.AssessmentName}" : $"New mark: {mark.AssessmentName}",
                 $"{module.Code} · {score}",
                 "/Marks/MyMarks");
+        }
+
+        // One notification per student, each with their own score
+        public async Task MarksReleasedAsync(Assessment assessment, Module module, IEnumerable<Mark> marks)
+        {
+            var rows = marks.Select(m => new Notification
+            {
+                Role = Roles.Student,
+                UserId = m.StudentId,
+                Title = Truncate($"Marks released: {assessment.Name}", 150),
+                Message = $"{module.Code} · {Number(m.Score)}/{Number(m.MaxScore)} ({Number(m.Percentage)}%)",
+                Url = "/Marks/MyMarks",
+                CreatedAt = DateTime.UtcNow
+            }).ToList();
+
+            if (rows.Count == 0) return;
+            await _notifications.AddRangeAsync(rows);
+            await _notifications.SaveChangesAsync();
         }
 
         public async Task TicketRaisedAsync(Ticket ticket, Module module, string studentName)

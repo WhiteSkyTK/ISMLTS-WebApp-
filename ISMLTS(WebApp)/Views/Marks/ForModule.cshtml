@@ -5,7 +5,7 @@
     var atRisk = Model.Rows.Count(r => r.Marks.Any() && r.IsAtRisk);
 }
 
-<partial name="_PageHeader" model='new PageHeaderModel { Title = "Marks", Subtitle = Model.ModuleDisplay, BackUrl = Url.Action("Index"), BackText = "All modules" }' />
+<partial name="_PageHeader" model='new PageHeaderModel { Title = "Marks", Subtitle = Model.ModuleDisplay, BackUrl = Url.Action("Index"), BackText = "All modules", ActionUrl = Url.Action("Export", new { moduleId = Model.ModuleId }), ActionText = "Export CSV", ActionIcon = "bi-download" }' />
 
 <div class="panel">
     @if (Model.Rows.Any())
@@ -40,6 +40,14 @@
                                 {
                                     <div class="mark-line">
                                         <span>@m.AssessmentName: <strong>@m.Score.ToString("0.##")/@m.MaxScore.ToString("0.##")</strong> <span class="text-muted">(@m.Percentage%)</span></span>
+                                        @if (!m.IsVisibleToStudent)
+                                        {
+                                            <i class="bi bi-eye-slash text-muted" role="img" aria-label="Not released to the student yet" data-bs-toggle="tooltip" data-bs-title="Not released to the student yet"></i>
+                                        }
+                                        @if (!string.IsNullOrEmpty(m.Feedback))
+                                        {
+                                            <i class="bi bi-chat-left-text text-muted" role="img" aria-label="Has feedback" data-bs-toggle="tooltip" data-bs-title="@m.Feedback"></i>
+                                        }
                                         <a asp-action="Edit" asp-route-id="@m.MarkId" class="btn btn-icon" data-bs-toggle="tooltip" data-bs-title="Edit mark" aria-label="Edit the @m.AssessmentName mark for @row.FullName"><i class="bi bi-pencil" aria-hidden="true"></i></a>
                                         <form asp-action="Delete" asp-route-id="@m.MarkId" method="post" data-confirm="Delete the @m.AssessmentName mark for @row.FullName?">
                                             <button type="submit" class="btn btn-icon btn-icon-danger" data-bs-toggle="tooltip" data-bs-title="Delete mark" aria-label="Delete the @m.AssessmentName mark for @row.FullName"><i class="bi bi-trash" aria-hidden="true"></i></button>

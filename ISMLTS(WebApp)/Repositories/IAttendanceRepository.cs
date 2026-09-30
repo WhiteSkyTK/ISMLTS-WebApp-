@@ -13,5 +13,7 @@ namespace ISMLTS_WebApp_.Repositories
         Task AddRecordAsync(AttendanceRecord record);
         void RemoveRecord(AttendanceRecord record);
         Task<IEnumerable<AttendanceRecord>> GetRecordsByStudentAsync(int studentId);
+        Task<List<AttendanceRecord>> GetRecordsByModulesAsync(IReadOnlyCollection<int> moduleIds);
+        Task<Dictionary<int, int>> CountSessionsByModuleAsync(IReadOnlyCollection<int> moduleIds);
     }
 }

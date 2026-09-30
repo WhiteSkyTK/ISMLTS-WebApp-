@@ -52,6 +52,55 @@ namespace ISMLTS_WebApp_.Migrations
                     b.ToTable("Admins");
                 });
 
+            modelBuilder.Entity("ISMLTS_WebApp_.Models.Announcement", b =>
+                {
+                    b.Property<int>("AnnouncementId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AnnouncementId"));
+
+                    b.Property<string>("Audience")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<int>("AuthorId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("AuthorName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("AuthorRole")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("Body")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("ModuleId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.HasKey("AnnouncementId");
+
+                    b.HasIndex("ModuleId");
+
+                    b.ToTable("Announcements");
+                });
+
             modelBuilder.Entity("ISMLTS_WebApp_.Models.Assessment", b =>
                 {
                     b.Property<int>("AssessmentId")
@@ -314,6 +363,81 @@ namespace ISMLTS_WebApp_.Migrations
                     b.ToTable("Modules");
                 });
 
+            modelBuilder.Entity("ISMLTS_WebApp_.Models.Notification", b =>
+                {
+                    b.Property<int>("NotificationId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("NotificationId"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsRead")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Message")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<string>("Url")
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("NotificationId");
+
+                    b.HasIndex("Role", "UserId", "IsRead");
+
+                    b.ToTable("Notifications");
+                });
+
+            modelBuilder.Entity("ISMLTS_WebApp_.Models.NotificationSetting", b =>
+                {
+                    b.Property<int>("NotificationSettingId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("NotificationSettingId"));
+
+                    b.Property<bool>("EmailEnabled")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("LastDigestSentAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("WeeklyDigest")
+                        .HasColumnType("bit");
+
+                    b.HasKey("NotificationSettingId");
+
+                    b.HasIndex("Role", "UserId")
+                        .IsUnique();
+
+                    b.ToTable("NotificationSettings");
+                });
+
             modelBuilder.Entity("ISMLTS_WebApp_.Models.Student", b =>
                 {
                     b.Property<int>("StudentId")
@@ -440,6 +564,16 @@ namespace ISMLTS_WebApp_.Migrations
                     b.HasIndex("StudentsStudentId");
 
                     b.ToTable("Enrolments", (string)null);
+                });
+
+            modelBuilder.Entity("ISMLTS_WebApp_.Models.Announcement", b =>
+                {
+                    b.HasOne("ISMLTS_WebApp_.Models.Module", "Module")
+                        .WithMany()
+                        .HasForeignKey("ModuleId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("Module");
                 });
 
             modelBuilder.Entity("ISMLTS_WebApp_.Models.Assessment", b =>

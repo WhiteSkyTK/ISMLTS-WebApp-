@@ -51,7 +51,8 @@ Phase 0 done: role attributes on every controller, lecturer ownership and studen
 Phase 1 done: shared page parts and toasts on every page, confirm dialog instead of Delete pages, server-side search and paging on admin lists, instant table filters, styled status pages, redesigned log-in page, button set and subtle motion.
 After Phase 1: course pages to group modules and enrol a class per term (`CourseService`); `DataSeeder.SeedDataAsync` runs on every startup and keeps ADAD0701 with its 8 modules (4 per term) without duplicating anything.
 Phase 2 done: notifications (bell with unread count, list, settings), announcements, ticket emails and a Monday "due this week" digest via Azure Communication Services. Needs the `Phase2Notifications` migration.
-The site is live on Azure App Service (published by hand). Next: see ROADMAP.md, Phases 3–9 (all approved):
+Phase 3 done: marks link to assessments with feedback and a release switch (students only see released marks), a mark history on every mark (MarkService / MarkChange), gradebook, Quick Eval, CSV import with preview (GradingController), My Progress and Class Insights (InsightsController, `Risk:AttendanceThreshold`, default 75), CSV exports of marks and registers (Csv escapes formulas). Needs the `Phase3Marking` migration.
+The site is live on Azure App Service (published by hand). Next: see ROADMAP.md, Phases 4–9 (all approved):
 ## Roadmap
 ROADMAP.md holds the remaining work. One phase per session: plan briefly, implement, add tests, run `dotnet build` and `dotnet test`, then stop with a manual test checklist. Tick finished items there and keep Status here current.
 

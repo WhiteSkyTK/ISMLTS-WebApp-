@@ -44,5 +44,16 @@ namespace ISMLTS_WebApp_.Repositories
             await _records.Include(r => r.Session)
                 .Where(r => r.StudentId == studentId)
                 .ToListAsync();
+
+        public async Task<List<AttendanceRecord>> GetRecordsByModulesAsync(IReadOnlyCollection<int> moduleIds) =>
+            await _records.AsNoTracking().Include(r => r.Session)
+                .Where(r => r.Session != null && moduleIds.Contains(r.Session.ModuleId))
+                .ToListAsync();
+
+        public async Task<Dictionary<int, int>> CountSessionsByModuleAsync(IReadOnlyCollection<int> moduleIds) =>
+            await _dbSet.Where(s => moduleIds.Contains(s.ModuleId))
+                .GroupBy(s => s.ModuleId)
+                .Select(g => new { ModuleId = g.Key, Count = g.Count() })
+                .ToDictionaryAsync(x => x.ModuleId, x => x.Count);
     }
 }

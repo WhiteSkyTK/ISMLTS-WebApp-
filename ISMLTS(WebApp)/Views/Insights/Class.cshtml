@@ -1,0 +1,76 @@
+@model ClassInsightsViewModel
+@using System.Globalization
+@{
+    ViewData["Title"] = "Class Insights";
+    string Pct(decimal? value) => value is decimal v ? $"{v.ToString("0.#", CultureInfo.InvariantCulture)}%" : "—";
+    string Whole(int? value) => value is int v ? $"{v}%" : "—";
+}
+
+<partial name="_PageHeader" model='new PageHeaderModel { Title = "Class insights", Subtitle = $"At risk: average below 50% or attendance below {Model.AttendanceThreshold}%. Averages include marks you have not released yet." }' />
+
+@if (Model.Modules.Any())
+{
+    @foreach (var m in Model.Modules)
+    {
+        <section class="panel mb-4" aria-labelledby="module-@m.ModuleId">
+            <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-3">
+                <h2 id="module-@m.ModuleId" class="h5 mb-0"><span class="font-monospace">@m.Code</span> <span class="d-block small text-muted fw-normal">@m.Name</span></h2>
+                <div class="d-flex flex-wrap gap-2">
+                    <a asp-controller="Marks" asp-action="ForModule" asp-route-moduleId="@m.ModuleId" class="btn btn-outline-rosebank btn-sm"><i class="bi bi-clipboard-check" aria-hidden="true"></i> Marks</a>
+                    <a asp-controller="Attendance" asp-action="ForModule" asp-route-moduleId="@m.ModuleId" class="btn btn-outline-rosebank btn-sm"><i class="bi bi-qr-code" aria-hidden="true"></i> Registers</a>
+                </div>
+            </div>
+
+            <div class="row g-3 mb-3">
+                <div class="col-6 col-lg-3"><div class="insight-figure"><strong>@m.Enrolled</strong><span>Enrolled</span></div></div>
+                <div class="col-6 col-lg-3"><div class="insight-figure"><strong>@Pct(m.ClassAverage)</strong><span>Class average</span></div></div>
+                <div class="col-6 col-lg-3"><div class="insight-figure"><strong>@Whole(m.AttendanceRate)</strong><span>Attendance rate</span></div></div>
+                <div class="col-6 col-lg-3"><div class="insight-figure"><strong>@Whole(m.SubmissionRate)</strong><span>Work handed in (due so far)</span></div></div>
+            </div>
+
+            @if (m.AtRisk.Any())
+            {
+                <h3 class="h6"><i class="bi bi-exclamation-triangle text-danger" aria-hidden="true"></i> @m.AtRisk.Count at risk</h3>
+                <div class="table-scroll">
+                    <table class="table align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th scope="col">Student</th>
+                                <th scope="col">Average</th>
+                                <th scope="col">Attendance</th>
+                                <th scope="col">Handed in</th>
+                                <th scope="col">Why</th>
+                                <th scope="col"><span class="visually-hidden">Actions</span></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var s in m.AtRisk)
+                            {
+                                <tr>
+                                    <td class="fw-medium">@s.FullName</td>
+                                    <td>@Pct(s.Average)</td>
+                                    <td>@Whole(s.AttendancePercent)</td>
+                                    <td>@s.Submitted of @s.DueSoFar</td>
+                                    <td class="small">@string.Join("; ", s.RiskReasons)</td>
+                                    <td class="text-end">
+                                        <a asp-controller="Marks" asp-action="Create" asp-route-moduleId="@m.ModuleId" asp-route-studentId="@s.StudentId" class="btn btn-icon" data-bs-toggle="tooltip" data-bs-title="Add a mark" aria-label="Add a mark for @s.FullName"><i class="bi bi-plus-lg" aria-hidden="true"></i></a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <p class="text-success mb-0"><i class="bi bi-emoji-smile" aria-hidden="true"></i> Nobody in @m.Code is at risk right now.</p>
+            }
+        </section>
+    }
+}
+else
+{
+    <div class="panel">
+        <partial name="_EmptyState" model='new EmptyStateModel { Icon = "bi-journal-x", Title = "No modules are assigned to you yet", Message = "An admin sets the lecturer on each module." }' />
+    </div>
+}

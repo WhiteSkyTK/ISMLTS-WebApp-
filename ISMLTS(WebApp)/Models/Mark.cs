@@ -16,8 +16,14 @@ namespace ISMLTS_WebApp_.Models
         public int ModuleId { get; set; }
         public Module? Module { get; set; }
 
-        [Required, MaxLength(100)]
+        // Null for marks captured before assessments existed, or for work that isn't a listed assessment
+        [ForeignKey(nameof(Assessment))]
         [Display(Name = "Assessment")]
+        public int? AssessmentId { get; set; }
+        public Assessment? Assessment { get; set; }
+
+        [Required, MaxLength(100)]
+        [Display(Name = "Name")]
         public string AssessmentName { get; set; } = string.Empty;
 
         [Range(0, 1000)]
@@ -30,6 +36,13 @@ namespace ISMLTS_WebApp_.Models
         [DataType(DataType.Date)]
         [Display(Name = "Date captured")]
         public DateTime DateCaptured { get; set; } = DateTime.Today;
+
+        [MaxLength(1000)]
+        public string? Feedback { get; set; }
+
+        // Students only see a mark once its assessment's marks are released; unlinked marks are always visible
+        [NotMapped]
+        public bool IsVisibleToStudent => AssessmentId == null || Assessment?.MarksReleased == true;
 
         [NotMapped]
         public decimal Percentage => MaxScore == 0 ? 0 : Math.Round(Score / MaxScore * 100, 1);

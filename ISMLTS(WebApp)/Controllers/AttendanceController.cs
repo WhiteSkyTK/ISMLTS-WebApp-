@@ -142,6 +142,18 @@ namespace ISMLTS_WebApp_.Controllers
             });
         }
 
+        // The register as a spreadsheet: everyone enrolled, present or absent
+        [Authorize(Roles = "Lecturer")]
+        public async Task<IActionResult> Export(int id)
+        {
+            var session = await GetOwnedSessionAsync(id);
+            if (session == null) return NotFound();
+
+            var csv = Csv.RegisterExport(session, await _studentRepository.GetByModuleAsync(session.ModuleId));
+            var started = session.StartedAt.ToLocalTime();
+            return File(Csv.ToUtf8WithBom(csv), "text/csv", $"{session.Module?.Code}-register-{started:yyyy-MM-dd-HHmm}.csv");
+        }
+
         [Authorize(Roles = "Lecturer")]
         [HttpPost]
         [ValidateAntiForgeryToken]

@@ -419,6 +419,38 @@ footer {
         height: 1.75rem;
     }
 
+.gradebook-score {
+    min-width: 9rem;
+}
+
+.insight-figure {
+    background: var(--rb-page);
+    border-radius: var(--rb-radius);
+    padding: 0.75rem 1rem;
+    height: 100%;
+}
+
+    .insight-figure strong {
+        display: block;
+        font-size: 1.4rem;
+        color: var(--rb-navy);
+    }
+
+    .insight-figure span {
+        font-size: 0.8rem;
+        color: var(--rb-muted);
+    }
+
+.stat-card-warning {
+    box-shadow: inset 4px 0 0 #dc3545, var(--rb-shadow);
+}
+
+.progress-list progress {
+    width: 55%;
+    vertical-align: middle;
+    margin-right: 0.35rem;
+}
+
 .stat-inline {
     display: flex;
     flex-wrap: wrap;

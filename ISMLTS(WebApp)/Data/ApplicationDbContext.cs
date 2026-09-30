@@ -22,8 +22,27 @@ namespace ISMLTS_WebApp_.Data
         public DbSet<Notification> Notifications => Set<Notification>();
         public DbSet<NotificationSetting> NotificationSettings => Set<NotificationSetting>();
         public DbSet<Announcement> Announcements => Set<Announcement>();
+        public DbSet<MarkChange> MarkChanges => Set<MarkChange>();
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            // Explicit precision for every decimal (the default is 18,2, which suits marks)
+            modelBuilder.Entity<Mark>().Property(m => m.Score).HasPrecision(18, 2);
+            modelBuilder.Entity<Mark>().Property(m => m.MaxScore).HasPrecision(18, 2);
+            // Existing assessments get 100 when the column is added, rather than 0 (which would reject every score)
+            modelBuilder.Entity<Assessment>().Property(a => a.MaxScore).HasPrecision(18, 2).HasDefaultValue(100m);
+            modelBuilder.Entity<MarkChange>().Property(c => c.OldScore).HasPrecision(18, 2);
+            modelBuilder.Entity<MarkChange>().Property(c => c.NewScore).HasPrecision(18, 2);
+            modelBuilder.Entity<MarkChange>().Property(c => c.OldMaxScore).HasPrecision(18, 2);
+            modelBuilder.Entity<MarkChange>().Property(c => c.NewMaxScore).HasPrecision(18, 2);
+
+            // Marks already cascade from Module; a second cascade/set-null path through Assessment isn't allowed
+            // on SQL Server, so deleting an assessment unlinks its marks in code (MarkService) first.
+            modelBuilder.Entity<Mark>()
+                .HasOne(m => m.Assessment).WithMany().HasForeignKey(m => m.AssessmentId).OnDelete(DeleteBehavior.ClientSetNull);
+
+            modelBuilder.Entity<MarkChange>().HasIndex(c => c.MarkId);
+            modelBuilder.Entity<MarkChange>().HasIndex(c => c.ModuleId);
+
             // The bell asks "how many unread for this user" on every page
             modelBuilder.Entity<Notification>()
                 .HasIndex(n => new { n.Role, n.UserId, n.IsRead });

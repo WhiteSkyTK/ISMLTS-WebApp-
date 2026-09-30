@@ -21,6 +21,12 @@ namespace ISMLTS_WebApp_.Repositories
                 .Take(take)
                 .ToListAsync();
 
+        public async Task<List<Assessment>> GetByModulesAsync(IReadOnlyCollection<int> moduleIds) =>
+            await _dbSet.AsNoTracking().Include(a => a.Module)
+                .Where(a => moduleIds.Contains(a.ModuleId))
+                .OrderBy(a => a.DueDate)
+                .ToListAsync();
+
         public async Task<List<Assessment>> GetDueBetweenAsync(DateTime fromDate, DateTime toDate) =>
             await _dbSet.AsNoTracking().Include(a => a.Module)
                 .Where(a => a.DueDate >= fromDate && a.DueDate <= toDate)

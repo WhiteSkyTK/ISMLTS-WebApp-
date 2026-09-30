@@ -24,6 +24,7 @@
                         <th scope="col">Type</th>
                         <th scope="col">Due</th>
                         <th scope="col">Status</th>
+                        <th scope="col">Mark</th>
                         <th scope="col"><span class="visually-hidden">Actions</span></th>
                     </tr>
                 </thead>
@@ -42,6 +43,24 @@
                                 <span class="table-row-sub @(overdue ? "text-danger" : null)">@DueDates.Describe(r.DueDate, DateTime.Today)</span>
                             </td>
                             <td><partial name="_SubmissionStatus" model="r.Status" /></td>
+                            <td>
+                                @if (r.Mark != null)
+                                {
+                                    <span class="fw-semibold">@MarkRules.Format(r.Mark.Score)/@MarkRules.Format(r.Mark.MaxScore)</span> <span class="text-muted">(@r.Mark.Percentage%)</span>
+                                    @if (!string.IsNullOrEmpty(r.Mark.Feedback))
+                                    {
+                                        <span class="table-row-sub ticket-message"><i class="bi bi-chat-left-text" aria-hidden="true"></i> @r.Mark.Feedback</span>
+                                    }
+                                }
+                                else if (r.Status != "Not Submitted" && !r.MarksReleased)
+                                {
+                                    <span class="small text-muted">Waiting for marks</span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">—</span>
+                                }
+                            </td>
                             <td class="text-end">
                                 @if (r.Status == "Not Submitted")
                                 {

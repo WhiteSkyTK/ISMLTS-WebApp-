@@ -15,19 +15,25 @@ namespace ISMLTS_WebApp_.Controllers
         private readonly IModuleRepository _moduleRepository;
         private readonly IStudentRepository _studentRepository;
         private readonly INotificationService _notifications;
+        private readonly IMarkRepository _markRepository;
+        private readonly IMarkService _markService;
 
         public AssessmentsController(
             IAssessmentRepository assessmentRepository,
             ISubmissionRepository submissionRepository,
             IModuleRepository moduleRepository,
             IStudentRepository studentRepository,
-            INotificationService notifications)
+            INotificationService notifications,
+            IMarkRepository markRepository,
+            IMarkService markService)
         {
             _assessmentRepository = assessmentRepository;
             _submissionRepository = submissionRepository;
             _moduleRepository = moduleRepository;
             _studentRepository = studentRepository;
             _notifications = notifications;
+            _markRepository = markRepository;
+            _markService = markService;
         }
 
         [Authorize(Roles = "Lecturer")]
@@ -42,6 +48,11 @@ namespace ISMLTS_WebApp_.Controllers
 
             ViewBag.ModuleDisplay = $"{module.Code} - {module.Name}";
             ViewBag.ModuleId = moduleId;
+            ViewBag.EnrolledCount = module.Students.Count;
+            ViewBag.MarkedCounts = (await _markRepository.GetByModuleAsync(moduleId))
+                .Where(m => m.AssessmentId != null)
+                .GroupBy(m => m.AssessmentId!.Value)
+                .ToDictionary(g => g.Key, g => g.Count());
             return View(await _assessmentRepository.GetByModuleAsync(moduleId));
         }
 
@@ -57,7 +68,7 @@ namespace ISMLTS_WebApp_.Controllers
         [Authorize(Roles = "Lecturer")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ModuleId,Name,Type,DueDate,Description")] Assessment assessment)
+        public async Task<IActionResult> Create([Bind("ModuleId,Name,Type,DueDate,Description,MaxScore")] Assessment assessment)
         {
             var module = await GetOwnedModuleAsync(assessment.ModuleId);
             if (module == null) return NotFound();
@@ -85,7 +96,7 @@ namespace ISMLTS_WebApp_.Controllers
         [Authorize(Roles = "Lecturer")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("AssessmentId,ModuleId,Name,Type,DueDate,Description")] Assessment input)
+        public async Task<IActionResult> Edit(int id, [Bind("AssessmentId,ModuleId,Name,Type,DueDate,Description,MaxScore")] Assessment input)
         {
             if (id != input.AssessmentId) return NotFound();
 
@@ -102,6 +113,7 @@ namespace ISMLTS_WebApp_.Controllers
             assessment.Type = input.Type;
             assessment.DueDate = input.DueDate;
             assessment.Description = input.Description;
+            assessment.MaxScore = input.MaxScore;
 
             _assessmentRepository.Update(assessment);
             await _assessmentRepository.SaveChangesAsync();
@@ -118,10 +130,25 @@ namespace ISMLTS_WebApp_.Controllers
             if (assessment == null) return NotFound();
 
             var moduleId = assessment.ModuleId;
-            _assessmentRepository.Delete(assessment);
-            await _assessmentRepository.SaveChangesAsync();
-            this.Toast($"{assessment.Name} and its submissions were deleted.");
+            await _markService.DeleteAssessmentAsync(assessment);
+            this.Toast($"{assessment.Name} and its submissions were deleted. Its marks were kept.");
             return RedirectToAction(nameof(ForModule), new { moduleId });
+        }
+
+        // Students only see this assessment's marks once they're released; releasing notifies everyone with a mark
+        [Authorize(Roles = "Lecturer")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Release(int id, bool released)
+        {
+            var assessment = await GetOwnedAssessmentAsync(id);
+            if (assessment == null) return NotFound();
+
+            await _markService.SetReleasedAsync(assessment, assessment.Module!, released);
+            this.Toast(released
+                ? $"Marks for {assessment.Name} are released. Students with a mark have been notified."
+                : $"Marks for {assessment.Name} are hidden from students again.", released ? ToastTypes.Success : ToastTypes.Info);
+            return RedirectToAction(nameof(ForModule), new { moduleId = assessment.ModuleId });
         }
 
         [Authorize(Roles = "Lecturer")]
@@ -167,6 +194,9 @@ namespace ISMLTS_WebApp_.Controllers
             if (student == null) return NotFound();
 
             var mySubmissions = (await _submissionRepository.GetByStudentAsync(studentId)).ToDictionary(s => s.AssessmentId);
+            var myMarks = (await _markRepository.GetByStudentAsync(studentId))
+                .Where(m => m.AssessmentId != null && m.IsVisibleToStudent)
+                .ToDictionary(m => m.AssessmentId!.Value);
 
             var rows = new List<MyAssessmentRow>();
             foreach (var module in student.Modules)
@@ -174,6 +204,7 @@ namespace ISMLTS_WebApp_.Controllers
                 foreach (var a in await _assessmentRepository.GetByModuleAsync(module.ModuleId))
                 {
                     mySubmissions.TryGetValue(a.AssessmentId, out var sub);
+                    myMarks.TryGetValue(a.AssessmentId, out var mark);
                     rows.Add(new MyAssessmentRow
                     {
                         AssessmentId = a.AssessmentId,
@@ -182,7 +213,9 @@ namespace ISMLTS_WebApp_.Controllers
                         Type = a.Type,
                         DueDate = a.DueDate,
                         Status = sub?.Status ?? "Not Submitted",
-                        Link = sub?.Link
+                        Link = sub?.Link,
+                        Mark = mark,
+                        MarksReleased = a.MarksReleased
                     });
                 }
             }

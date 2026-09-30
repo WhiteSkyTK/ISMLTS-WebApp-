@@ -8,5 +8,6 @@ namespace ISMLTS_WebApp_.Repositories
         Task<Assessment?> GetByIdWithModuleAsync(int id);
         Task<IEnumerable<Assessment>> GetUpcomingAsync(int take);
         Task<List<Assessment>> GetDueBetweenAsync(DateTime fromDate, DateTime toDate);
+        Task<List<Assessment>> GetByModulesAsync(IReadOnlyCollection<int> moduleIds);
     }
 }

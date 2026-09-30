@@ -9,5 +9,9 @@
         public DateTime DueDate { get; set; }
         public string Status { get; set; } = "Not Submitted";
         public string? Link { get; set; }
+
+        // Only set once the lecturer releases the assessment's marks
+        public Mark? Mark { get; set; }
+        public bool MarksReleased { get; set; }
     }
 }

@@ -1,18 +1,59 @@
-@model Mark
+@model MarkForm
+@using ISMLTS_WebApp_.Services
 @{
     ViewData["Title"] = "Edit Mark";
-    var subtitle = $"{Model.Student?.FullName} · {Model.Module?.Code}";
+    string subtitle = $"{ViewBag.StudentName} · {ViewBag.ModuleDisplay}";
+    var history = ViewBag.History as List<MarkChange> ?? new List<MarkChange>();
 }
 
 <partial name="_PageHeader" model='new PageHeaderModel { Title = "Edit mark", Subtitle = subtitle, BackUrl = Url.Action("ForModule", new { moduleId = Model.ModuleId }), BackText = "Module marks" }' />
 
-<div class="panel form-panel">
-    <form asp-action="Edit" method="post">
-        <input type="hidden" asp-for="MarkId" />
-        <partial name="_MarkFields" model="Model" />
-        <div class="form-actions">
-            <button type="submit" class="btn btn-rosebank" data-loading="Saving…"><i class="bi bi-check-lg" aria-hidden="true"></i> Save changes</button>
-            <a asp-action="ForModule" asp-route-moduleId="@Model.ModuleId" class="btn btn-outline-secondary">Cancel</a>
+<div class="row g-4">
+    <div class="col-lg-7">
+        <div class="panel">
+            <form asp-action="Edit" method="post">
+                <input type="hidden" asp-for="MarkId" />
+                <partial name="_MarkFields" model="Model" />
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-rosebank" data-loading="Saving…"><i class="bi bi-check-lg" aria-hidden="true"></i> Save changes</button>
+                    <a asp-action="ForModule" asp-route-moduleId="@Model.ModuleId" class="btn btn-outline-secondary">Cancel</a>
+                </div>
+            </form>
         </div>
-    </form>
+    </div>
+    <div class="col-lg-5">
+        <div class="panel">
+            <h5><i class="bi bi-clock-history" aria-hidden="true"></i> History</h5>
+            @if (history.Any())
+            {
+                <ul class="list-unstyled mb-0">
+                    @foreach (var change in history)
+                    {
+                        <li class="py-2 border-bottom">
+                            <span class="fw-medium">
+                                @change.Action
+                                @if (change.OldScore is decimal oldScore && change.NewScore is decimal newScore)
+                                {
+                                    @: @MarkRules.Format(oldScore)/@MarkRules.Format(change.OldMaxScore ?? 0) → @MarkRules.Format(newScore)/@MarkRules.Format(change.NewMaxScore ?? 0)
+                                }
+                                else if (change.NewScore is decimal createdScore)
+                                {
+                                    @: @MarkRules.Format(createdScore)/@MarkRules.Format(change.NewMaxScore ?? 0)
+                                }
+                            </span>
+                            @if (change.FeedbackChanged)
+                            {
+                                <span class="badge text-bg-light ms-1">feedback changed</span>
+                            }
+                            <span class="d-block small text-muted">@change.ChangedByName · @change.Source · @change.ChangedAt.ToLocalTime().ToString("dd MMM yyyy, HH:mm")</span>
+                        </li>
+                    }
+                </ul>
+            }
+            else
+            {
+                <p class="text-muted mb-0">No changes recorded yet. Marks captured before the history was added have no entries.</p>
+            }
+        </div>
+    </div>
 </div>

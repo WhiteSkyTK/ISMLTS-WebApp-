@@ -33,17 +33,17 @@ One phase per session: plan briefly, implement, add tests, run `dotnet build` an
 - [x] Unit tests for NotificationService
 
 ## Phase 3 — Marking and progress
-- [ ] Marks link to assessments: nullable `Mark.AssessmentId` + `Mark.Feedback`
-- [ ] Quick Eval (lecturer): queue of submitted-but-unmarked work across their modules, oldest due first, inline score/max/feedback with "Save & next"
-- [ ] Gradebook: per assessment, every enrolled student in one grid, save all at once with per-row validation
-- [ ] Students see marks and feedback on My Assessments and My Marks
-- [ ] My Progress (student, the "Insights" icon): per-module average, risk badge, attendance %, submitted x of y, next due, with an overall summary on top
-- [ ] Class Insights (lecturer): per-module class average, attendance rate, submission rate, and an at-risk list (average below 50% or attendance below `Risk:AttendanceThreshold`, default 75) with quick actions
-- [ ] CSV export of module marks and session registers (values escaped properly)
-- [ ] Audit log of mark changes (who, when, old → new) shown on the mark
-- [ ] Lecturers release marks per assessment; students don't see a mark before it is released
-- [ ] CSV import of marks for a whole assessment, with a preview and per-row errors
-- [ ] Unit tests for every new calculation
+- [x] Marks link to assessments: nullable `Mark.AssessmentId` + `Mark.Feedback`
+- [x] Quick Eval (lecturer): queue of submitted-but-unmarked work across their modules, oldest due first, inline score/max/feedback with "Save & next"
+- [x] Gradebook: per assessment, every enrolled student in one grid, save all at once with per-row validation
+- [x] Students see marks and feedback on My Assessments and My Marks
+- [x] My Progress (student, the "Insights" icon): per-module average, risk badge, attendance %, submitted x of y, next due, with an overall summary on top
+- [x] Class Insights (lecturer): per-module class average, attendance rate, submission rate, and an at-risk list (average below 50% or attendance below `Risk:AttendanceThreshold`, default 75) with quick actions
+- [x] CSV export of module marks and session registers (values escaped properly)
+- [x] Audit log of mark changes (who, when, old → new) shown on the mark
+- [x] Lecturers release marks per assessment; students don't see a mark before it is released
+- [x] CSV import of marks for a whole assessment, with a preview and per-row errors
+- [x] Unit tests for every new calculation
 
 ## Phase 4 — Pages behind every link
 - [ ] Profile for all roles: details + change password (current password required)

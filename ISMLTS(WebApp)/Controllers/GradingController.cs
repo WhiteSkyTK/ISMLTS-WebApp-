@@ -80,7 +80,71 @@ namespace ISMLTS_WebApp_.Controllers
             return RedirectToAction(nameof(Gradebook), new { id });
         }
 
+        // ---------- Quick Eval: submitted work waiting for a mark, across all my modules ----------
+
+        [HttpGet]
+        public async Task<IActionResult> QuickEval(int skip = 0)
+        {
+            var queue = await QuickEvalQueueAsync();
+            var position = Math.Clamp(skip, 0, Math.Max(0, queue.Count - 1));
+            return View(new QuickEvalViewModel
+            {
+                Remaining = queue.Count,
+                Position = position,
+                Current = queue.Count == 0 ? null : queue[position]
+            });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> QuickEval(int assessmentId, int studentId, decimal? score, string? feedback, int skip = 0)
+        {
+            var (assessment, module) = await GetOwnedAsync(assessmentId);
+            if (assessment == null || module == null || module.Students.All(s => s.StudentId != studentId)) return NotFound();
+
+            var queue = await QuickEvalQueueAsync();
+            var current = queue.FirstOrDefault(s => s.AssessmentId == assessmentId && s.StudentId == studentId);
+            if (current == null)
+            {
+                this.Toast("That work already has a mark.", ToastTypes.Info);
+                return RedirectToAction(nameof(QuickEval), new { skip });
+            }
+
+            var error = ModelState.IsValid
+                ? MarkRules.CheckScore(score, assessment.MaxScore) ?? MarkRules.CheckFeedback(feedback)
+                : "Enter the score as a number.";
+            if (error != null)
+            {
+                ModelState.AddModelError(nameof(QuickEvalViewModel.Score), error);
+                return View(new QuickEvalViewModel
+                {
+                    Remaining = queue.Count,
+                    Position = queue.IndexOf(current),
+                    Current = current,
+                    Score = score,
+                    Feedback = feedback
+                });
+            }
+
+            await _markService.SaveAsync(module,
+                new MarkEntry(studentId, assessment, assessment.Name, score!.Value, assessment.MaxScore, feedback, DateTime.Today),
+                Grader(), MarkSources.QuickEval);
+            this.Toast($"Saved {MarkRules.Format(score.Value)}/{MarkRules.Format(assessment.MaxScore)} for {current.Student?.FullName}.");
+
+            // The saved item leaves the queue, so the same position now holds the next one
+            return RedirectToAction(nameof(QuickEval), new { skip });
+        }
+
         // ---------- Helpers ----------
+
+        private async Task<List<Submission>> QuickEvalQueueAsync()
+        {
+            var moduleIds = (await _moduleRepository.GetByLecturerAsync(User.GetUserId() ?? 0)).Select(m => m.ModuleId).ToList();
+            var assessmentIds = (await _assessmentRepository.GetByModulesAsync(moduleIds)).Select(a => a.AssessmentId).ToList();
+            var submissions = await _submissionRepository.GetByAssessmentsAsync(assessmentIds);
+            var marked = await _markRepository.GetMarkedPairsAsync(assessmentIds);
+            return Grading.QuickEvalQueue(submissions, marked);
+        }
 
         private async Task<GradebookViewModel> BuildGradebookAsync(Assessment assessment, Module module, IReadOnlyList<GradebookEntry>? posted)
         {

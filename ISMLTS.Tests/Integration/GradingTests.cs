@@ -48,6 +48,37 @@ namespace ISMLTS.Tests.Integration
         }
 
         [Fact]
+        public async Task QuickEval_ShowsUnmarkedWork_AndSaveAndNextEmptiesTheQueue()
+        {
+            var data = _factory.Data;
+            await _factory.WithDbAsync(async db =>
+            {
+                db.Submissions.Add(new ISMLTS_WebApp_.Models.Submission { AssessmentId = data.AssessmentAId, StudentId = data.StudentId, Link = "https://github.com/a/poe", SubmittedAt = DateTime.UtcNow });
+                return await db.SaveChangesAsync();
+            });
+            // Clear any mark another test in this class left for the same assessment
+            await _factory.WithDbAsync(db => db.Marks.Where(m => m.AssessmentId == data.AssessmentAId).ExecuteDeleteAsync());
+            var lecturer = _factory.ClientFor("Lecturer", data.LecturerAId);
+
+            var queue = await lecturer.GetStringAsync("/Grading/QuickEval");
+            Assert.Contains("Student A", queue);
+            Assert.Contains("https://github.com/a/poe", queue);
+
+            var tooHigh = await PostAsync(lecturer, "/Grading/QuickEval", "/Grading/QuickEval",
+                ("assessmentId", Id(data.AssessmentAId)), ("studentId", Id(data.StudentId)), ("score", "101"), ("skip", "0"));
+            Assert.Equal(HttpStatusCode.OK, tooHigh.StatusCode);
+            Assert.Contains("The score can&#x27;t be more than 100.", await tooHigh.Content.ReadAsStringAsync());
+
+            var saved = await PostAsync(lecturer, "/Grading/QuickEval", "/Grading/QuickEval",
+                ("assessmentId", Id(data.AssessmentAId)), ("studentId", Id(data.StudentId)), ("score", "77"), ("feedback", "Clear and complete."), ("skip", "0"));
+            Assert.Equal(HttpStatusCode.Redirect, saved.StatusCode);
+            Assert.Contains("All caught up", await lecturer.GetStringAsync(saved.Headers.Location));
+
+            var change = await _factory.WithDbAsync(db => db.MarkChanges.OrderByDescending(c => c.MarkChangeId).FirstAsync(c => c.StudentId == data.StudentId));
+            Assert.Equal(("Quick Eval", (decimal?)77m), (change.Source, change.NewScore));
+        }
+
+        [Fact]
         public async Task Gradebook_RejectsStudentsFromOutsideTheModule()
         {
             var data = _factory.Data;

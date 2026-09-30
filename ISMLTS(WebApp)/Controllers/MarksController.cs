@@ -155,6 +155,17 @@ namespace ISMLTS_WebApp_.Controllers
             return RedirectToAction(nameof(ForModule), new { moduleId = mark.ModuleId });
         }
 
+        // Every mark in the module as a spreadsheet
+        [Authorize(Roles = "Lecturer")]
+        public async Task<IActionResult> Export(int moduleId)
+        {
+            var module = await GetOwnedModuleAsync(moduleId);
+            if (module == null) return NotFound();
+
+            var csv = Csv.MarksExport(await _markRepository.GetByModuleAsync(moduleId));
+            return File(Csv.ToUtf8WithBom(csv), "text/csv", $"{module.Code}-marks-{DateTime.Today:yyyy-MM-dd}.csv");
+        }
+
         // Students only see marks that are released (or not tied to an assessment)
         [Authorize(Roles = "Student")]
         public async Task<IActionResult> MyMarks()

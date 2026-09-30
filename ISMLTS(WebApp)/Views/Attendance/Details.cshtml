@@ -16,6 +16,10 @@
 
 <partial name="_PageHeader" model="header" />
 
+<div class="mb-3">
+    <a asp-action="Export" asp-route-id="@Model.Session.SessionId" class="btn btn-outline-rosebank btn-sm"><i class="bi bi-download" aria-hidden="true"></i> Export register (CSV)</a>
+</div>
+
 <div class="row g-4">
     <div class="col-lg-8">
         <div class="panel">

@@ -5,7 +5,7 @@
     var atRisk = Model.Rows.Count(r => r.Marks.Any() && r.IsAtRisk);
 }
 
-<partial name="_PageHeader" model='new PageHeaderModel { Title = "Marks", Subtitle = Model.ModuleDisplay, BackUrl = Url.Action("Index"), BackText = "All modules" }' />
+<partial name="_PageHeader" model='new PageHeaderModel { Title = "Marks", Subtitle = Model.ModuleDisplay, BackUrl = Url.Action("Index"), BackText = "All modules", ActionUrl = Url.Action("Export", new { moduleId = Model.ModuleId }), ActionText = "Export CSV", ActionIcon = "bi-download" }' />
 
 <div class="panel">
     @if (Model.Rows.Any())

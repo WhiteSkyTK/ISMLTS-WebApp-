@@ -419,6 +419,10 @@ footer {
         height: 1.75rem;
     }
 
+.gradebook-score {
+    min-width: 9rem;
+}
+
 .stat-inline {
     display: flex;
     flex-wrap: wrap;

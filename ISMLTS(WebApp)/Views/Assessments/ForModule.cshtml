@@ -47,6 +47,7 @@
                             </td>
                             <td>
                                 <div class="row-actions">
+                                    <a asp-controller="Grading" asp-action="Gradebook" asp-route-id="@a.AssessmentId" class="btn btn-icon" data-bs-toggle="tooltip" data-bs-title="Gradebook" aria-label="Gradebook for @a.Name"><i class="bi bi-table" aria-hidden="true"></i></a>
                                     <a asp-action="Submissions" asp-route-id="@a.AssessmentId" class="btn btn-icon" data-bs-toggle="tooltip" data-bs-title="Submissions" aria-label="Submissions for @a.Name"><i class="bi bi-inbox" aria-hidden="true"></i></a>
                                     <form asp-action="Release" asp-route-id="@a.AssessmentId" method="post">
                                         <input type="hidden" name="released" value="@(a.MarksReleased ? "false" : "true")" />

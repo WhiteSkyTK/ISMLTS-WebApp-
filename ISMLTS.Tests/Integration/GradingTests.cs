@@ -91,7 +91,7 @@ namespace ISMLTS.Tests.Integration
             using var upload = new MultipartFormDataContent
             {
                 { new StringContent(token), "__RequestVerificationToken" },
-                { new ByteArrayContent(System.Text.Encoding.UTF8.GetBytes("email,score,feedback\ns@students.test,81,Imported\nnobody@students.test,50,\n")), "file", "marks.csv" }
+                { new ByteArrayContent(System.Text.Encoding.UTF8.GetBytes("email,score,feedback\ns@rcconnect.edu.za,81,Imported\nnobody@rcconnect.edu.za,50,\n")), "file", "marks.csv" }
             };
             var preview = await lecturer.PostAsync(page, upload);
             Assert.Equal(HttpStatusCode.OK, preview.StatusCode);
@@ -101,7 +101,7 @@ namespace ISMLTS.Tests.Integration
             Assert.False(await _factory.WithDbAsync(db => db.Marks.AnyAsync(m => m.Feedback == "Imported")));
 
             var confirm = await PostAsync(lecturer, page, $"/Grading/ImportConfirm/{Id(data.AssessmentAId)}",
-                ("csv", "email,score,feedback\ns@students.test,81,Imported\nnobody@students.test,50,\n"));
+                ("csv", "email,score,feedback\ns@rcconnect.edu.za,81,Imported\nnobody@rcconnect.edu.za,50,\n"));
             Assert.Equal(HttpStatusCode.Redirect, confirm.StatusCode);
             Assert.Contains("1 row(s) with problems were skipped.", await lecturer.GetStringAsync(confirm.Headers.Location));
             var mark = await _factory.WithDbAsync(db => db.Marks.SingleAsync(m => m.AssessmentId == data.AssessmentAId && m.StudentId == data.StudentId));

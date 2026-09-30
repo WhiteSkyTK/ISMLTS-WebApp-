@@ -105,8 +105,8 @@ namespace ISMLTS.Tests.Integration
             var lecturerB = new Lecturer { FullName = "Lecturer B", Email = "b@lecturers.test", PasswordHash = hash };
             var moduleA = new Module { Code = "AAAA1111", Name = "Module A", Lecturer = lecturerA };
             var moduleB = new Module { Code = "BBBB2222", Name = "Module B", Lecturer = lecturerB };
-            var student = new Student { FullName = "Student A", Email = "s@students.test", PasswordHash = hash, Modules = { moduleA } };
-            var otherStudent = new Student { FullName = "Student B", Email = "t@students.test", PasswordHash = hash, Modules = { moduleB } };
+            var student = new Student { FullName = "Student A", Email = "s@rcconnect.edu.za", PasswordHash = hash, Modules = { moduleA } };
+            var otherStudent = new Student { FullName = "Student B", Email = "t@rcconnect.edu.za", PasswordHash = hash, Modules = { moduleB } };
             var assessmentA = new Assessment { Module = moduleA, Name = "POE A", DueDate = DateTime.Today.AddDays(7) };
             var assessmentB = new Assessment { Module = moduleB, Name = "POE B", DueDate = DateTime.Today.AddDays(7) };
             var markB = new Mark { Student = otherStudent, Module = moduleB, AssessmentName = "Quiz", Score = 40, MaxScore = 50 };

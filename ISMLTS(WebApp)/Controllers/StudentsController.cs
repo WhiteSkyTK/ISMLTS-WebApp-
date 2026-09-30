@@ -16,12 +16,18 @@ namespace ISMLTS_WebApp_.Controllers
         private readonly IStudentRepository _studentRepository;
         private readonly ILecturerRepository _lecturerRepository;
         private readonly ICourseRepository _courseRepository;
+        private readonly StudentOptions _studentOptions;
 
-        public StudentsController(IStudentRepository studentRepository, ILecturerRepository lecturerRepository, ICourseRepository courseRepository)
+        public StudentsController(
+            IStudentRepository studentRepository,
+            ILecturerRepository lecturerRepository,
+            ICourseRepository courseRepository,
+            Microsoft.Extensions.Options.IOptions<StudentOptions> studentOptions)
         {
             _studentRepository = studentRepository;
             _lecturerRepository = lecturerRepository;
             _courseRepository = courseRepository;
+            _studentOptions = studentOptions.Value;
         }
 
         public async Task<IActionResult> Index(string? q, int page = 1) =>
@@ -122,10 +128,13 @@ namespace ISMLTS_WebApp_.Controllers
         }
 
         // Login looks up lecturers and students by email, so an email must be unique across both
+        // Also checks the address is a college student address (Students:EmailDomain)
         private async Task CheckEmailIsFreeAsync(string email, int studentId)
         {
             if (string.IsNullOrWhiteSpace(email)) return;
-            if (await _studentRepository.EmailExistsAsync(email, studentId) || await _lecturerRepository.EmailExistsAsync(email))
+            if (!_studentOptions.IsStudentEmail(email))
+                ModelState.AddModelError(nameof(Student.Email), _studentOptions.EmailDomainMessage);
+            else if (await _studentRepository.EmailExistsAsync(email, studentId) || await _lecturerRepository.EmailExistsAsync(email))
                 ModelState.AddModelError(nameof(Student.Email), EmailTakenMessage);
         }
 

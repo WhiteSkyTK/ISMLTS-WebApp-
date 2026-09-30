@@ -28,7 +28,8 @@ namespace ISMLTS_WebApp_.Data
             // Explicit precision for every decimal (the default is 18,2, which suits marks)
             modelBuilder.Entity<Mark>().Property(m => m.Score).HasPrecision(18, 2);
             modelBuilder.Entity<Mark>().Property(m => m.MaxScore).HasPrecision(18, 2);
-            modelBuilder.Entity<Assessment>().Property(a => a.MaxScore).HasPrecision(18, 2);
+            // Existing assessments get 100 when the column is added, rather than 0 (which would reject every score)
+            modelBuilder.Entity<Assessment>().Property(a => a.MaxScore).HasPrecision(18, 2).HasDefaultValue(100m);
             modelBuilder.Entity<MarkChange>().Property(c => c.OldScore).HasPrecision(18, 2);
             modelBuilder.Entity<MarkChange>().Property(c => c.NewScore).HasPrecision(18, 2);
             modelBuilder.Entity<MarkChange>().Property(c => c.OldMaxScore).HasPrecision(18, 2);

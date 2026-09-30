@@ -8,4 +8,10 @@ namespace ISMLTS_WebApp_.Models
         public List<ModuleProgress> Modules { get; set; } = new();
         public int AttendanceThreshold { get; set; }
     }
+
+    public class ClassInsightsViewModel
+    {
+        public List<ModuleInsight> Modules { get; set; } = new();
+        public int AttendanceThreshold { get; set; }
+    }
 }

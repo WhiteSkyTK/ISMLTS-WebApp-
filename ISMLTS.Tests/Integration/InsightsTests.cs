@@ -37,6 +37,33 @@ namespace ISMLTS.Tests.Integration
         }
 
         [Fact]
+        public async Task ClassInsights_ListsAtRiskStudents_InTheLecturersModulesOnly()
+        {
+            var data = _factory.Data;
+            await _factory.WithDbAsync(async db =>
+            {
+                db.Marks.Add(new Mark { StudentId = data.StudentId, ModuleId = data.ModuleAId, AssessmentName = "Quiz", Score = 5, MaxScore = 20 });
+                return await db.SaveChangesAsync();
+            });
+
+            var html = await _factory.ClientFor("Lecturer", data.LecturerAId).GetStringAsync("/Insights/Class");
+
+            Assert.Contains(data.ModuleACode, html);
+            Assert.DoesNotContain(data.ModuleBCode, html);
+            Assert.Contains("Student A", html);
+            Assert.Contains(" is below ", html);  // low average or low attendance, depending on what other tests in this class added
+        }
+
+        [Fact]
+        public async Task ClassInsights_IsForLecturersOnly()
+        {
+            var response = await _factory.ClientFor("Student", _factory.Data.StudentId).GetAsync("/Insights/Class");
+
+            Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
+            Assert.StartsWith("/Account/AccessDenied", response.Headers.Location?.PathAndQuery);
+        }
+
+        [Fact]
         public async Task MyProgress_IsForStudentsOnly()
         {
             var response = await _factory.ClientFor("Lecturer", _factory.Data.LecturerAId).GetAsync("/Insights/MyProgress");

@@ -1,12 +1,44 @@
+
 @model GradebookViewModel
 @using ISMLTS_WebApp_.Services
 @{
     ViewData["Title"] = "Gradebook";
     ViewData["FilterLabel"] = "Find a student";
-    var subtitle = $"{Model.ModuleCode} · out of {MarkRules.Format(Model.OutOf)} · {(Model.Released ? "released to students" : "hidden from students until you release it")}";
+    ViewData["TableFacets"] = new List<TableFacet>
+    {
+        new()
+        {
+            Name = "state",
+            Label = "Show students",
+            AllText = "All students",
+            Options = new() { ("unmarked", "Not marked yet"), ("marked", "Marked"), ("handed-in", "Handed in"), ("not-handed-in", "Not handed in") }
+        }
+    };
+    var subtitle = $"{Model.ModuleCode} · out of {MarkRules.Format(Model.OutOf)}";
+    var markedCount = Model.Rows.Count(r => r.HasMark);
 }
 
 <partial name="_PageHeader" model='new PageHeaderModel { Title = $"{Model.AssessmentName} gradebook", Subtitle = subtitle, BackUrl = Url.Action("ForModule", "Assessments", new { moduleId = Model.ModuleId }), BackText = "Assessments", ActionUrl = Url.Action("Import", new { id = Model.AssessmentId }), ActionText = "Import from CSV", ActionIcon = "bi-upload" }' />
+
+@* Outside the gradebook form: the release button is a form of its own *@
+<div class="panel release-strip">
+    <div>
+        @if (Model.Released)
+        {
+            <span class="badge text-bg-success">Released</span>
+            <span class="small">Students can see these marks. New marks show up for them as soon as you save.</span>
+        }
+        else
+        {
+            <span class="badge text-bg-warning">Hidden</span>
+            <span class="small">Students can't see these marks until you release them. @markedCount of @Model.Rows.Count marked so far.</span>
+        }
+    </div>
+    <div class="release-card-actions">
+        <partial name="_ReleaseButton" model='new ReleaseButtonModel { AssessmentId = Model.AssessmentId, AssessmentName = Model.AssessmentName, Released = Model.Released, MarkedCount = markedCount, ReturnUrl = Url.Action("Gradebook", new { id = Model.AssessmentId }) }' />
+        <a asp-controller="Marks" asp-action="ForModule" asp-route-moduleId="@Model.ModuleId" class="btn btn-sm btn-outline-rosebank"><i class="bi bi-grid-3x3" aria-hidden="true"></i> Markbook</a>
+    </div>
+</div>
 
 <form asp-action="Gradebook" asp-route-id="@Model.AssessmentId" method="post">
     <div class="panel">
@@ -19,11 +51,11 @@
             }
             <partial name="_TableFilter" model='"#gradebookTable"' />
             <div class="table-scroll">
-                <table id="gradebookTable" class="table align-middle mb-0">
+                <table id="gradebookTable" class="table align-middle mb-0" data-sortable>
                     <thead>
                         <tr>
-                            <th scope="col">Student</th>
-                            <th scope="col">Submission</th>
+                            <th scope="col" data-sort="text" aria-sort="ascending">Student</th>
+                            <th scope="col" data-sort="text">Submission</th>
                             <th scope="col">Score</th>
                             <th scope="col">Feedback</th>
                         </tr>
@@ -32,8 +64,8 @@
                         @for (var i = 0; i < Model.Rows.Count; i++)
                         {
                             var row = Model.Rows[i];
-                            <tr>
-                                <td class="fw-medium">
+                            <tr data-state="@(row.HasMark ? "marked" : "unmarked") @(row.SubmissionStatus == "Not Submitted" ? "not-handed-in" : "handed-in")">
+                                <td class="fw-medium" data-sort-value="@row.FullName">
                                     <input type="hidden" asp-for="Rows[i].StudentId" />
                                     @row.FullName
                                     @if (row.HasMark)

@@ -135,11 +135,12 @@ namespace ISMLTS_WebApp_.Controllers
             return RedirectToAction(nameof(ForModule), new { moduleId });
         }
 
-        // Students only see this assessment's marks once they're released; releasing notifies everyone with a mark
+        // Students only see this assessment's marks once they're released; releasing notifies everyone with a mark.
+        // The markbook and gradebook send returnUrl so the lecturer stays on the page they released from.
         [Authorize(Roles = "Lecturer")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Release(int id, bool released)
+        public async Task<IActionResult> Release(int id, bool released, string? returnUrl)
         {
             var assessment = await GetOwnedAssessmentAsync(id);
             if (assessment == null) return NotFound();
@@ -148,6 +149,7 @@ namespace ISMLTS_WebApp_.Controllers
             this.Toast(released
                 ? $"Marks for {assessment.Name} are released. Students with a mark have been notified."
                 : $"Marks for {assessment.Name} are hidden from students again.", released ? ToastTypes.Success : ToastTypes.Info);
+            if (Url.IsLocalUrl(returnUrl)) return LocalRedirect(returnUrl);
             return RedirectToAction(nameof(ForModule), new { moduleId = assessment.ModuleId });
         }
 

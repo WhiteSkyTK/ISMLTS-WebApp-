@@ -4,7 +4,7 @@
     string subtitle = $"{ViewBag.StudentName} · {ViewBag.ModuleDisplay}";
 }
 
-<partial name="_PageHeader" model='new PageHeaderModel { Title = "Add mark", Subtitle = subtitle, BackUrl = Url.Action("ForModule", new { moduleId = Model.ModuleId }), BackText = "Module marks" }' />
+<partial name="_PageHeader" model='new PageHeaderModel { Title = "Add mark", Subtitle = subtitle, BackUrl = Url.Action("ForModule", new { moduleId = Model.ModuleId }), BackText = "Markbook" }' />
 
 <div class="panel form-panel">
     <form asp-action="Create" method="post">

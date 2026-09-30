@@ -1,65 +1,175 @@
-@model ModuleMarksViewModel
+@model MarkbookViewModel
+@using System.Globalization
+@using ISMLTS_WebApp_.Services
 @{
-    ViewData["Title"] = "Marks";
+    ViewData["Title"] = "Markbook";
     ViewData["FilterLabel"] = "Find a student";
-    var atRisk = Model.Rows.Count(r => r.Marks.Any() && r.IsAtRisk);
+    ViewData["TableFacets"] = new List<TableFacet>
+    {
+        new()
+        {
+            Name = "status",
+            Label = "Show students",
+            AllText = "All students",
+            Options = new()
+            {
+                (MarkbookStatuses.AtRisk, "At risk (below 50%)"),
+                (MarkbookStatuses.OnTrack, "On track"),
+                (MarkbookStatuses.ToMark, "Work waiting to be marked"),
+                (MarkbookStatuses.NoMarks, "No marks yet")
+            }
+        }
+    };
+    var markbookUrl = Url.Action("ForModule", new { moduleId = Model.ModuleId });
+    string Percent(decimal? value) => value is decimal v ? v.ToString("0.#", CultureInfo.InvariantCulture) : string.Empty;
 }
 
-<partial name="_PageHeader" model='new PageHeaderModel { Title = "Marks", Subtitle = Model.ModuleDisplay, BackUrl = Url.Action("Index"), BackText = "All modules", ActionUrl = Url.Action("Export", new { moduleId = Model.ModuleId }), ActionText = "Export CSV", ActionIcon = "bi-download" }' />
+<partial name="_PageHeader" model='new PageHeaderModel { Title = "Markbook", Subtitle = Model.ModuleDisplay, BackUrl = Url.Action("Index"), BackText = "All modules", ActionUrl = Url.Action("Export", new { moduleId = Model.ModuleId }), ActionText = "Export CSV", ActionIcon = "bi-download" }' />
 
-<div class="panel">
-    @if (Model.Rows.Any())
-    {
+@if (!Model.Rows.Any())
+{
+    <div class="panel">
+        <partial name="_EmptyState" model='new EmptyStateModel { Icon = "bi-people", Title = "Nobody is enrolled in this module yet", Message = "An admin enrols students under Modules or Courses." }' />
+    </div>
+}
+else
+{
+    <div class="panel">
         <div class="stat-inline">
             <div><strong>@Model.Rows.Count</strong><span class="small text-muted">@(Model.Rows.Count == 1 ? "student" : "students")</span></div>
-            <div><strong>@atRisk</strong><span class="small text-muted">at risk (average below 50%)</span></div>
+            <div><strong>@Model.AtRiskCount</strong><span class="small text-muted">at risk (average below 50%)</span></div>
+            <div><strong>@Model.ToMarkCount</strong><span class="small text-muted">submissions to mark</span></div>
+            <div><strong>@Model.HiddenMarkCount</strong><span class="small text-muted">marks students can't see yet</span></div>
         </div>
-        <partial name="_TableFilter" model='"#marksTable"' />
+
+        <h2 class="h5 mb-1">Release marks</h2>
+        <p class="small text-muted">Students only see an assessment's marks after you release them. Release once every mark is in; you can hide them again later.</p>
+        @if (Model.Columns.Any())
+        {
+            <div class="release-cards">
+                @foreach (var column in Model.Columns)
+                {
+                    <div class="release-card @(column.MarksReleased ? "is-released" : null)">
+                        <div class="release-card-head">
+                            <div>
+                                <span class="fw-medium">@column.Name</span>
+                                <span class="table-row-sub">Out of @MarkRules.Format(column.MaxScore) · @column.MarkedCount of @Model.Rows.Count marked</span>
+                            </div>
+                            @if (column.MarksReleased)
+                            {
+                                <span class="badge text-bg-success">Released</span>
+                            }
+                            else
+                            {
+                                <span class="badge text-bg-warning">Hidden</span>
+                            }
+                        </div>
+                        @if (column.ToMarkCount > 0)
+                        {
+                            <span class="small text-danger"><i class="bi bi-inbox" aria-hidden="true"></i> @column.ToMarkCount handed in, not marked yet</span>
+                        }
+                        <div class="release-card-actions">
+                            <partial name="_ReleaseButton" model='new ReleaseButtonModel { AssessmentId = column.AssessmentId, AssessmentName = column.Name, Released = column.MarksReleased, MarkedCount = column.MarkedCount, ReturnUrl = markbookUrl }' />
+                            <a asp-controller="Grading" asp-action="Gradebook" asp-route-id="@column.AssessmentId" class="btn btn-sm btn-outline-rosebank text-nowrap"><i class="bi bi-table" aria-hidden="true"></i> Gradebook<span class="visually-hidden"> for @column.Name</span></a>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <p class="mb-0">
+                No assessments yet. <a asp-controller="Assessments" asp-action="Create" asp-route-moduleId="@Model.ModuleId">Add one</a> to get a markbook column for it.
+                Marks you add under Other are shown to students straight away.
+            </p>
+        }
+    </div>
+
+    <div class="panel">
+        <partial name="_TableFilter" model='"#markbook"' />
+        <p class="small text-muted mb-2">
+            Click a mark to change or delete it, or a dash to add one. Columns marked <i class="bi bi-eye-slash" aria-hidden="true"></i><span class="visually-hidden">with a crossed-out eye</span> are hidden from students.
+        </p>
         <div class="table-scroll">
-            <table id="marksTable" class="table align-middle mb-0">
+            <table id="markbook" class="table align-middle mb-0 markbook" data-sortable>
                 <thead>
                     <tr>
-                        <th scope="col">Student</th>
-                        <th scope="col">Marks</th>
-                        <th scope="col">Average</th>
-                        <th scope="col">Status</th>
-                        <th scope="col"><span class="visually-hidden">Actions</span></th>
+                        <th scope="col" data-sort="text" aria-sort="ascending">Student</th>
+                        @foreach (var column in Model.Columns)
+                        {
+                            <th scope="col" data-sort="number">
+                                <span class="markbook-head">
+                                    <span>
+                                        @column.Name
+                                        @if (!column.MarksReleased)
+                                        {
+                                            <i class="bi bi-eye-slash" role="img" aria-label="hidden from students"></i>
+                                        }
+                                    </span>
+                                    <span class="table-row-sub">Out of @MarkRules.Format(column.MaxScore)</span>
+                                </span>
+                            </th>
+                        }
+                        <th scope="col">Other</th>
+                        <th scope="col" data-sort="number">Average</th>
+                        <th scope="col" data-sort="text">Status</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var row in Model.Rows.OrderBy(r => r.FullName))
+                    @foreach (var row in Model.Rows)
                     {
-                        <tr>
-                            <td class="fw-medium">@row.FullName</td>
+                        <tr data-status="@row.StatusTokens">
+                            <th scope="row" data-sort-value="@row.FullName">
+                                @row.FullName
+                                <span class="table-row-sub">@row.Email</span>
+                            </th>
+                            @for (var i = 0; i < Model.Columns.Count; i++)
+                            {
+                                var column = Model.Columns[i];
+                                var cell = row.Cells[i];
+                                if (cell.Mark is Mark mark)
+                                {
+                                    <td data-sort-value="@Percent(mark.Percentage)">
+                                        <a asp-action="Edit" asp-route-id="@mark.MarkId" class="mark-cell @(mark.Percentage < RiskCalculator.AtRiskThreshold ? "mark-cell-low" : null)">
+                                            <span class="visually-hidden">Edit the @column.Name mark for @row.FullName:</span>
+                                            <span class="mark-cell-score">@MarkRules.Format(mark.Score)/@MarkRules.Format(mark.MaxScore)</span>
+                                            <span class="mark-cell-percent">@Percent(mark.Percentage)%</span>
+                                        </a>
+                                        @if (!string.IsNullOrEmpty(mark.Feedback))
+                                        {
+                                            <i class="bi bi-chat-left-text text-muted" role="img" aria-label="Feedback: @mark.Feedback" data-bs-toggle="tooltip" data-bs-title="@mark.Feedback"></i>
+                                        }
+                                    </td>
+                                }
+                                else if (cell.IsWaitingForMark)
+                                {
+                                    <td data-sort-value="">
+                                        <a asp-action="Create" asp-route-moduleId="@Model.ModuleId" asp-route-studentId="@row.StudentId" asp-route-assessmentId="@column.AssessmentId" class="btn btn-sm btn-outline-rosebank text-nowrap"><i class="bi bi-pencil-square" aria-hidden="true"></i> Mark<span class="visually-hidden"> @column.Name for @row.FullName</span></a>
+                                        @if (cell.SubmissionStatus == "Late")
+                                        {
+                                            <span class="badge text-bg-warning">Late</span>
+                                        }
+                                    </td>
+                                }
+                                else
+                                {
+                                    <td data-sort-value="">
+                                        <a asp-action="Create" asp-route-moduleId="@Model.ModuleId" asp-route-studentId="@row.StudentId" asp-route-assessmentId="@column.AssessmentId" class="mark-cell mark-cell-empty" data-bs-toggle="tooltip" data-bs-title="Add mark"><span aria-hidden="true">—</span><span class="visually-hidden">Add the @column.Name mark for @row.FullName</span></a>
+                                    </td>
+                                }
+                            }
                             <td>
-                                @if (!row.Marks.Any())
+                                @foreach (var other in row.OtherMarks)
                                 {
-                                    <span class="text-muted small">No marks yet</span>
+                                    <a asp-action="Edit" asp-route-id="@other.MarkId" class="mark-chip"><span class="visually-hidden">Edit </span>@other.AssessmentName: @MarkRules.Format(other.Score)/@MarkRules.Format(other.MaxScore)</a>
                                 }
-                                @foreach (var m in row.Marks.OrderBy(m => m.DateCaptured))
-                                {
-                                    <div class="mark-line">
-                                        <span>@m.AssessmentName: <strong>@m.Score.ToString("0.##")/@m.MaxScore.ToString("0.##")</strong> <span class="text-muted">(@m.Percentage%)</span></span>
-                                        @if (!m.IsVisibleToStudent)
-                                        {
-                                            <i class="bi bi-eye-slash text-muted" role="img" aria-label="Not released to the student yet" data-bs-toggle="tooltip" data-bs-title="Not released to the student yet"></i>
-                                        }
-                                        @if (!string.IsNullOrEmpty(m.Feedback))
-                                        {
-                                            <i class="bi bi-chat-left-text text-muted" role="img" aria-label="Has feedback" data-bs-toggle="tooltip" data-bs-title="@m.Feedback"></i>
-                                        }
-                                        <a asp-action="Edit" asp-route-id="@m.MarkId" class="btn btn-icon" data-bs-toggle="tooltip" data-bs-title="Edit mark" aria-label="Edit the @m.AssessmentName mark for @row.FullName"><i class="bi bi-pencil" aria-hidden="true"></i></a>
-                                        <form asp-action="Delete" asp-route-id="@m.MarkId" method="post" data-confirm="Delete the @m.AssessmentName mark for @row.FullName?">
-                                            <button type="submit" class="btn btn-icon btn-icon-danger" data-bs-toggle="tooltip" data-bs-title="Delete mark" aria-label="Delete the @m.AssessmentName mark for @row.FullName"><i class="bi bi-trash" aria-hidden="true"></i></button>
-                                        </form>
-                                    </div>
-                                }
+                                <a asp-action="Create" asp-route-moduleId="@Model.ModuleId" asp-route-studentId="@row.StudentId" class="btn btn-icon" data-bs-toggle="tooltip" data-bs-title="Add a mark that isn't an assessment" aria-label="Add another mark for @row.FullName"><i class="bi bi-plus-lg" aria-hidden="true"></i></a>
                             </td>
-                            <td>@(row.Marks.Any() ? $"{row.AveragePercentage}%" : "—")</td>
+                            <td data-sort-value="@Percent(row.AveragePercentage)">@(row.HasMarks ? $"{Percent(row.AveragePercentage)}%" : "—")</td>
                             <td>
-                                @if (!row.Marks.Any())
+                                @if (!row.HasMarks)
                                 {
-                                    <span class="badge text-bg-secondary">No data</span>
+                                    <span class="badge text-bg-secondary">No marks</span>
                                 }
                                 else if (row.IsAtRisk)
                                 {
@@ -70,18 +180,24 @@
                                     <span class="badge text-bg-success">On track</span>
                                 }
                             </td>
-                            <td class="text-end">
-                                <a asp-action="Create" asp-route-moduleId="@Model.ModuleId" asp-route-studentId="@row.StudentId" class="btn btn-outline-rosebank btn-sm text-nowrap"><i class="bi bi-plus-lg" aria-hidden="true"></i> Add mark</a>
-                            </td>
                         </tr>
                     }
                 </tbody>
+                @if (Model.Columns.Any())
+                {
+                    <tfoot>
+                        <tr>
+                            <th scope="row">Class average</th>
+                            @foreach (var column in Model.Columns)
+                            {
+                                <td>@(column.AveragePercentage is decimal average ? $"{Percent(average)}%" : "—")</td>
+                            }
+                            <td colspan="3"><span class="visually-hidden">No class average for these columns</span></td>
+                        </tr>
+                    </tfoot>
+                }
             </table>
         </div>
-        <p class="text-muted small mt-2 mb-0" data-filter-empty hidden>No students match that name.</p>
-    }
-    else
-    {
-        <partial name="_EmptyState" model='new EmptyStateModel { Icon = "bi-people", Title = "Nobody is enrolled in this module yet", Message = "An admin enrols students under Modules." }' />
-    }
-</div>
+        <p class="text-muted small mt-2 mb-0" data-filter-empty hidden>No students match.</p>
+    </div>
+}

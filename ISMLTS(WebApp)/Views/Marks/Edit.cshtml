@@ -6,7 +6,7 @@
     var history = ViewBag.History as List<MarkChange> ?? new List<MarkChange>();
 }
 
-<partial name="_PageHeader" model='new PageHeaderModel { Title = "Edit mark", Subtitle = subtitle, BackUrl = Url.Action("ForModule", new { moduleId = Model.ModuleId }), BackText = "Module marks" }' />
+<partial name="_PageHeader" model='new PageHeaderModel { Title = "Edit mark", Subtitle = subtitle, BackUrl = Url.Action("ForModule", new { moduleId = Model.ModuleId }), BackText = "Markbook" }' />
 
 <div class="row g-4">
     <div class="col-lg-7">
@@ -17,8 +17,11 @@
                 <div class="form-actions">
                     <button type="submit" class="btn btn-rosebank" data-loading="Saving…"><i class="bi bi-check-lg" aria-hidden="true"></i> Save changes</button>
                     <a asp-action="ForModule" asp-route-moduleId="@Model.ModuleId" class="btn btn-outline-secondary">Cancel</a>
+                    <button type="submit" form="deleteMarkForm" class="btn btn-outline-danger ms-sm-auto" data-confirm="Delete this mark for @ViewBag.StudentName? It is removed from the markbook straight away."><i class="bi bi-trash" aria-hidden="true"></i> Delete mark</button>
                 </div>
             </form>
+            @* Outside the edit form (forms can't nest); the Delete button above submits it through its form attribute *@
+            <form id="deleteMarkForm" asp-action="Delete" asp-route-id="@Model.MarkId" method="post"></form>
         </div>
     </div>
     <div class="col-lg-5">

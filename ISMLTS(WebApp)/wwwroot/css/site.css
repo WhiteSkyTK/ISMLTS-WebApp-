@@ -447,25 +447,133 @@ th[aria-sort] .sort-button {
     color: var(--rb-muted);
 }
 
-.mark-line {
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-    font-size: 0.9rem;
-}
-
-    .mark-line form {
-        display: inline;
-    }
-
-    .mark-line .btn-icon {
-        width: 1.75rem;
-        height: 1.75rem;
-    }
-
 .gradebook-score {
     min-width: 9rem;
 }
+
+/* ===== Markbook: release cards above a students × assessments grid ===== */
+.release-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+    gap: 0.75rem;
+}
+
+.release-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 0.85rem 1rem;
+    border: 1px solid var(--rb-border);
+    border-left: 4px solid var(--rb-gold);
+    border-radius: var(--rb-radius);
+    background: var(--rb-surface);
+}
+
+    .release-card.is-released {
+        border-left-color: #198754;
+    }
+
+.release-card-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 0.5rem;
+}
+
+.release-card-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: auto;
+}
+
+.release-strip {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.markbook-head {
+    display: inline-flex;
+    flex-direction: column;
+}
+
+/* The student column stays put while the assessments scroll sideways */
+.markbook tbody th {
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    min-width: 11rem;
+    background: var(--rb-surface);
+    font-weight: 500;
+}
+
+.table-scroll .markbook thead th:first-child {
+    left: 0;
+    z-index: 2;
+}
+
+.markbook tfoot td,
+.markbook tfoot th {
+    background: var(--rb-page);
+    font-size: 0.85rem;
+    color: var(--rb-muted);
+}
+
+.mark-cell {
+    display: inline-flex;
+    flex-direction: column;
+    min-width: 3.5rem;
+    padding: 0.2rem 0.45rem;
+    border-radius: 0.35rem;
+    color: inherit;
+    line-height: 1.25;
+    text-decoration: none;
+}
+
+    .mark-cell:hover,
+    .mark-cell:focus-visible {
+        background: #EEF3FF;
+        color: var(--rb-navy);
+    }
+
+.mark-cell-score {
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.mark-cell-percent {
+    font-size: 0.8rem;
+    color: var(--rb-muted);
+}
+
+.mark-cell-low .mark-cell-score {
+    color: #B02A37;
+}
+
+.mark-cell-empty {
+    color: var(--rb-muted);
+    text-align: center;
+}
+
+.mark-chip {
+    display: inline-block;
+    margin: 0 0.25rem 0.25rem 0;
+    padding: 0.1rem 0.5rem;
+    border-radius: 1rem;
+    background: var(--rb-page);
+    color: inherit;
+    font-size: 0.85rem;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+    .mark-chip:hover,
+    .mark-chip:focus-visible {
+        background: #EEF3FF;
+    }
 
 .insight-figure {
     background: var(--rb-page);

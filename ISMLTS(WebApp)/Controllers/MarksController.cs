@@ -14,6 +14,7 @@ namespace ISMLTS_WebApp_.Controllers
         private readonly IModuleRepository _moduleRepository;
         private readonly IStudentRepository _studentRepository;
         private readonly IAssessmentRepository _assessmentRepository;
+        private readonly ISubmissionRepository _submissionRepository;
         private readonly IMarkService _markService;
 
         public MarksController(
@@ -21,12 +22,14 @@ namespace ISMLTS_WebApp_.Controllers
             IModuleRepository moduleRepository,
             IStudentRepository studentRepository,
             IAssessmentRepository assessmentRepository,
+            ISubmissionRepository submissionRepository,
             IMarkService markService)
         {
             _markRepository = markRepository;
             _moduleRepository = moduleRepository;
             _studentRepository = studentRepository;
             _assessmentRepository = assessmentRepository;
+            _submissionRepository = submissionRepository;
             _markService = markService;
         }
 
@@ -40,28 +43,11 @@ namespace ISMLTS_WebApp_.Controllers
             var module = await GetOwnedModuleAsync(moduleId);
             if (module == null) return NotFound();
 
+            var assessments = (await _assessmentRepository.GetByModuleAsync(moduleId)).ToList();
+            var submissions = await _submissionRepository.GetByAssessmentsAsync(assessments.Select(a => a.AssessmentId).ToList());
             var marks = await _markRepository.GetByModuleAsync(moduleId);
-            var marksByStudent = marks.GroupBy(m => m.StudentId).ToDictionary(g => g.Key, g => g.ToList());
 
-            var rows = module.Students.Select(s =>
-            {
-                var studentMarks = marksByStudent.TryGetValue(s.StudentId, out var list) ? list : new List<Mark>();
-                return new StudentMarksRow
-                {
-                    StudentId = s.StudentId,
-                    FullName = s.FullName,
-                    Marks = studentMarks,
-                    AveragePercentage = RiskCalculator.AveragePercentage(studentMarks),
-                    IsAtRisk = RiskCalculator.IsAtRisk(studentMarks)
-                };
-            }).ToList();
-
-            return View(new ModuleMarksViewModel
-            {
-                ModuleId = module.ModuleId,
-                ModuleDisplay = $"{module.Code} - {module.Name}",
-                Rows = rows
-            });
+            return View(Markbook.Build(module, module.Students, assessments, marks, submissions));
         }
 
         [Authorize(Roles = "Lecturer")]

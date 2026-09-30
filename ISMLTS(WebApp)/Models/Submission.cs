@@ -22,14 +22,13 @@ namespace ISMLTS_WebApp_.Models
         public string? Link { get; set; }
 
         [NotMapped]
-        public string Status
+        public string Status => StatusFor(SubmittedAt, Assessment?.DueDate);
+
+        public static string StatusFor(DateTime? submittedAt, DateTime? dueDate)
         {
-            get
-            {
-                if (SubmittedAt == null) return "Not Submitted";
-                // SubmittedAt is UTC; DueDate is a local calendar date, so anything on the due day counts as on time
-                return Assessment != null && SubmittedAt.Value.ToLocalTime().Date > Assessment.DueDate.Date ? "Late" : "Submitted";
-            }
+            if (submittedAt == null) return "Not Submitted";
+            // SubmittedAt is UTC; DueDate is a local calendar date, so anything on the due day counts as on time
+            return dueDate != null && submittedAt.Value.ToLocalTime().Date > dueDate.Value.Date ? "Late" : "Submitted";
         }
     }
 

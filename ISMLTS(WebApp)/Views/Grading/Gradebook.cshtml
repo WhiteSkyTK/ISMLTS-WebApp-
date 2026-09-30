@@ -6,7 +6,7 @@
     var subtitle = $"{Model.ModuleCode} · out of {MarkRules.Format(Model.OutOf)} · {(Model.Released ? "released to students" : "hidden from students until you release it")}";
 }
 
-<partial name="_PageHeader" model='new PageHeaderModel { Title = $"{Model.AssessmentName} gradebook", Subtitle = subtitle, BackUrl = Url.Action("ForModule", "Assessments", new { moduleId = Model.ModuleId }), BackText = "Assessments" }' />
+<partial name="_PageHeader" model='new PageHeaderModel { Title = $"{Model.AssessmentName} gradebook", Subtitle = subtitle, BackUrl = Url.Action("ForModule", "Assessments", new { moduleId = Model.ModuleId }), BackText = "Assessments", ActionUrl = Url.Action("Import", new { id = Model.AssessmentId }), ActionText = "Import from CSV", ActionIcon = "bi-upload" }' />
 
 <form asp-action="Gradebook" asp-route-id="@Model.AssessmentId" method="post">
     <div class="panel">

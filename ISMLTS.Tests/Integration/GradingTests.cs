@@ -30,6 +30,8 @@ namespace ISMLTS.Tests.Integration
             var data = _factory.Data;
             var lecturer = _factory.ClientFor("Lecturer", data.LecturerAId);
             var page = $"/Grading/Gradebook/{Id(data.AssessmentAId)}";
+            // Other tests in this class share the database; start from no marks for this assessment
+            await _factory.WithDbAsync(db => db.Marks.Where(m => m.AssessmentId == data.AssessmentAId).ExecuteDeleteAsync());
 
             var bad = await PostAsync(lecturer, page, page,
                 ("Rows[0].StudentId", Id(data.StudentId)), ("Rows[0].Score", "150"), ("Rows[0].Feedback", "Too high"));
@@ -76,6 +78,34 @@ namespace ISMLTS.Tests.Integration
 
             var change = await _factory.WithDbAsync(db => db.MarkChanges.OrderByDescending(c => c.MarkChangeId).FirstAsync(c => c.StudentId == data.StudentId));
             Assert.Equal(("Quick Eval", (decimal?)77m), (change.Source, change.NewScore));
+        }
+
+        [Fact]
+        public async Task CsvImport_PreviewsFirst_ThenSavesTheGoodRows()
+        {
+            var data = _factory.Data;
+            var lecturer = _factory.ClientFor("Lecturer", data.LecturerAId);
+            var page = $"/Grading/Import/{Id(data.AssessmentAId)}";
+            var token = await IsmltsFactory.GetAntiforgeryTokenAsync(lecturer, page);
+
+            using var upload = new MultipartFormDataContent
+            {
+                { new StringContent(token), "__RequestVerificationToken" },
+                { new ByteArrayContent(System.Text.Encoding.UTF8.GetBytes("email,score,feedback\ns@students.test,81,Imported\nnobody@students.test,50,\n")), "file", "marks.csv" }
+            };
+            var preview = await lecturer.PostAsync(page, upload);
+            Assert.Equal(HttpStatusCode.OK, preview.StatusCode);
+            var html = await preview.Content.ReadAsStringAsync();
+            Assert.Contains("Import 1 mark(s)", html);
+            Assert.Contains("Nobody enrolled in this module has this email.", html);
+            Assert.False(await _factory.WithDbAsync(db => db.Marks.AnyAsync(m => m.Feedback == "Imported")));
+
+            var confirm = await PostAsync(lecturer, page, $"/Grading/ImportConfirm/{Id(data.AssessmentAId)}",
+                ("csv", "email,score,feedback\ns@students.test,81,Imported\nnobody@students.test,50,\n"));
+            Assert.Equal(HttpStatusCode.Redirect, confirm.StatusCode);
+            Assert.Contains("1 row(s) with problems were skipped.", await lecturer.GetStringAsync(confirm.Headers.Location));
+            var mark = await _factory.WithDbAsync(db => db.Marks.SingleAsync(m => m.AssessmentId == data.AssessmentAId && m.StudentId == data.StudentId));
+            Assert.Equal((81m, "Imported"), (mark.Score, mark.Feedback));
         }
 
         [Fact]

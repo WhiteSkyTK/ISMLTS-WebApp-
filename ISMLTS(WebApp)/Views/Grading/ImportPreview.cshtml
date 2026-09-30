@@ -1,0 +1,71 @@
+@model MarkImportViewModel
+@using ISMLTS_WebApp_.Services
+@{
+    ViewData["Title"] = "Check Import";
+    var result = Model.Result!;
+    var problems = result.Rows.Count - result.ValidCount;
+    var subtitle = $"{Model.AssessmentName} · {Model.ModuleCode} · out of {MarkRules.Format(Model.OutOf)}";
+}
+
+<partial name="_PageHeader" model='new PageHeaderModel { Title = "Check the import", Subtitle = subtitle, BackUrl = Url.Action("Import", new { id = Model.AssessmentId }), BackText = "Choose another file" }' />
+
+<div class="panel">
+    @if (result.FileError != null)
+    {
+        <partial name="_EmptyState" model='new EmptyStateModel { Icon = "bi-file-earmark-x", Title = "This file can not be imported", Message = result.FileError, ActionUrl = Url.Action("Import", new { id = Model.AssessmentId }), ActionText = "Try another file" }' />
+    }
+    else
+    {
+        <div class="stat-inline">
+            <div><strong>@result.ValidCount</strong><span class="small text-muted">ready to import</span></div>
+            <div><strong>@problems</strong><span class="small text-muted">with problems (skipped)</span></div>
+        </div>
+        <div class="table-scroll">
+            <table class="table align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th scope="col">Row</th>
+                        <th scope="col">Email</th>
+                        <th scope="col">Student</th>
+                        <th scope="col">Score</th>
+                        <th scope="col">Feedback</th>
+                        <th scope="col">Check</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var row in result.Rows)
+                    {
+                        <tr class="@(row.IsValid ? null : "table-danger")">
+                            <td>@row.Line</td>
+                            <td>@row.Email</td>
+                            <td>@(row.StudentName ?? "—")</td>
+                            <td>@(row.Score is decimal s ? MarkRules.Format(s) : "—")</td>
+                            <td class="small">@row.Feedback</td>
+                            <td>
+                                @if (row.IsValid)
+                                {
+                                    <span class="text-success"><i class="bi bi-check-circle" aria-hidden="true"></i> OK</span>
+                                }
+                                else
+                                {
+                                    <span class="text-danger small"><i class="bi bi-x-circle" aria-hidden="true"></i> @row.Error</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <form asp-action="ImportConfirm" asp-route-id="@Model.AssessmentId" method="post">
+            <label for="csv" class="visually-hidden">File contents</label>
+            <textarea id="csv" name="csv" hidden>@Model.Csv</textarea>
+            <div class="form-actions">
+                @if (result.ValidCount > 0)
+                {
+                    <button type="submit" class="btn btn-rosebank" data-loading="Importing…"><i class="bi bi-check-lg" aria-hidden="true"></i> Import @result.ValidCount mark(s)</button>
+                }
+                <a asp-action="Import" asp-route-id="@Model.AssessmentId" class="btn btn-outline-secondary">Choose another file</a>
+            </div>
+        </form>
+    }
+</div>

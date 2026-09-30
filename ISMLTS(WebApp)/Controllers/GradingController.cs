@@ -135,7 +135,93 @@ namespace ISMLTS_WebApp_.Controllers
             return RedirectToAction(nameof(QuickEval), new { skip });
         }
 
+        // ---------- CSV import: upload, check every row, then confirm ----------
+
+        [HttpGet]
+        public async Task<IActionResult> Import(int id)
+        {
+            var (assessment, module) = await GetOwnedAsync(id);
+            if (assessment == null || module == null) return NotFound();
+
+            return View(ImportModel(assessment, module));
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ImportTemplate(int id)
+        {
+            var (assessment, module) = await GetOwnedAsync(id);
+            if (assessment == null || module == null) return NotFound();
+
+            var csv = MarkImport.Template(module.Students);
+            return File(Csv.ToUtf8WithBom(csv), "text/csv", $"{module.Code}-{assessment.Name}-marks.csv");
+        }
+
+        // Step 1: read the file and show what would be imported, without saving anything
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [RequestFormLimits(MultipartBodyLengthLimit = MarkImport.MaxFileBytes + 16 * 1024)]
+        public async Task<IActionResult> Import(int id, IFormFile? file)
+        {
+            var (assessment, module) = await GetOwnedAsync(id);
+            if (assessment == null || module == null) return NotFound();
+
+            var model = ImportModel(assessment, module);
+            if (file == null || file.Length == 0)
+            {
+                ModelState.AddModelError("file", "Choose a CSV file to upload.");
+                return View(model);
+            }
+            if (file.Length > MarkImport.MaxFileBytes)
+            {
+                ModelState.AddModelError("file", "The file is bigger than 1 MB.");
+                return View(model);
+            }
+
+            using var reader = new StreamReader(file.OpenReadStream(), detectEncodingFromByteOrderMarks: true);
+            model.Csv = await reader.ReadToEndAsync();
+            model.Result = MarkImport.Parse(model.Csv, module.Students, assessment.MaxScore);
+            return View("ImportPreview", model);
+        }
+
+        // Step 2: the lecturer confirmed the preview; check again (the text came back from the browser) and save
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ImportConfirm(int id, string? csv)
+        {
+            var (assessment, module) = await GetOwnedAsync(id);
+            if (assessment == null || module == null) return NotFound();
+
+            var result = MarkImport.Parse(csv ?? string.Empty, module.Students, assessment.MaxScore);
+            if (result.FileError != null || result.ValidCount == 0)
+            {
+                this.Toast(result.FileError ?? "There were no rows to import.", ToastTypes.Danger);
+                return RedirectToAction(nameof(Import), new { id });
+            }
+
+            foreach (var row in result.Rows.Where(r => r.IsValid))
+            {
+                await _markService.SaveAsync(module,
+                    new MarkEntry(row.StudentId!.Value, assessment, assessment.Name, row.Score!.Value, assessment.MaxScore, row.Feedback, DateTime.Today),
+                    Grader(), MarkSources.Import);
+            }
+
+            var skipped = result.Rows.Count - result.ValidCount;
+            this.Toast(skipped == 0
+                ? $"Imported {result.ValidCount} mark(s) for {assessment.Name}."
+                : $"Imported {result.ValidCount} mark(s) for {assessment.Name}. {skipped} row(s) with problems were skipped.",
+                skipped == 0 ? ToastTypes.Success : ToastTypes.Info);
+            return RedirectToAction(nameof(Gradebook), new { id });
+        }
+
         // ---------- Helpers ----------
+
+        private static MarkImportViewModel ImportModel(Assessment assessment, Module module) => new()
+        {
+            AssessmentId = assessment.AssessmentId,
+            AssessmentName = assessment.Name,
+            ModuleCode = module.Code,
+            OutOf = assessment.MaxScore
+        };
 
         private async Task<List<Submission>> QuickEvalQueueAsync()
         {

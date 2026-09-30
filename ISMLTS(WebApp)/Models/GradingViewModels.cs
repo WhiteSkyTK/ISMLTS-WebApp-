@@ -30,6 +30,16 @@ namespace ISMLTS_WebApp_.Models
         public List<GradebookRow> Rows { get; set; } = new();
     }
 
+    public class MarkImportViewModel
+    {
+        public int AssessmentId { get; set; }
+        public string AssessmentName { get; set; } = string.Empty;
+        public string ModuleCode { get; set; } = string.Empty;
+        public decimal OutOf { get; set; }
+        public ISMLTS_WebApp_.Services.ImportResult? Result { get; set; }
+        public string? Csv { get; set; }
+    }
+
     // The next piece of submitted work waiting for a mark
     public class QuickEvalViewModel
     {

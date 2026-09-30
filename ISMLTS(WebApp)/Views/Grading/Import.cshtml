@@ -1,0 +1,39 @@
+@model MarkImportViewModel
+@using ISMLTS_WebApp_.Services
+@{
+    ViewData["Title"] = "Import Marks";
+    var subtitle = $"{Model.AssessmentName} · {Model.ModuleCode} · out of {MarkRules.Format(Model.OutOf)}";
+}
+
+<partial name="_PageHeader" model='new PageHeaderModel { Title = "Import marks from CSV", Subtitle = subtitle, BackUrl = Url.Action("Gradebook", new { id = Model.AssessmentId }), BackText = "Gradebook" }' />
+
+<div class="row g-4">
+    <div class="col-lg-6">
+        <div class="panel">
+            <form asp-action="Import" asp-route-id="@Model.AssessmentId" method="post" enctype="multipart/form-data">
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+                <div class="mb-3">
+                    <label for="file" class="form-label">CSV file</label>
+                    <input id="file" name="file" type="file" class="form-control" accept=".csv,text/csv" required />
+                    <span class="text-danger small" data-valmsg-for="file">@ViewData.ModelState["file"]?.Errors.FirstOrDefault()?.ErrorMessage</span>
+                    <div class="form-text">Up to 1 MB and @MarkImport.MaxRows rows. Nothing is saved until you check the preview and confirm.</div>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-rosebank" data-loading="Reading…"><i class="bi bi-eye" aria-hidden="true"></i> Preview import</button>
+                    <a asp-action="Gradebook" asp-route-id="@Model.AssessmentId" class="btn btn-outline-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="panel">
+            <h5><i class="bi bi-info-circle" aria-hidden="true"></i> What the file should look like</h5>
+            <p class="small mb-2">The first row names the columns. <strong>email</strong> and <strong>score</strong> are required; <strong>feedback</strong> is optional; other columns are ignored.</p>
+            <pre class="small bg-light p-2 rounded mb-3">email,score,feedback
+thandi@students.test,42,Well structured
+sipho@students.test,37.5,</pre>
+            <a asp-action="ImportTemplate" asp-route-id="@Model.AssessmentId" class="btn btn-outline-rosebank btn-sm"><i class="bi bi-download" aria-hidden="true"></i> Download a template with your students</a>
+            <p class="form-text mb-0 mt-2">Importing again for the same student updates their mark. Every change is recorded in the mark's history.</p>
+        </div>
+    </div>
+</div>

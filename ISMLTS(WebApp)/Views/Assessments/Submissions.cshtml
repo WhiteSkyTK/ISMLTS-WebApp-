@@ -1,8 +1,13 @@
 @model AssessmentSubmissionsViewModel
+@using System.Globalization
 @using ISMLTS_WebApp_.Services
 @{
     ViewData["Title"] = "Submissions";
     ViewData["FilterLabel"] = "Find a student";
+    ViewData["TableFacets"] = new List<TableFacet>
+    {
+        new() { Name = "status", Label = "Status", AllText = "Any status", Options = new() { ("submitted", "Submitted on time"), ("late", "Late"), ("not-submitted", "Not submitted") } }
+    };
     var submitted = Model.Rows.Count(r => r.Status != "Not Submitted");
     var late = Model.Rows.Count(r => r.Status == "Late");
     var subtitle = $"Due {Model.DueDate:ddd, dd MMM yyyy} · {DueDates.Describe(Model.DueDate, DateTime.Today)}";
@@ -19,22 +24,22 @@
         </div>
         <partial name="_TableFilter" model='"#submissionsTable"' />
         <div class="table-scroll">
-            <table id="submissionsTable" class="table align-middle mb-0">
+            <table id="submissionsTable" class="table align-middle mb-0" data-sortable>
                 <thead>
                     <tr>
-                        <th scope="col">Student</th>
-                        <th scope="col">Status</th>
-                        <th scope="col">Submitted</th>
+                        <th scope="col" data-sort="text" aria-sort="ascending">Student</th>
+                        <th scope="col" data-sort="text">Status</th>
+                        <th scope="col" data-sort="number">Submitted</th>
                         <th scope="col"><span class="visually-hidden">Link</span></th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach (var row in Model.Rows.OrderBy(r => r.FullName))
                     {
-                        <tr>
+                        <tr data-status="@row.Status.ToLowerInvariant().Replace(' ', '-')">
                             <td class="fw-medium">@row.FullName</td>
                             <td><partial name="_SubmissionStatus" model="row.Status" /></td>
-                            <td>@(row.SubmittedAt?.ToLocalTime().ToString("dd MMM, HH:mm") ?? "—")</td>
+                            <td data-sort-value="@(row.SubmittedAt?.Ticks.ToString(CultureInfo.InvariantCulture))">@(row.SubmittedAt?.ToLocalTime().ToString("dd MMM, HH:mm") ?? "—")</td>
                             <td class="text-end">
                                 @if (!string.IsNullOrEmpty(row.Link))
                                 {

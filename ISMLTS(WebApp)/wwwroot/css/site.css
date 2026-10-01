@@ -9,7 +9,7 @@
     --rb-surface: #FFFFFF;
     --rb-page: #F5F7FA;
     --rb-border: #E3E6EB;
-    --rb-muted: #6C757D;
+    --rb-muted: #5F6873;
     --rb-radius: 0.6rem;
     --rb-shadow: 0 1px 3px rgba(20, 39, 78, .08);
     --rb-shadow-raised: 0 6px 18px rgba(20, 39, 78, .12);
@@ -33,6 +33,11 @@ body {
     margin-bottom: 80px;
     background-color: var(--rb-page);
     color: #1d2433;
+}
+
+/* Filters hide rows with the hidden attribute; this beats utilities such as .d-flex that also use !important */
+[hidden] {
+    display: none !important;
 }
 
 .skip-link {
@@ -69,15 +74,16 @@ body {
         border-radius: 0.4rem;
     }
 
+        /* Backgrounds on the navy bar are solid tints of navy (not translucent white) so contrast checkers see the real colour */
         .navbar-rosebank .nav-link:hover,
         .navbar-rosebank .nav-link:focus-visible {
             color: #fff;
-            background: rgba(255, 255, 255, .08);
+            background: #27385C;
         }
 
         .navbar-rosebank .nav-link.active {
             color: #fff;
-            background: rgba(255, 255, 255, .14);
+            background: #354567;
             box-shadow: inset 0 -2px 0 var(--rb-gold);
         }
 
@@ -95,13 +101,13 @@ body {
 }
 
 .module-switcher {
-    background: rgba(255, 255, 255, .15);
+    background: #374769;
     color: #fff;
     border: 1px solid rgba(255, 255, 255, .3);
 }
 
     .module-switcher:hover {
-        background: rgba(255, 255, 255, .25);
+        background: #4F5D7A;
         color: #fff;
     }
 
@@ -375,6 +381,55 @@ footer {
     max-width: 24rem;
 }
 
+.table-facet {
+    width: auto;
+    max-width: 16rem;
+}
+
+/* Sortable headers: site.js wraps each th[data-sort] in a .sort-button; paged admin lists use .sort-link (_SortHeader) */
+.sort-button,
+.sort-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    font: inherit;
+    letter-spacing: inherit;
+    text-transform: inherit;
+    text-align: left;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+    .sort-button:hover,
+    .sort-link:hover {
+        color: var(--rb-navy);
+    }
+
+    .sort-button:focus-visible,
+    .sort-link:focus-visible {
+        outline: none;
+        border-radius: 0.25rem;
+        box-shadow: var(--rb-focus);
+    }
+
+.sort-icon {
+    font-size: 0.7rem;
+    opacity: 0.6;
+}
+
+th[aria-sort] .sort-button,
+th[aria-sort] .sort-link {
+    color: var(--rb-navy);
+}
+
+    th[aria-sort] .sort-icon {
+        opacity: 1;
+    }
+
 /* Scrolls both ways inside the panel so the header row can stick */
 .table-scroll {
     max-height: 70vh;
@@ -403,25 +458,133 @@ footer {
     color: var(--rb-muted);
 }
 
-.mark-line {
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-    font-size: 0.9rem;
-}
-
-    .mark-line form {
-        display: inline;
-    }
-
-    .mark-line .btn-icon {
-        width: 1.75rem;
-        height: 1.75rem;
-    }
-
 .gradebook-score {
     min-width: 9rem;
 }
+
+/* ===== Markbook: release cards above a students × assessments grid ===== */
+.release-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+    gap: 0.75rem;
+}
+
+.release-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 0.85rem 1rem;
+    border: 1px solid var(--rb-border);
+    border-left: 4px solid var(--rb-gold);
+    border-radius: var(--rb-radius);
+    background: var(--rb-surface);
+}
+
+    .release-card.is-released {
+        border-left-color: #198754;
+    }
+
+.release-card-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 0.5rem;
+}
+
+.release-card-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: auto;
+}
+
+.release-strip {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.markbook-head {
+    display: inline-flex;
+    flex-direction: column;
+}
+
+/* The student column stays put while the assessments scroll sideways */
+.markbook tbody th {
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    min-width: 11rem;
+    background: var(--rb-surface);
+    font-weight: 500;
+}
+
+.table-scroll .markbook thead th:first-child {
+    left: 0;
+    z-index: 2;
+}
+
+.markbook tfoot td,
+.markbook tfoot th {
+    background: var(--rb-page);
+    font-size: 0.85rem;
+    color: var(--rb-muted);
+}
+
+.mark-cell {
+    display: inline-flex;
+    flex-direction: column;
+    min-width: 3.5rem;
+    padding: 0.2rem 0.45rem;
+    border-radius: 0.35rem;
+    color: inherit;
+    line-height: 1.25;
+    text-decoration: none;
+}
+
+    .mark-cell:hover,
+    .mark-cell:focus-visible {
+        background: #EEF3FF;
+        color: var(--rb-navy);
+    }
+
+.mark-cell-score {
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.mark-cell-percent {
+    font-size: 0.8rem;
+    color: var(--rb-muted);
+}
+
+.mark-cell-low .mark-cell-score {
+    color: #B02A37;
+}
+
+.mark-cell-empty {
+    color: var(--rb-muted);
+    text-align: center;
+}
+
+.mark-chip {
+    display: inline-block;
+    margin: 0 0.25rem 0.25rem 0;
+    padding: 0.1rem 0.5rem;
+    border-radius: 1rem;
+    background: var(--rb-page);
+    color: inherit;
+    font-size: 0.85rem;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+    .mark-chip:hover,
+    .mark-chip:focus-visible {
+        background: #EEF3FF;
+    }
 
 .insight-figure {
     background: var(--rb-page);
@@ -571,13 +734,13 @@ footer {
     position: absolute;
     top: 1rem;
     right: 1rem;
-    background: rgba(255, 255, 255, .2);
+    background: #485A80;
     color: #fff;
     border: 1px solid rgba(255, 255, 255, .4);
 }
 
     .listen-btn:hover {
-        background: rgba(255, 255, 255, .3);
+        background: #5F6F90;
         color: #fff;
     }
 

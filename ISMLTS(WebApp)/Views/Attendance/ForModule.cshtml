@@ -1,4 +1,5 @@
 @model IEnumerable<AttendanceSession>
+@using System.Globalization
 @{
     ViewData["Title"] = "Attendance";
     string moduleDisplay = ViewBag.ModuleDisplay;
@@ -21,11 +22,11 @@
     @if (Model.Any())
     {
         <div class="table-scroll">
-            <table class="table align-middle mb-0">
+            <table class="table align-middle mb-0" data-sortable>
                 <thead>
                     <tr>
-                        <th scope="col">Started</th>
-                        <th scope="col">Present</th>
+                        <th scope="col" data-sort="number" aria-sort="descending">Started</th>
+                        <th scope="col" data-sort="number">Present</th>
                         <th scope="col">Status</th>
                         <th scope="col"><span class="visually-hidden">Actions</span></th>
                     </tr>
@@ -34,7 +35,7 @@
                     @foreach (var s in Model)
                     {
                         <tr>
-                            <td>@s.StartedAt.ToLocalTime().ToString("ddd, dd MMM yyyy HH:mm")</td>
+                            <td data-sort-value="@s.StartedAt.Ticks.ToString(CultureInfo.InvariantCulture)">@s.StartedAt.ToLocalTime().ToString("ddd, dd MMM yyyy HH:mm")</td>
                             <td>@s.Records.Count</td>
                             <td>
                                 @if (s.IsOpen)

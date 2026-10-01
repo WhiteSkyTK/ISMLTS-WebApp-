@@ -44,6 +44,8 @@ Integrated School Management and Learning Tracking System for IIE Rosebank Colle
 ## Database
 - Package Manager Console, default project = the web app: `Add-Migration <Name>`, then `Update-Database`
 - DataSeeder applies migrations and seeds only empty tables at startup; update it when the schema changes
+- Development also runs DemoSeeder (`Seed:DemoData` + `Seed:DemoPassword` in appsettings.Development.json) when there are no students: 3 courses, 4 lecturers, 30 students, marks, attendance and tickets, all with the demo password. To start over: PMC `Drop-Database`, then run the app.
+- Student emails must end in `@rcconnect.edu.za` (`Students:EmailDomain`, checked in StudentsController).
 
 ## Status
 Done: login (with returnUrl), CRUD for Students/Lecturers/Admins/Modules/Courses, enrolment, Marks with risk flag (average below 50%), Assessments with link submissions, Tickets, landing page, role dashboards, notification bell, QR attendance with campus-IP and GPS checks.
@@ -52,6 +54,7 @@ Phase 1 done: shared page parts and toasts on every page, confirm dialog instead
 After Phase 1: course pages to group modules and enrol a class per term (`CourseService`); `DataSeeder.SeedDataAsync` runs on every startup and keeps ADAD0701 with its 8 modules (4 per term) without duplicating anything.
 Phase 2 done: notifications (bell with unread count, list, settings), announcements, ticket emails and a Monday "due this week" digest via Azure Communication Services. Needs the `Phase2Notifications` migration.
 Phase 3 done: marks link to assessments with feedback and a release switch (students only see released marks), a mark history on every mark (MarkService / MarkChange), gradebook, Quick Eval, CSV import with preview (GradingController), My Progress and Class Insights (InsightsController, `Risk:AttendanceThreshold`, default 75), CSV exports of marks and registers (Csv escapes formulas). Needs the `Phase3Marking` migration.
+After Phase 3: development demo data, the markbook (Marks/ForModule: students × assessments with Release marks / Hide marks cards), sortable and filterable tables everywhere, and SonarCloud accessibility fixes.
 The site is live on Azure App Service (published by hand). Next: see ROADMAP.md, Phases 4–9 (all approved):
 ## Roadmap
 ROADMAP.md holds the remaining work. One phase per session: plan briefly, implement, add tests, run `dotnet build` and `dotnet test`, then stop with a manual test checklist. Tick finished items there and keep Status here current.
@@ -67,9 +70,11 @@ Use `dotnet ef migrations add <Name> --project "ISMLTS(WebApp)"` if the dotnet-e
 - Pages use the `_PageHeader` and `_EmptyState` partials and `panel` sections; forms sit in `panel form-panel` with a `form-actions` row (primary `btn-rosebank`, Cancel `btn-outline-secondary`).
 - In `model='…'` partial attributes, don't put an apostrophe inside the C# strings: it ends the attribute.
 - After a create/edit/delete/submit, call `this.Toast("…")` (sets `TempData["Toast"]` and `TempData["ToastType"]`: success, danger or info) before redirecting.
-- Submit buttons get `data-loading`; destructive actions are POST forms with `data-confirm="…"` (optional `data-confirm-label`). There are no separate Delete pages.
+- Submit buttons get `data-loading`; destructive actions are POST forms with `data-confirm="…"` (optional `data-confirm-label`; `data-confirm-tone="primary"` for non-destructive questions such as releasing marks). There are no separate Delete pages.
 - Row actions are `btn btn-icon` with `data-bs-toggle="tooltip"`, `data-bs-title` and an `aria-label`. Tables sit in `.table-scroll` (sticky header, sideways scroll on phones).
-- Admin lists page on the server (`SearchAsync(q, page)` → `PagedList<T>`, `_ListSearch` + `_Pager`); other tables use `_TableFilter` (`data-table-filter`) with a `data-filter-empty` message.
+- Admin lists page and sort on the server (`SearchAsync(q, page, sort, filters)` → `PagedList<T>` with `Sort`; `ListSort.Parse` only accepts the repository's own keys; headers use `_SortHeader`, filters go in `ViewData["ListFilters"]` for `_ListSearch`, then `_Pager`). Other tables use `_TableFilter` (`data-table-filter`, optional "Show" dropdowns via `ViewData["TableFacets"]` matching `data-{name}` tokens on rows) with a `data-filter-empty` message, and `table[data-sortable]` + `th[data-sort="text|number"]` (`data-sort-value` on cells) for client-side sorting.
+- Release marks with the `_ReleaseButton` partial (pass `ReturnUrl` to come back to the same page).
+- Accessibility (SonarCloud): no `autofocus`; prefer real elements over roles (`<button>` not `role="button"`, hidden text not `role="img"`, no `role="status"`/`"switch"`); buttons are named by their visible text plus visually-hidden text rather than an `aria-label` that differs from it; text/background pairs in one CSS rule use solid colours that pass 4.5:1.
 - Nav links use `highlight-active`; empty 4xx/5xx responses show `_StatusMessage` via `/Status/{code}`.
 - Motion stays subtle and switches off under `prefers-reduced-motion`. No `filter: blur` or `backdrop-filter`: the lab PCs are VMs without GPU acceleration and scrolling stutters.
 - No new CDN libraries (each needs an SRI hash). Charts use `<progress>`, CSS or server-rendered SVG.

@@ -1,0 +1,20 @@
+@model SortHeaderModel
+@using ISMLTS_WebApp_.Services
+@{
+    // Server-side sort for the paged admin lists: keeps the search and filters, starts again at page 1
+    var sort = ListSort.Read(Model.Current);
+    var active = sort.Key == Model.Key;
+    string? ariaSort = null;
+    var icon = "bi-chevron-expand";
+    if (active)
+    {
+        ariaSort = sort.Descending ? "descending" : "ascending";
+        icon = sort.Descending ? "bi-caret-down-fill" : "bi-caret-up-fill";
+    }
+    var route = Context.Request.Query.Where(q => q.Key != "page" && q.Key != "sort").ToDictionary(q => q.Key, q => q.Value.ToString());
+    route["sort"] = sort.LinkFor(Model.Key);
+}
+
+<th scope="col" aria-sort="@ariaSort">
+    <a class="sort-link" asp-all-route-data="route">@Model.Label <i class="bi sort-icon @icon" aria-hidden="true"></i></a>
+</th>

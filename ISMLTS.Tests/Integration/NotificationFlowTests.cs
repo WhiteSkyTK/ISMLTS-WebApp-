@@ -33,7 +33,7 @@ namespace ISMLTS.Tests.Integration
 
             var student = _factory.ClientFor("Student", data.OtherStudentId);
             var dashboard = await student.GetStringAsync("/");
-            Assert.Contains("data-notification-count>1<", dashboard);
+            Assert.Contains("data-notification-number>1<", dashboard);
             Assert.Contains("Reply to your ticket: Help", dashboard);
 
             var notificationId = await _factory.WithDbAsync(db => db.Notifications

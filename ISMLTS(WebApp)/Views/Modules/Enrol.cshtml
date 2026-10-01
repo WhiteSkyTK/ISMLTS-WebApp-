@@ -2,6 +2,24 @@
 @{
     ViewData["Title"] = "Enrol Students";
     ViewData["FilterLabel"] = "Find a student";
+    ViewData["TableFacets"] = new List<TableFacet>
+    {
+        new()
+        {
+            Name = "programme",
+            Label = "Programme",
+            AllText = "Every programme",
+            Options = Model.Students.Select(s => s.Programme ?? string.Empty).Where(p => p.Length > 0).Distinct().Order()
+                .Select(p => (TableFacet.Token(p), p)).Append(("none", "No programme set")).ToList()
+        },
+        new()
+        {
+            Name = "enrolment",
+            Label = "Enrolment",
+            AllText = "Enrolled or not",
+            Options = new() { ("enrolled", "Enrolled"), ("not-enrolled", "Not enrolled") }
+        }
+    };
 }
 
 <partial name="_PageHeader" model='new PageHeaderModel { Title = "Enrol students", Subtitle = Model.ModuleName, BackUrl = Url.Action("Index"), BackText = "Modules" }' />
@@ -17,7 +35,7 @@
                 <legend class="form-label">Tick everyone who takes this module</legend>
                 @for (var i = 0; i < Model.Students.Count; i++)
                 {
-                    <div class="form-check py-1" data-filter-item>
+                    <div class="form-check py-1" data-filter-item data-programme="@(string.IsNullOrEmpty(Model.Students[i].Programme) ? "none" : TableFacet.Token(Model.Students[i].Programme))" data-enrolment="@(Model.Students[i].IsEnrolled ? "enrolled" : "not-enrolled")">
                         <input class="form-check-input" type="checkbox"
                                name="selectedStudentIds" value="@Model.Students[i].StudentId"
                                id="student_@Model.Students[i].StudentId"

@@ -1,0 +1,18 @@
+@model ReleaseButtonModel
+
+@* Students only see an assessment's marks after it is released *@
+<form asp-controller="Assessments" asp-action="Release" asp-route-id="@Model.AssessmentId" method="post" class="d-inline">
+    <input type="hidden" name="released" value="@(Model.Released ? "false" : "true")" />
+    @if (Model.ReturnUrl != null)
+    {
+        <input type="hidden" name="returnUrl" value="@Model.ReturnUrl" />
+    }
+    @if (Model.Released)
+    {
+        <button type="submit" class="btn btn-sm btn-outline-secondary text-nowrap" data-loading="Hiding…"><i class="bi bi-eye-slash" aria-hidden="true"></i> Hide marks<span class="visually-hidden"> for @Model.AssessmentName</span></button>
+    }
+    else
+    {
+        <button type="submit" class="btn btn-sm btn-rosebank text-nowrap" data-loading="Releasing…" data-confirm="@Model.ConfirmMessage" data-confirm-label="Release marks" data-confirm-tone="primary"><i class="bi bi-send-check" aria-hidden="true"></i> Release marks<span class="visually-hidden"> for @Model.AssessmentName</span></button>
+    }
+</form>

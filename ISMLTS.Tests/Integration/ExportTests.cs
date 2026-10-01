@@ -25,7 +25,7 @@ namespace ISMLTS.Tests.Integration
             Assert.Equal("text/csv", response.Content.Headers.ContentType?.MediaType);
             var csv = await response.Content.ReadAsStringAsync();
             Assert.Contains("Student,Email,Assessment,Score,Out of", csv);
-            Assert.Contains("Student B,t@students.test,Quiz,40,50,80", csv);
+            Assert.Contains("Student B,t@rcconnect.edu.za,Quiz,40,50,80", csv);
 
             var intruder = await _factory.ClientFor("Lecturer", data.LecturerAId).GetAsync($"/Marks/Export?moduleId={Id(data.ModuleBId)}");
             Assert.Equal(HttpStatusCode.NotFound, intruder.StatusCode);
@@ -45,7 +45,7 @@ namespace ISMLTS.Tests.Integration
 
             var csv = await _factory.ClientFor("Lecturer", data.LecturerAId).GetStringAsync($"/Attendance/Export/{Id(sessionId)}");
 
-            Assert.Contains("Student A,s@students.test,Absent", csv);
+            Assert.Contains("Student A,s@rcconnect.edu.za,Absent", csv);
         }
     }
 }

@@ -30,8 +30,8 @@ namespace ISMLTS_WebApp_.Controllers
             _courseService = courseService;
         }
 
-        public async Task<IActionResult> Index(string? q, int page = 1) =>
-            View(await _courseRepository.SearchAsync(q, page));
+        public async Task<IActionResult> Index(string? q, int page = 1, string? sort = null) =>
+            View(await _courseRepository.SearchAsync(q, page, sort));
 
         public async Task<IActionResult> Details(int id)
         {
@@ -97,6 +97,7 @@ namespace ISMLTS_WebApp_.Controllers
                     StudentId = s.StudentId,
                     FullName = s.FullName,
                     Email = s.Email,
+                    Programme = s.Programme,
                     EnrolledModules = enrolledCounts.GetValueOrDefault(s.StudentId)
                 }).ToList()
             });

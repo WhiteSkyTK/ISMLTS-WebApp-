@@ -116,6 +116,18 @@ namespace ISMLTS_WebApp_.Migrations
                     b.Property<DateTime>("DueDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<bool>("MarksReleased")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("MarksReleasedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal>("MaxScore")
+                        .ValueGeneratedOnAdd()
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)")
+                        .HasDefaultValue(100m);
+
                     b.Property<int>("ModuleId")
                         .HasColumnType("int");
 
@@ -293,6 +305,9 @@ namespace ISMLTS_WebApp_.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("MarkId"));
 
+                    b.Property<int?>("AssessmentId")
+                        .HasColumnType("int");
+
                     b.Property<string>("AssessmentName")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -301,13 +316,19 @@ namespace ISMLTS_WebApp_.Migrations
                     b.Property<DateTime>("DateCaptured")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("Feedback")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
                     b.Property<decimal>("MaxScore")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("ModuleId")
                         .HasColumnType("int");
 
                     b.Property<decimal>("Score")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("StudentId")
@@ -315,11 +336,84 @@ namespace ISMLTS_WebApp_.Migrations
 
                     b.HasKey("MarkId");
 
+                    b.HasIndex("AssessmentId");
+
                     b.HasIndex("ModuleId");
 
                     b.HasIndex("StudentId");
 
                     b.ToTable("Marks");
+                });
+
+            modelBuilder.Entity("ISMLTS_WebApp_.Models.MarkChange", b =>
+                {
+                    b.Property<int>("MarkChangeId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("MarkChangeId"));
+
+                    b.Property<string>("Action")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("AssessmentName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime>("ChangedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("ChangedById")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ChangedByName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<bool>("FeedbackChanged")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("MarkId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ModuleId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal?>("NewMaxScore")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal?>("NewScore")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal?>("OldMaxScore")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal?>("OldScore")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("Source")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<int>("StudentId")
+                        .HasColumnType("int");
+
+                    b.HasKey("MarkChangeId");
+
+                    b.HasIndex("MarkId");
+
+                    b.HasIndex("ModuleId");
+
+                    b.ToTable("MarkChanges");
                 });
 
             modelBuilder.Entity("ISMLTS_WebApp_.Models.Module", b =>
@@ -619,6 +713,10 @@ namespace ISMLTS_WebApp_.Migrations
 
             modelBuilder.Entity("ISMLTS_WebApp_.Models.Mark", b =>
                 {
+                    b.HasOne("ISMLTS_WebApp_.Models.Assessment", "Assessment")
+                        .WithMany()
+                        .HasForeignKey("AssessmentId");
+
                     b.HasOne("ISMLTS_WebApp_.Models.Module", "Module")
                         .WithMany()
                         .HasForeignKey("ModuleId")
@@ -630,6 +728,8 @@ namespace ISMLTS_WebApp_.Migrations
                         .HasForeignKey("StudentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Assessment");
 
                     b.Navigation("Module");
 

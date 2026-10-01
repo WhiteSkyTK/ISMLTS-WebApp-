@@ -24,8 +24,8 @@ namespace ISMLTS_WebApp_.Controllers
             _moduleRepository = moduleRepository;
         }
 
-        public async Task<IActionResult> Index(string? q, int page = 1) =>
-            View(await _lecturerRepository.SearchAsync(q, page));
+        public async Task<IActionResult> Index(string? q, int page = 1, string? sort = null) =>
+            View(await _lecturerRepository.SearchAsync(q, page, sort));
 
         public async Task<IActionResult> Details(int id)
         {

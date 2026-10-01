@@ -32,13 +32,13 @@
             {
                 <h3 class="h6"><i class="bi bi-exclamation-triangle text-danger" aria-hidden="true"></i> @m.AtRisk.Count at risk</h3>
                 <div class="table-scroll">
-                    <table class="table align-middle mb-0">
+                    <table class="table align-middle mb-0" data-sortable>
                         <thead>
                             <tr>
-                                <th scope="col">Student</th>
-                                <th scope="col">Average</th>
-                                <th scope="col">Attendance</th>
-                                <th scope="col">Handed in</th>
+                                <th scope="col" data-sort="text">Student</th>
+                                <th scope="col" data-sort="number">Average</th>
+                                <th scope="col" data-sort="number">Attendance</th>
+                                <th scope="col" data-sort="number">Handed in</th>
                                 <th scope="col">Why</th>
                                 <th scope="col"><span class="visually-hidden">Actions</span></th>
                             </tr>

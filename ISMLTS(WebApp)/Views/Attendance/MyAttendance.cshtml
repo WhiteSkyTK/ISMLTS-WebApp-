@@ -9,12 +9,12 @@
     @if (Model.Any())
     {
         <div class="table-scroll">
-            <table class="table align-middle mb-0">
+            <table class="table align-middle mb-0" data-sortable>
                 <thead>
                     <tr>
-                        <th scope="col">Module</th>
-                        <th scope="col">Attended</th>
-                        <th scope="col">Attendance</th>
+                        <th scope="col" data-sort="text">Module</th>
+                        <th scope="col" data-sort="number">Attended</th>
+                        <th scope="col" data-sort="number">Attendance</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -22,8 +22,8 @@
                     {
                         <tr>
                             <td class="fw-medium">@row.ModuleDisplay</td>
-                            <td class="text-nowrap">@row.Attended of @row.Total</td>
-                            <td>
+                            <td class="text-nowrap" data-sort-value="@row.Attended">@row.Attended of @row.Total</td>
+                            <td data-sort-value="@row.Percentage">
                                 <div class="d-flex align-items-center gap-2">
                                     <progress class="w-100" value="@row.Percentage" max="100" aria-label="@row.ModuleDisplay attendance">@row.Percentage%</progress>
                                     <span class="small text-muted">@row.Percentage%</span>

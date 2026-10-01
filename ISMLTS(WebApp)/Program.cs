@@ -70,6 +70,7 @@ builder.Services.AddScoped<IMarkChangeRepository, MarkChangeRepository>();
 
 builder.Services.Configure<AttendanceOptions>(builder.Configuration.GetSection("Attendance"));
 builder.Services.Configure<RiskOptions>(builder.Configuration.GetSection("Risk"));
+builder.Services.Configure<StudentOptions>(builder.Configuration.GetSection("Students"));
 builder.Services.AddSingleton<IAttendanceVerifier, AttendanceVerifier>();
 builder.Services.AddSingleton<IQrCodeService, QrCodeService>();
 builder.Services.AddScoped<ICourseService, CourseService>();

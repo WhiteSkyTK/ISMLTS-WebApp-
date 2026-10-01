@@ -1,4 +1,5 @@
 using System.Net;
+using ISMLTS_WebApp_.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace ISMLTS.Tests.Integration
@@ -25,30 +26,49 @@ namespace ISMLTS.Tests.Integration
         [Fact]
         public async Task CreatingAStudentWithALecturersEmail_ShowsAMessage()
         {
-            var response = await PostNewStudentAsync("a@lecturers.test", "LongEnough1");
+            await _factory.WithDbAsync(async db =>
+            {
+                db.Lecturers.Add(new Lecturer { FullName = "Dual Role", Email = "dual@rcconnect.edu.za", PasswordHash = "x" });
+                return await db.SaveChangesAsync();
+            });
+
+            var response = await PostNewStudentAsync("dual@rcconnect.edu.za", "LongEnough1");
 
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
             Assert.Contains("That email already belongs to another student or lecturer.", await response.Content.ReadAsStringAsync());
-            Assert.Equal(0, await CountStudentsWithEmailAsync("a@lecturers.test"));
+            Assert.Equal(0, await CountStudentsWithEmailAsync("dual@rcconnect.edu.za"));
+        }
+
+        [Theory]
+        [InlineData("someone@gmail.com")]
+        [InlineData("a@lecturers.test")]
+        [InlineData("st10001@rcconnect.edu.za.evil.com")]
+        public async Task CreatingAStudentOutsideTheCollegeDomain_ShowsAMessage(string email)
+        {
+            var response = await PostNewStudentAsync(email, "LongEnough1");
+
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            Assert.Contains("Student emails must end in @rcconnect.edu.za.", await response.Content.ReadAsStringAsync());
+            Assert.Equal(0, await CountStudentsWithEmailAsync(email));
         }
 
         [Fact]
         public async Task CreatingAStudentWithAShortPassword_ShowsAMessage()
         {
-            var response = await PostNewStudentAsync("short@students.test", "Short1");
+            var response = await PostNewStudentAsync("short@rcconnect.edu.za", "Short1");
 
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
             Assert.Contains("Password must be at least 8 characters.", await response.Content.ReadAsStringAsync());
-            Assert.Equal(0, await CountStudentsWithEmailAsync("short@students.test"));
+            Assert.Equal(0, await CountStudentsWithEmailAsync("short@rcconnect.edu.za"));
         }
 
         [Fact]
         public async Task CreatingAValidStudent_Saves()
         {
-            var response = await PostNewStudentAsync("new@students.test", "LongEnough1");
+            var response = await PostNewStudentAsync("new@rcconnect.edu.za", "LongEnough1");
 
             Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
-            Assert.Equal(1, await CountStudentsWithEmailAsync("new@students.test"));
+            Assert.Equal(1, await CountStudentsWithEmailAsync("new@rcconnect.edu.za"));
         }
 
         [Fact]

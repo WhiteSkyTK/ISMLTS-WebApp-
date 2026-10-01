@@ -22,6 +22,7 @@ namespace ISMLTS_WebApp_.Models
         public int StudentId { get; set; }
         public string FullName { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
+        public string? Programme { get; set; }
         public int EnrolledModules { get; set; }
     }
 

@@ -65,9 +65,10 @@
                                 @await Component.InvokeAsync("NotificationBell")
                             </li>
                             <li class="nav-item dropdown ms-lg-2">
-                                <a class="nav-link" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Account menu for @displayName">
+                                <button type="button" class="nav-link" data-bs-toggle="dropdown" aria-expanded="false">
                                     <span class="avatar-initials" aria-hidden="true">@initials</span>
-                                </a>
+                                    <span class="visually-hidden">Account menu for @displayName</span>
+                                </button>
                                 <ul class="dropdown-menu dropdown-menu-end">
                                     <li><h2 class="dropdown-header">@displayName</h2></li>
                                     <li><span class="dropdown-item disabled" aria-disabled="true"><i class="bi bi-person" aria-hidden="true"></i> Profile <span class="badge text-bg-light ms-1">Soon</span></span></li>
@@ -105,7 +106,7 @@
     </header>
 
     <div class="@(ViewData["FullWidth"] is true ? null : "container mt-4")">
-        <main id="main" role="main" class="pb-3">
+        <main id="main" class="pb-3">
             @RenderBody()
         </main>
     </div>
@@ -120,7 +121,7 @@
         var toastIcon = toastType switch { "danger" => "bi-exclamation-triangle-fill", "info" => "bi-info-circle-fill", _ => "bi-check-circle-fill" };
         var closeClass = toastType == "info" ? "btn-close" : "btn-close btn-close-white";
         <div class="toast-container position-fixed bottom-0 end-0 p-3">
-            <div class="toast align-items-center text-bg-@toastType border-0" role="status" aria-live="polite" aria-atomic="true" data-app-toast>
+            <div class="toast align-items-center text-bg-@toastType border-0" aria-live="polite" aria-atomic="true" data-app-toast>
                 <div class="d-flex">
                     <div class="toast-body"><i class="bi @toastIcon me-1" aria-hidden="true"></i> @toast</div>
                     <button type="button" class="@closeClass me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>

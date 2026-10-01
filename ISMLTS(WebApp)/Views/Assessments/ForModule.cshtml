@@ -1,4 +1,5 @@
 @model IEnumerable<Assessment>
+@using System.Globalization
 @using ISMLTS_WebApp_.Services
 @{
     ViewData["Title"] = "Assessments";
@@ -14,45 +15,46 @@
     @if (Model.Any())
     {
         <div class="table-scroll">
-            <table class="table table-hover align-middle mb-0">
+            <table class="table table-hover align-middle mb-0" data-sortable>
                 <thead>
                     <tr>
-                        <th scope="col">Name</th>
-                        <th scope="col">Type</th>
-                        <th scope="col">Due</th>
-                        <th scope="col">Marked</th>
+                        <th scope="col" data-sort="text">Name</th>
+                        <th scope="col" data-sort="text">Type</th>
+                        <th scope="col" data-sort="number" aria-sort="ascending">Due</th>
+                        <th scope="col" data-sort="number">Marked</th>
+                        <th scope="col">Students see marks?</th>
                         <th scope="col"><span class="visually-hidden">Actions</span></th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach (var a in Model)
                     {
+                        var marked = markedCounts.GetValueOrDefault(a.AssessmentId);
                         <tr>
                             <td class="fw-medium">@a.Name</td>
                             <td><span class="badge task-badge task-@a.Type.ToLowerInvariant()">@a.Type</span></td>
-                            <td>
+                            <td data-sort-value="@a.DueDate.ToString("yyyyMMdd", CultureInfo.InvariantCulture)">
                                 @a.DueDate.ToString("ddd, dd MMM yyyy")
                                 <span class="table-row-sub @(DueDates.IsOverdue(a.DueDate, DateTime.Today) ? "text-danger" : null)">@DueDates.Describe(a.DueDate, DateTime.Today)</span>
                             </td>
+                            <td data-sort-value="@marked">@marked of @enrolled</td>
                             <td>
-                                @(markedCounts.GetValueOrDefault(a.AssessmentId)) of @enrolled
-                                @if (a.MarksReleased)
-                                {
-                                    <span class="badge text-bg-success ms-1">Released</span>
-                                }
-                                else
-                                {
-                                    <span class="badge text-bg-light ms-1">Hidden from students</span>
-                                }
+                                <div class="d-flex flex-wrap align-items-center gap-2">
+                                    @if (a.MarksReleased)
+                                    {
+                                        <span class="badge text-bg-success">Released</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge text-bg-warning">Hidden</span>
+                                    }
+                                    <partial name="_ReleaseButton" model='new ReleaseButtonModel { AssessmentId = a.AssessmentId, AssessmentName = a.Name, Released = a.MarksReleased, MarkedCount = marked }' />
+                                </div>
                             </td>
                             <td>
                                 <div class="row-actions">
                                     <a asp-controller="Grading" asp-action="Gradebook" asp-route-id="@a.AssessmentId" class="btn btn-icon" data-bs-toggle="tooltip" data-bs-title="Gradebook" aria-label="Gradebook for @a.Name"><i class="bi bi-table" aria-hidden="true"></i></a>
                                     <a asp-action="Submissions" asp-route-id="@a.AssessmentId" class="btn btn-icon" data-bs-toggle="tooltip" data-bs-title="Submissions" aria-label="Submissions for @a.Name"><i class="bi bi-inbox" aria-hidden="true"></i></a>
-                                    <form asp-action="Release" asp-route-id="@a.AssessmentId" method="post">
-                                        <input type="hidden" name="released" value="@(a.MarksReleased ? "false" : "true")" />
-                                        <button type="submit" class="btn btn-icon" data-bs-toggle="tooltip" data-bs-title="@(a.MarksReleased ? "Hide marks from students" : "Release marks to students")" aria-label="@(a.MarksReleased ? "Hide" : "Release") marks for @a.Name"><i class="bi @(a.MarksReleased ? "bi-eye-slash" : "bi-send-check")" aria-hidden="true"></i></button>
-                                    </form>
                                     <a asp-action="Edit" asp-route-id="@a.AssessmentId" class="btn btn-icon" data-bs-toggle="tooltip" data-bs-title="Edit" aria-label="Edit @a.Name"><i class="bi bi-pencil" aria-hidden="true"></i></a>
                                     <form asp-action="Delete" asp-route-id="@a.AssessmentId" method="post" data-confirm="Delete @a.Name? Its submissions are deleted too. Marks already captured are kept.">
                                         <button type="submit" class="btn btn-icon btn-icon-danger" data-bs-toggle="tooltip" data-bs-title="Delete" aria-label="Delete @a.Name"><i class="bi bi-trash" aria-hidden="true"></i></button>
@@ -64,6 +66,7 @@
                 </tbody>
             </table>
         </div>
+        <p class="small text-muted mt-2 mb-0">Students only see an assessment's marks after you release them. The <a asp-controller="Marks" asp-action="ForModule" asp-route-moduleId="@moduleId">markbook</a> shows every mark for this module in one grid.</p>
     }
     else
     {

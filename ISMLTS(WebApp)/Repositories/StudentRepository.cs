@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using ISMLTS_WebApp_.Models;
 using ISMLTS_WebApp_.Data;
+using ISMLTS_WebApp_.Services;
 
 namespace ISMLTS_WebApp_.Repositories
 {
@@ -22,7 +23,7 @@ namespace ISMLTS_WebApp_.Repositories
         public async Task<bool> EmailExistsAsync(string email, int exceptStudentId = 0) =>
             await _dbSet.AnyAsync(s => s.Email == email && s.StudentId != exceptStudentId);
 
-        public async Task<PagedList<Student>> SearchAsync(string? query, int page)
+        public async Task<PagedList<Student>> SearchAsync(string? query, int page, string? sort = null, string? programme = null)
         {
             var students = _dbSet.AsNoTracking();
             if (!string.IsNullOrWhiteSpace(query))
@@ -31,8 +32,23 @@ namespace ISMLTS_WebApp_.Repositories
                 students = students.Where(s => s.FullName.Contains(term) || s.Email.Contains(term)
                     || (s.Programme != null && s.Programme.Contains(term)));
             }
-            return await students.OrderBy(s => s.FullName).ToPagedListAsync(page, query);
+            if (programme == ListFilters.None)
+                students = students.Where(s => s.Programme == null || s.Programme == "");
+            else if (!string.IsNullOrEmpty(programme))
+                students = students.Where(s => s.Programme == programme);
+
+            var order = ListSort.Parse(sort, "name", "name", "email", "programme");
+            students = order.Key switch
+            {
+                "email" => students.OrderBy(s => s.Email, order.Descending),
+                "programme" => students.OrderBy(s => s.Programme, order.Descending).ThenBy(s => s.FullName),
+                _ => students.OrderBy(s => s.FullName, order.Descending)
+            };
+            return await students.ToPagedListAsync(page, query, order);
         }
+
+        public async Task<List<string>> GetProgrammesAsync() =>
+            await _dbSet.Where(s => s.Programme != null && s.Programme != "").Select(s => s.Programme!).Distinct().OrderBy(p => p).ToListAsync();
 
         public async Task<IEnumerable<Student>> GetByIdsAsync(IEnumerable<int> ids)
         {

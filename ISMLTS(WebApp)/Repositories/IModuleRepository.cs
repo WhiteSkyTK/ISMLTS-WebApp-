@@ -8,7 +8,7 @@ namespace ISMLTS_WebApp_.Repositories
         Task<Module?> GetByCodeAsync(string code);
         Task<bool> CodeExistsAsync(string code, int exceptModuleId = 0);
         Task<IEnumerable<Module>> GetByLecturerAsync(int lecturerId);
-        Task<PagedList<Module>> SearchAsync(string? query, int page);
+        Task<PagedList<Module>> SearchAsync(string? query, int page, string? sort = null, ModuleListFilter? filter = null);
         Task<Module?> GetByIdWithDetailsAsync(int id);
         Task<List<Module>> GetAllWithCourseAsync();
         Task<List<Module>> GetByCourseWithStudentsAsync(int courseId);

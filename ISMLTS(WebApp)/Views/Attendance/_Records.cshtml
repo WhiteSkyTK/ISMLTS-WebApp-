@@ -1,6 +1,7 @@
 ﻿@model ISMLTS_WebApp_.Models.AttendanceSession
 @using System.Globalization
 @{
+    // Only the Details page removes scans and sorts; the Live page refreshes this list every few seconds
     var allowRemove = ViewData["AllowRemove"] is true;
 }
 
@@ -11,17 +12,17 @@
 else
 {
     <div class="table-responsive">
-        <table class="table table-sm align-middle mb-0">
+        <table class="table table-sm align-middle mb-0" data-sortable="@(allowRemove ? "true" : null)">
             <thead>
                 <tr>
-                    <th>Student</th>
-                    <th>Time</th>
-                    <th>Campus network</th>
-                    <th>Distance</th>
-                    <th>Location</th>
+                    <th scope="col" data-sort="text">Student</th>
+                    <th scope="col" data-sort="number" aria-sort="ascending">Time</th>
+                    <th scope="col">Campus network</th>
+                    <th scope="col">Distance</th>
+                    <th scope="col">Location</th>
                     @if (allowRemove)
                     {
-                        <th><span class="visually-hidden">Actions</span></th>
+                        <th scope="col"><span class="visually-hidden">Actions</span></th>
                     }
                 </tr>
             </thead>
@@ -33,7 +34,7 @@ else
                     : null;
                     <tr>
                         <td>@r.Student?.FullName</td>
-                        <td>@r.ScannedAt.ToLocalTime().ToString("HH:mm:ss")</td>
+                        <td data-sort-value="@r.ScannedAt.Ticks.ToString(CultureInfo.InvariantCulture)">@r.ScannedAt.ToLocalTime().ToString("HH:mm:ss")</td>
                         @if (r.IsManual)
                         {
                             <td colspan="3"><span class="badge bg-info text-dark">Marked by lecturer</span></td>

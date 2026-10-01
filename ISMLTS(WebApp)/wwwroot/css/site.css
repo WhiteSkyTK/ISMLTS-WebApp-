@@ -1086,6 +1086,10 @@ th[aria-sort] .sort-link {
     user-select: all;
 }
 
+    .table .temp-password {
+        font-size: 0.95rem;
+    }
+
 /* ===== Portfolio ===== */
 .portfolio-summary {
     display: flex;

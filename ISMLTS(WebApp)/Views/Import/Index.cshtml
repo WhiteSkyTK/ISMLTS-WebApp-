@@ -1,0 +1,51 @@
+@model UserImportViewModel
+@using ISMLTS_WebApp_.Services
+@{
+    ViewData["Title"] = "Bulk Import";
+}
+
+<partial name="_PageHeader" model='new PageHeaderModel { Title = "Bulk import", Subtitle = "Add many students or lecturers at once from a CSV file." }' />
+
+<div class="row g-4">
+    <div class="col-lg-6">
+        <div class="panel">
+            <ul class="nav nav-pills nav-pills-sm mb-3">
+                <li class="nav-item"><a class="nav-link @(Model.IsStudents ? "active" : null)" asp-action="Index" asp-route-kind="students" aria-current="@(Model.IsStudents ? "page" : null)">Students</a></li>
+                <li class="nav-item"><a class="nav-link @(Model.IsStudents ? null : "active")" asp-action="Index" asp-route-kind="lecturers" aria-current="@(Model.IsStudents ? null : "page")">Lecturers</a></li>
+            </ul>
+            <form asp-action="Index" method="post" enctype="multipart/form-data">
+                <input type="hidden" name="kind" value="@Model.Kind" />
+                <div class="mb-3">
+                    <label for="file" class="form-label">CSV file of @Model.Noun</label>
+                    <input id="file" name="file" type="file" class="form-control" accept=".csv,text/csv" required />
+                    <span class="text-danger small" data-valmsg-for="file">@ViewData.ModelState["file"]?.Errors.FirstOrDefault()?.ErrorMessage</span>
+                    <div class="form-text">Up to 1 MB and @UserImport.MaxRows people. Nothing is saved until you check the preview and confirm.</div>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-rosebank" data-loading="Reading…"><i class="bi bi-eye" aria-hidden="true"></i> Preview import</button>
+                    <a asp-controller="@(Model.IsStudents ? "Students" : "Lecturers")" asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="panel">
+            <h5><i class="bi bi-info-circle" aria-hidden="true"></i> What the file should look like</h5>
+            @if (Model.IsStudents)
+            {
+                <p class="small mb-2">The first row names the columns. <strong>name</strong> and <strong>email</strong> are required; <strong>programme</strong> is optional and must be the name of a course. Other columns are ignored.</p>
+                <pre class="small bg-light p-2 rounded mb-3">name,email,programme
+Thandi Mokoena,st10000001@rcconnect.edu.za,Advanced Diploma in Application Development
+Sipho Ndlovu,st10000002@rcconnect.edu.za,</pre>
+            }
+            else
+            {
+                <p class="small mb-2">The first row names the columns. <strong>name</strong> and <strong>email</strong> are required. Other columns are ignored.</p>
+                <pre class="small bg-light p-2 rounded mb-3">name,email
+Nomsa Dlamini,nomsa.dlamini@rosebank.iie.ac.za</pre>
+            }
+            <a asp-action="Template" asp-route-kind="@Model.Kind" class="btn btn-outline-rosebank btn-sm"><i class="bi bi-download" aria-hidden="true"></i> Download a template</a>
+            <p class="form-text mb-0 mt-2">Everyone gets a temporary password, shown once after the import, and chooses their own the first time they log in.</p>
+        </div>
+    </div>
+</div>

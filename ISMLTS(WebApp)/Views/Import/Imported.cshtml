@@ -1,0 +1,44 @@
+@model UserImportDoneViewModel
+@using System.Text
+@{
+    ViewData["Title"] = "Import Done";
+    var noun = Model.Kind == "lecturers" ? "lecturer" : "student";
+    var subtitle = $"{Model.Accounts.Count} {noun}{(Model.Accounts.Count == 1 ? "" : "s")} added"
+        + (Model.CourseCode != null ? $" and enrolled in {Model.CourseCode}" : "")
+        + (Model.Skipped > 0 ? $" · {Model.Skipped} row(s) skipped" : "");
+    var download = "data:text/csv;charset=utf-8;base64," + Convert.ToBase64String(Encoding.UTF8.GetBytes(Model.CredentialsCsv));
+}
+
+<partial name="_PageHeader" model='new PageHeaderModel { Title = "Import done", Subtitle = subtitle }' />
+
+<div class="panel">
+    <div class="alert alert-warning small">
+        <i class="bi bi-exclamation-triangle" aria-hidden="true"></i>
+        These temporary passwords are shown only now. Save the list or hand them out, then close this page. Each person chooses a new password the first time they log in.
+    </div>
+    <div class="table-scroll">
+        <table class="table align-middle mb-0">
+            <thead>
+                <tr>
+                    <th scope="col">Name</th>
+                    <th scope="col">Logs in as</th>
+                    <th scope="col">Temporary password</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var account in Model.Accounts)
+                {
+                    <tr>
+                        <td class="fw-medium">@account.Name</td>
+                        <td>@account.Email</td>
+                        <td><code class="temp-password">@account.TemporaryPassword</code></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <div class="form-actions">
+        <a href="@download" download="new-@(Model.Kind)-passwords.csv" class="btn btn-rosebank"><i class="bi bi-download" aria-hidden="true"></i> Download as CSV</a>
+        <a asp-controller="@(Model.Kind == "lecturers" ? "Lecturers" : "Students")" asp-action="Index" class="btn btn-outline-secondary">Done</a>
+    </div>
+</div>

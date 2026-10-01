@@ -88,6 +88,7 @@ builder.Services.AddSingleton<IAttendanceVerifier, AttendanceVerifier>();
 builder.Services.AddSingleton<IQrCodeService, QrCodeService>();
 builder.Services.AddScoped<ICourseService, CourseService>();
 builder.Services.AddScoped<IAccountService, AccountService>();
+builder.Services.AddScoped<IUserImportService, UserImportService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<IMarkService, MarkService>();
 

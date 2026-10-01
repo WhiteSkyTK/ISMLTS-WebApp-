@@ -1,9 +1,46 @@
 @{
-    ViewData["Title"] = "Privacy Policy";
+    ViewData["Title"] = "Privacy";
 }
 
-<partial name="_PageHeader" model='new PageHeaderModel { Title = "Privacy", Subtitle = "How ISMLTS uses your information." }' />
+<partial name="_PageHeader" model='new PageHeaderModel { Title = "Privacy notice", Subtitle = "How ISMLTS uses your personal information, as the Protection of Personal Information Act (POPIA) requires." }' />
 
-<div class="panel form-panel">
-    <p class="mb-0">The full POPIA notice is coming in Phase 4. Until then, ask the admin office if you have a question about your data.</p>
+<div class="panel prose">
+    <h2 class="h5">Who is responsible</h2>
+    <p>ISMLTS is run for IIE Rosebank College, which is responsible for the personal information in it. Questions and requests go to the admin office.</p>
+
+    <h2 class="h5">What we keep</h2>
+    <ul>
+        <li><strong>Your account:</strong> your name, your college email address (admins: a username), your programme, your password in scrambled (hashed) form that nobody can read back, and your two-factor sign-in settings if you use them.</li>
+        <li><strong>Your studies:</strong> the modules you are enrolled in, your marks and feedback, the links you hand in and when, questions you raise in tickets and the replies, and your notifications and email choices.</li>
+        <li><strong>Attendance scans:</strong> when you scan in, we record the time, your device's IP address and whether it is on the campus network. If you allow it, we also record your location at that moment, how accurate it is and how far it is from where the register was started. Your location is only read when you scan, never at any other time.</li>
+        <li><strong>Cookies:</strong> one cookie keeps you signed in, one protects forms against forgery, and a short-lived one is used while you enter a two-factor code. There are no advertising or tracking cookies.</li>
+    </ul>
+
+    <h2 class="h5">Why</h2>
+    <ul>
+        <li>To run your classes: assessments, submissions, marks and feedback.</li>
+        <li>To take attendance and make sure scans come from the classroom (that is what the IP address and location are for).</li>
+        <li>To show your progress and warn early when a module is at risk, so your lecturer can help.</li>
+        <li>To answer your questions and send the notifications and emails you choose.</li>
+    </ul>
+
+    <h2 class="h5">Who can see it</h2>
+    <ul>
+        <li><strong>You</strong> see your own records. Marks only appear once your lecturer releases them.</li>
+        <li><strong>Your lecturers</strong> see the students in the modules they teach: marks, submissions, attendance (including the scan checks above) and tickets.</li>
+        <li><strong>Admins</strong> at the college see accounts, enrolments and reports, so they can manage the site and help people who are locked out.</li>
+        <li><strong>Service providers:</strong> the site runs on Microsoft Azure. When email is switched on, Azure Communication Services receives your email address and the message so it can deliver it.</li>
+    </ul>
+    <p>Your information is not sold or shared with anyone else.</p>
+
+    <h2 class="h5">How long we keep it</h2>
+    <p>Your records are kept while your account exists. When an admin deletes a student's account, that student's marks, submissions, tickets and attendance scans (including the IP addresses and locations) are deleted with it. The college decides when the accounts of students who have finished are removed.</p>
+
+    <h2 class="h5">How it is protected</h2>
+    <p>The site only works over a secure connection, passwords are hashed, every page checks your role before it shows anything, and two-factor sign-in is available to everyone and required for admins.</p>
+
+    <h2 class="h5">Your rights</h2>
+    <p>Under POPIA you can ask what information we hold about you, ask for it to be corrected or deleted, and object to how it is used. Ask the admin office. If you are not happy with the answer, you can complain to the Information Regulator of South Africa (inforegulator.org.za).</p>
+
+    <p class="small text-muted mb-0">Last updated: October 2026.</p>
 </div>

@@ -1,0 +1,129 @@
+@using Microsoft.Extensions.Options
+@using ISMLTS_WebApp_.Services
+@inject IOptions<AttendanceOptions> AttendanceSettings
+@inject IOptions<RiskOptions> RiskSettings
+@{
+    ViewData["Title"] = "Help";
+    var signedIn = User.Identity?.IsAuthenticated == true;
+    var minutes = AttendanceSettings.Value.SessionMinutes;
+    var radius = AttendanceSettings.Value.RadiusMeters;
+    var threshold = RiskSettings.Value.AttendanceThreshold;
+}
+
+<partial name="_PageHeader" model='new PageHeaderModel { Title = "Help", Subtitle = "Answers to the questions people ask most." }' />
+
+<section class="panel faq" aria-labelledby="faqSignIn">
+    <h2 id="faqSignIn" class="h5">Logging in</h2>
+    <details>
+        <summary>What do I log in with?</summary>
+        <p>Students and lecturers use their college email address. Admins use their username.</p>
+    </details>
+    <details>
+        <summary>I forgot my password</summary>
+        <p>Ask the admin office. They give you a temporary password, and you choose a new one the first time you log in with it.</p>
+    </details>
+    <details>
+        <summary>What is two-factor sign-in?</summary>
+        <p>After your password you type a 6-digit code from an authenticator app on your phone, so someone with your password still can't get in. Switch it on under <strong>Profile and security</strong> in the account menu. Admins must use it.</p>
+    </details>
+    <details>
+        <summary>I lost the phone with my authenticator app</summary>
+        <p>Type one of your recovery codes instead of the app code. If you have none left, the admin office can switch two-factor sign-in off so you can set it up again.</p>
+    </details>
+    <details>
+        <summary>It says "Too many attempts"</summary>
+        <p>Log-in is paused for a minute after several wrong tries. Wait a moment and try again.</p>
+    </details>
+</section>
+
+@if (signedIn && User.IsInRole(Roles.Student))
+{
+    <section class="panel faq" aria-labelledby="faqStudents">
+        <h2 id="faqStudents" class="h5">For students</h2>
+        <details>
+            <summary>How do I scan in to a class?</summary>
+            <p>When your lecturer starts the register, open <strong>Scan In</strong> and scan the QR code on the screen, or type its 6-letter code. A code works for @minutes minutes. Your phone has to be on the campus network or within @radius metres of where the lecturer started the register, so allow location access when your browser asks.</p>
+        </details>
+        <details>
+            <summary>My scan didn't work</summary>
+            <p>Connect to the campus Wi-Fi or switch on location, then scan again. If it still fails, ask your lecturer to mark you present on their register.</p>
+        </details>
+        <details>
+            <summary>How do I hand in work?</summary>
+            <p>Open <strong>Work To Do</strong>, choose the assessment and paste a link to your work (for example your GitHub repository or a OneDrive share). You can update the link later; work handed in after the due date is marked Late.</p>
+        </details>
+        <details>
+            <summary>Why can't I see my mark yet?</summary>
+            <p>Your lecturer releases an assessment's marks once everyone's work is marked. Until then it shows "Waiting for marks". You get a notification when they are released.</p>
+        </details>
+        <details>
+            <summary>What does "at risk" mean?</summary>
+            <p>A module is at risk when your average drops below 50% or your attendance below @threshold%. Talk to your lecturer early. <strong>My Progress</strong> shows where you stand in every module.</p>
+        </details>
+        <details>
+            <summary>Where can I see everything I've handed in?</summary>
+            <p><strong>Portfolio</strong> lists all your work with marks and feedback, and you can print it or save it as a PDF. <strong>Awards</strong> shows the badges you have earned.</p>
+        </details>
+    </section>
+}
+else if (signedIn && User.IsInRole(Roles.Lecturer))
+{
+    <section class="panel faq" aria-labelledby="faqLecturers">
+        <h2 id="faqLecturers" class="h5">For lecturers</h2>
+        <details>
+            <summary>How do I take the register?</summary>
+            <p>Open <strong>Take Register</strong>, pick the module and start a session. Show the QR code on the projector; it stays open for @minutes minutes. Students who can't scan can be marked present from the session's register, and you can export the register as a CSV.</p>
+        </details>
+        <details>
+            <summary>What is the fastest way to capture marks?</summary>
+            <p><strong>Quick Eval</strong> walks through handed-in work that isn't marked yet. The <strong>Gradebook</strong> captures a whole assessment on one page, and you can import a CSV from a spreadsheet. The <strong>Markbook</strong> shows every mark in a module.</p>
+        </details>
+        <details>
+            <summary>When do students see their marks?</summary>
+            <p>Only after you press <strong>Release marks</strong> for the assessment (on the markbook, the assessments list or the gradebook). Students with a mark are notified, and you can hide the marks again.</p>
+        </details>
+        <details>
+            <summary>Who is at risk in my class?</summary>
+            <p><strong>Class Insights</strong> lists students whose average is below 50% or whose attendance is below @threshold%, with quick actions.</p>
+        </details>
+        <details>
+            <summary>How do I answer a student's question?</summary>
+            <p>Questions from students in your modules arrive under <strong>Tickets</strong>. The student is notified when you reply.</p>
+        </details>
+    </section>
+}
+else if (signedIn && User.IsInRole(Roles.Admin))
+{
+    <section class="panel faq" aria-labelledby="faqAdmins">
+        <h2 id="faqAdmins" class="h5">For admins</h2>
+        <details>
+            <summary>How do I add a whole class?</summary>
+            <p>Use <strong>Bulk Import</strong> to add students from a CSV file, then open <strong>Courses</strong>, choose <strong>Enrol students</strong>, filter by programme and tick everyone shown. They are enrolled in every module of the course (or one term).</p>
+        </details>
+        <details>
+            <summary>Someone can't log in</summary>
+            <p>Open their details page and use <strong>Reset password</strong> to get a temporary password for them. If they lost the phone with their authenticator app, use <strong>Turn off two-factor</strong>.</p>
+        </details>
+        <details>
+            <summary>Where are the numbers for a report?</summary>
+            <p><strong>Reports</strong> shows how many users there are, who is at risk in each module and attendance by module.</p>
+        </details>
+        <details>
+            <summary>Why do I have to use two-factor sign-in?</summary>
+            <p>Admins can change everyone's details and passwords, so their accounts need more than a password.</p>
+        </details>
+    </section>
+}
+
+<section class="panel faq-footer" aria-labelledby="stillStuck">
+    <h2 id="stillStuck" class="h5">Still stuck?</h2>
+    @if (signedIn && User.IsInRole(Roles.Student))
+    {
+        <p>Ask your lecturer directly by raising a ticket for the module.</p>
+        <a asp-controller="Tickets" asp-action="Create" class="btn btn-rosebank"><i class="bi bi-chat-dots" aria-hidden="true"></i> Raise a ticket</a>
+    }
+    else
+    {
+        <p class="mb-0">Contact the admin office at IIE Rosebank College. You can read how ISMLTS uses personal information in the <a asp-controller="Home" asp-action="Privacy">privacy notice</a>.</p>
+    }
+</section>

@@ -1171,3 +1171,43 @@ th[aria-sort] .sort-link {
     .award-list .bi {
         color: #198754;
     }
+
+/* ===== Help ===== */
+.faq details {
+    border-top: 1px solid var(--rb-border);
+}
+
+.faq summary {
+    padding: 0.75rem 0;
+    font-weight: 500;
+    color: var(--rb-navy);
+    cursor: pointer;
+}
+
+    .faq summary:focus-visible {
+        outline: none;
+        border-radius: 0.25rem;
+        box-shadow: var(--rb-focus);
+    }
+
+.faq details p {
+    margin: 0 0 1rem;
+    max-width: 48rem;
+}
+
+/* Long-form text pages such as the privacy notice */
+.prose {
+    max-width: 52rem;
+}
+
+    .prose h2 {
+        margin-top: 1.5rem;
+    }
+
+        .prose h2:first-child {
+            margin-top: 0;
+        }
+
+.footer-links a {
+    color: inherit;
+}

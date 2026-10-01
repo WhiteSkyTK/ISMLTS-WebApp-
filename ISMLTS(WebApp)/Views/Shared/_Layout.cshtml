@@ -111,7 +111,10 @@
     </div>
 
     <footer class="border-top footer text-center py-3 mt-4">
-        <div class="container">&copy; @DateTime.Now.Year All Rights Reserved — ISMLTS, IIE Rosebank College</div>
+        <div class="container">
+            &copy; @DateTime.Now.Year All Rights Reserved — ISMLTS, IIE Rosebank College
+            <span class="footer-links"> · <a asp-controller="Home" asp-action="Privacy">Privacy</a> · <a asp-controller="Help" asp-action="Index">Help</a></span>
+        </div>
     </footer>
 
     @if (TempData["Toast"] is string toast)

@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace ISMLTS_WebApp_.Models
 {
-    public class Admin
+    public class Admin : IUserAccount
     {
         [Key]
         public int AdminId { get; set; }

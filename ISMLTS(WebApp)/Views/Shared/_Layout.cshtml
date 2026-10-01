@@ -71,7 +71,7 @@
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-end">
                                     <li><h2 class="dropdown-header">@displayName</h2></li>
-                                    <li><span class="dropdown-item disabled" aria-disabled="true"><i class="bi bi-person" aria-hidden="true"></i> Profile <span class="badge text-bg-light ms-1">Soon</span></span></li>
+                                    <li><a class="dropdown-item" asp-controller="Profile" asp-action="Index"><i class="bi bi-person" aria-hidden="true"></i> Profile and security</a></li>
                                     @if (User.IsInRole("Student"))
                                     {
                                         <li><span class="dropdown-item disabled" aria-disabled="true"><i class="bi bi-folder2-open" aria-hidden="true"></i> My Portfolio <span class="badge text-bg-light ms-1">Soon</span></span></li>
@@ -81,7 +81,6 @@
                                     {
                                         <li><a class="dropdown-item" asp-controller="Notifications" asp-action="Settings"><i class="bi bi-sliders" aria-hidden="true"></i> Notification settings</a></li>
                                     }
-                                    <li><span class="dropdown-item disabled" aria-disabled="true"><i class="bi bi-gear" aria-hidden="true"></i> Account Settings <span class="badge text-bg-light ms-1">Soon</span></span></li>
                                     <li><hr class="dropdown-divider" /></li>
                                     <li>
                                         <form asp-controller="Account" asp-action="Logout" method="post">

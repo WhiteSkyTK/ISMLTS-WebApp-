@@ -1,0 +1,74 @@
+@model ProfileViewModel
+@{
+    ViewData["Title"] = "Profile";
+    var loginLabel = Model.Role == Roles.Admin ? "Username" : "Email";
+    var modulesLabel = Model.Role == Roles.Lecturer ? "Modules you teach" : "Modules";
+}
+
+<partial name="_PageHeader" model='new PageHeaderModel { Title = "Your profile", Subtitle = Model.Role }' />
+
+<div class="row g-4">
+    <div class="col-lg-6">
+        <section class="panel h-100" aria-labelledby="detailsTitle">
+            <h2 id="detailsTitle" class="h5">Details</h2>
+            <dl class="row detail-list">
+                <dt class="col-sm-4">Name</dt>
+                <dd class="col-sm-8">@Model.DisplayName</dd>
+                <dt class="col-sm-4">@loginLabel</dt>
+                <dd class="col-sm-8">@Model.Login</dd>
+                @if (Model.Role == Roles.Student)
+                {
+                    <dt class="col-sm-4">Programme</dt>
+                    <dd class="col-sm-8">@(Model.Programme ?? "Not set")</dd>
+                }
+                @if (Model.Role != Roles.Admin)
+                {
+                    <dt class="col-sm-4">@modulesLabel</dt>
+                    <dd class="col-sm-8 mb-0">
+                        @if (Model.Modules.Any())
+                        {
+                            <ul class="list-unstyled mb-0">
+                                @foreach (var module in Model.Modules)
+                                {
+                                    <li>@module</li>
+                                }
+                            </ul>
+                        }
+                        else
+                        {
+                            <span class="text-muted">None yet</span>
+                        }
+                    </dd>
+                }
+            </dl>
+            <p class="small text-muted mb-0"><i class="bi bi-info-circle" aria-hidden="true"></i> Something wrong here? Ask an admin to change it.</p>
+        </section>
+    </div>
+    <div class="col-lg-6">
+        <section class="panel h-100" aria-labelledby="passwordTitle">
+            <h2 id="passwordTitle" class="h5">Change password</h2>
+            <form asp-action="ChangePassword" method="post">
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+                <div class="mb-3">
+                    <label asp-for="Password.CurrentPassword" class="form-label"></label>
+                    <input asp-for="Password.CurrentPassword" class="form-control" autocomplete="current-password" />
+                    <span asp-validation-for="Password.CurrentPassword" class="text-danger small"></span>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="Password.NewPassword" class="form-label"></label>
+                    <input asp-for="Password.NewPassword" class="form-control" autocomplete="new-password" aria-describedby="newPasswordHelp" />
+                    <div id="newPasswordHelp" class="form-text">At least 8 characters.</div>
+                    <span asp-validation-for="Password.NewPassword" class="text-danger small"></span>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="Password.ConfirmPassword" class="form-label"></label>
+                    <input asp-for="Password.ConfirmPassword" class="form-control" autocomplete="new-password" />
+                    <span asp-validation-for="Password.ConfirmPassword" class="text-danger small"></span>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-rosebank" data-loading="Saving…"><i class="bi bi-key" aria-hidden="true"></i> Change password</button>
+                </div>
+            </form>
+        </section>
+    </div>
+</div>

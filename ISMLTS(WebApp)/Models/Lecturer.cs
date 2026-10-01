@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace ISMLTS_WebApp_.Models
 {
-    public class Lecturer
+    public class Lecturer : IUserAccount
     {
         [Key]
         public int LecturerId { get; set; }

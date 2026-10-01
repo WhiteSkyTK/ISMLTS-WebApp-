@@ -1,7 +1,13 @@
 @model IEnumerable<Ticket>
+@using System.Globalization
 @{
     ViewData["Title"] = "Tickets";
     ViewData["FilterLabel"] = "Filter by student, module or subject";
+    ViewData["TableFacets"] = new List<TableFacet>
+    {
+        new() { Name = "status", Label = "Status", AllText = "Any status", Options = new() { ("open", "Open"), ("in-progress", "In progress"), ("resolved", "Resolved") } },
+        new() { Name = "module", Label = "Module", AllText = "All modules", Options = Model.Select(t => t.Module?.Code ?? string.Empty).Where(c => c.Length > 0).Distinct().Order().Select(c => (c, c)).ToList() }
+    };
     var open = Model.Count(t => t.Status != "Resolved");
 }
 
@@ -15,27 +21,27 @@
         </div>
         <partial name="_TableFilter" model='"#ticketsTable"' />
         <div class="table-scroll">
-            <table id="ticketsTable" class="table table-hover align-middle mb-0">
+            <table id="ticketsTable" class="table table-hover align-middle mb-0" data-sortable>
                 <thead>
                     <tr>
-                        <th scope="col">Subject</th>
-                        <th scope="col">Student</th>
-                        <th scope="col">Status</th>
-                        <th scope="col">Opened</th>
+                        <th scope="col" data-sort="text">Subject</th>
+                        <th scope="col" data-sort="text">Student</th>
+                        <th scope="col" data-sort="text">Status</th>
+                        <th scope="col" data-sort="number" aria-sort="descending">Opened</th>
                         <th scope="col"><span class="visually-hidden">Actions</span></th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach (var t in Model)
                     {
-                        <tr>
-                            <td>
+                        <tr data-status="@t.Status.ToLowerInvariant().Replace(' ', '-')" data-module="@t.Module?.Code">
+                            <td data-sort-value="@t.Subject">
                                 <span class="fw-medium">@t.Subject</span>
                                 <span class="table-row-sub font-monospace">@t.Module?.Code</span>
                             </td>
                             <td>@t.Student?.FullName</td>
                             <td><partial name="_TicketStatus" model="t.Status" /></td>
-                            <td>@t.DateOpened.ToLocalTime().ToString("dd MMM, HH:mm")</td>
+                            <td data-sort-value="@t.DateOpened.Ticks.ToString(CultureInfo.InvariantCulture)">@t.DateOpened.ToLocalTime().ToString("dd MMM, HH:mm")</td>
                             <td class="text-end">
                                 <a asp-action="Respond" asp-route-id="@t.TicketId" class="btn @(t.Status == "Resolved" ? "btn-outline-rosebank" : "btn-rosebank") btn-sm text-nowrap"><i class="bi bi-reply" aria-hidden="true"></i> @(t.Status == "Resolved" ? "View" : "Respond")</a>
                             </td>

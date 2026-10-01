@@ -97,6 +97,7 @@ namespace ISMLTS_WebApp_.Controllers
                     StudentId = s.StudentId,
                     FullName = s.FullName,
                     Email = s.Email,
+                    Programme = s.Programme,
                     EnrolledModules = enrolledCounts.GetValueOrDefault(s.StudentId)
                 }).ToList()
             });

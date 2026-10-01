@@ -28,19 +28,19 @@
                         <progress class="w-100" value="@module.AveragePercentage.ToString(CultureInfo.InvariantCulture)" max="100" aria-label="@module.ModuleDisplay average">@module.AveragePercentage%</progress>
                         <span class="fw-semibold">@module.AveragePercentage%</span>
                     </div>
-                    <table class="table table-sm mb-0">
+                    <table class="table table-sm mb-0" data-sortable>
                         <thead>
                             <tr>
-                                <th scope="col">Assessment</th>
+                                <th scope="col" data-sort="text">Assessment</th>
                                 <th scope="col">Score</th>
-                                <th scope="col">%</th>
+                                <th scope="col" data-sort="number">%</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach (var m in module.Marks.OrderBy(m => m.DateCaptured))
                             {
                                 <tr>
-                                    <td>
+                                    <td data-sort-value="@m.AssessmentName">
                                         @m.AssessmentName
                                         @if (!string.IsNullOrEmpty(m.Feedback))
                                         {

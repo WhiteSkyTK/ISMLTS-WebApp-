@@ -1,8 +1,26 @@
 @model List<MyAssessmentRow>
+@using System.Globalization
 @using ISMLTS_WebApp_.Services
 @{
     ViewData["Title"] = "My Assessments";
     ViewData["FilterLabel"] = "Filter by name, module or type";
+    ViewData["TableFacets"] = new List<TableFacet>
+    {
+        new()
+        {
+            Name = "module",
+            Label = "Module",
+            AllText = "All modules",
+            Options = Model.Select(r => r.ModuleCode).Distinct().Order().Select(code => (code, code)).ToList()
+        },
+        new()
+        {
+            Name = "state",
+            Label = "Status",
+            AllText = "Any status",
+            Options = new() { ("to-do", "Still to submit"), ("overdue", "Overdue"), ("submitted", "Submitted"), ("marked", "Marked") }
+        }
+    };
     var toDo = Model.Count(r => r.Status == "Not Submitted");
 }
 
@@ -17,33 +35,35 @@
         </div>
         <partial name="_TableFilter" model='"#myAssessmentsTable"' />
         <div class="table-scroll">
-            <table id="myAssessmentsTable" class="table align-middle mb-0">
+            <table id="myAssessmentsTable" class="table align-middle mb-0" data-sortable>
                 <thead>
                     <tr>
-                        <th scope="col">Assessment</th>
-                        <th scope="col">Type</th>
-                        <th scope="col">Due</th>
-                        <th scope="col">Status</th>
-                        <th scope="col">Mark</th>
+                        <th scope="col" data-sort="text">Assessment</th>
+                        <th scope="col" data-sort="text">Type</th>
+                        <th scope="col" data-sort="number" aria-sort="ascending">Due</th>
+                        <th scope="col" data-sort="text">Status</th>
+                        <th scope="col" data-sort="number">Mark</th>
                         <th scope="col"><span class="visually-hidden">Actions</span></th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach (var r in Model)
                     {
-                        var overdue = r.Status == "Not Submitted" && DueDates.IsOverdue(r.DueDate, DateTime.Today);
-                        <tr>
-                            <td>
+                        var submitted = r.Status != "Not Submitted";
+                        var overdue = !submitted && DueDates.IsOverdue(r.DueDate, DateTime.Today);
+                        var state = $"{(submitted ? "submitted" : "to-do")}{(overdue ? " overdue" : null)}{(r.Mark != null ? " marked" : null)}";
+                        <tr data-module="@r.ModuleCode" data-state="@state">
+                            <td data-sort-value="@r.Name">
                                 <span class="fw-medium">@r.Name</span>
                                 <span class="table-row-sub font-monospace">@r.ModuleCode</span>
                             </td>
                             <td><span class="badge task-badge task-@r.Type.ToLowerInvariant()">@r.Type</span></td>
-                            <td>
+                            <td data-sort-value="@r.DueDate.ToString("yyyyMMdd", CultureInfo.InvariantCulture)">
                                 @r.DueDate.ToString("ddd, dd MMM")
                                 <span class="table-row-sub @(overdue ? "text-danger" : null)">@DueDates.Describe(r.DueDate, DateTime.Today)</span>
                             </td>
                             <td><partial name="_SubmissionStatus" model="r.Status" /></td>
-                            <td>
+                            <td data-sort-value="@(r.Mark?.Percentage.ToString(CultureInfo.InvariantCulture))">
                                 @if (r.Mark != null)
                                 {
                                     <span class="fw-semibold">@MarkRules.Format(r.Mark.Score)/@MarkRules.Format(r.Mark.MaxScore)</span> <span class="text-muted">(@r.Mark.Percentage%)</span>
@@ -52,9 +72,13 @@
                                         <span class="table-row-sub ticket-message"><i class="bi bi-chat-left-text" aria-hidden="true"></i> @r.Mark.Feedback</span>
                                     }
                                 }
-                                else if (r.Status != "Not Submitted" && !r.MarksReleased)
+                                else if (submitted && !r.MarksReleased)
                                 {
                                     <span class="small text-muted">Waiting for marks</span>
+                                }
+                                else if (submitted)
+                                {
+                                    <span class="small text-muted">Not marked yet</span>
                                 }
                                 else
                                 {

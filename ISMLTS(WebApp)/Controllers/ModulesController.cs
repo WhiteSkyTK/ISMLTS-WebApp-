@@ -131,6 +131,7 @@ namespace ISMLTS_WebApp_.Controllers
                 {
                     StudentId = s.StudentId,
                     FullName = s.FullName,
+                    Programme = s.Programme,
                     IsEnrolled = enrolledIds.Contains(s.StudentId)
                 }).ToList()
             });

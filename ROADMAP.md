@@ -63,12 +63,15 @@ One phase per session: plan briefly, implement, add tests, run `dotnet build` an
 - [x] Admin: CSV bulk import of students and lecturers with a preview and per-row errors before saving; reset a user's password; Reports page (users, at-risk by module, attendance by module)
 
 ## Phase 5 — API for the Android app
-- [ ] `/api/v1` controllers with JWT bearer auth: login, my modules, marks, assessments, submit, tickets, notifications, attendance scan (same AttendanceVerifier)
-- [ ] Swagger UI in Development only; share the endpoint list with the Android teammate
-- [ ] Integration tests for the API auth rules
+- [x] `/api/v1` controllers with JWT bearer auth: login, my modules, marks, assessments, submit, tickets, notifications, attendance scan (same AttendanceVerifier)
+- [x] Swagger UI in Development only; share the endpoint list with the Android teammate
+- [x] Integration tests for the API auth rules
+- [x] `docs/API.md`: how the Android app logs in, refreshes tokens, reads errors and calls each endpoint, with Kotlin (Retrofit/OkHttp) examples and how to reach a PC's API from the emulator or a phone
 
 ## Phase 6 — Go live on Azure
+This is where everything built since Phase 1 reaches the live site and gets tested there instead of on localhost.
 - [x] The App Service site is created and running (published by hand; Phases 0–1 and later changes still to be published)
+- [ ] Publish Phases 2–5 to the live site: apply the migrations to Azure SQL, add the new App Service settings (`Jwt__SigningKey`, `ExternalLinks__*`, email if wanted), then work through each phase's manual test checklist on the live URL as every role, and point the Android app at the live API
 - [ ] GitHub Actions deploys to an App Service staging slot after the tests pass (OIDC login, no publish profile in the repo); swapping to production stays a manual step
 - [ ] `/health` endpoint that checks the database; the App Service health check uses it
 - [ ] Confirm on Azure that `RemoteIpAddress` is the student's IP (the login rate limit and the campus-network check both rely on it); add `UseForwardedHeaders` with the App Service proxy if it isn't
@@ -97,3 +100,4 @@ One phase per session: plan briefly, implement, add tests, run `dotnet build` an
 - [ ] Students can download their own data (marks, submissions, attendance) as CSV
 - [ ] Audit log of admin actions: accounts created or deleted, password resets, enrolment changes
 - [ ] Accessibility pass to WCAG 2.1 AA: keyboard-only walk-through of every role, contrast check of the palette, focus handling in dialogs, automated axe checks in CI
+- [ ] README for GitHub: what ISMLTS is and who it's for, features per role with screenshots, the tech stack, running it locally step by step (LocalDB, migrations, demo data and demo accounts), every configuration setting, running the tests, the Android API (link to `docs/API.md`), deploying to Azure, and the team and module details

@@ -19,7 +19,7 @@ Integrated School Management and Learning Tracking System for IIE Rosebank Colle
 2. Business logic lives in `Services/`, not in controllers or views.
 3. No CSS or JS inside .cshtml: no `<style>`, no `style=""`, no inline `<script>`.
 4. Never bind `PasswordHash` from a form. Create actions take a separate `string password` and hash it with BCrypt; Edit actions never touch the hash; `PasswordHash` has no `[Required]`.
-5. Every POST has `[ValidateAntiForgeryToken]`; model-bound POSTs have an explicit `[Bind(...)]` list.
+5. Every POST has `[ValidateAntiForgeryToken]`; model-bound POSTs have an explicit `[Bind(...)]` list. Exception: the `/api/v1` controllers (Controllers/Api) use bearer tokens, so they take small request records instead and need no antiforgery token.
 6. Get the logged-in user with `User.GetUserId()`. Lecturers may only act on modules where `Module.LecturerId` is theirs.
 7. New timestamps use `DateTime.UtcNow`; display with `.ToLocalTime()`.
 8. Security-relevant random values come from `RandomNumberGenerator`, never `Random`.
@@ -56,7 +56,8 @@ Phase 2 done: notifications (bell with unread count, list, settings), announceme
 Phase 3 done: marks link to assessments with feedback and a release switch (students only see released marks), a mark history on every mark (MarkService / MarkChange), gradebook, Quick Eval, CSV import with preview (GradingController), My Progress and Class Insights (InsightsController, `Risk:AttendanceThreshold`, default 75), CSV exports of marks and registers (Csv escapes formulas). Needs the `Phase3Marking` migration.
 After Phase 3: development demo data, the markbook (Marks/ForModule: students × assessments with Release marks / Hide marks cards), sortable and filterable tables everywhere, and SonarCloud accessibility fixes.
 Phase 4 done: Profile (change password), authenticator two-factor sign-in (TwoFactor service, Otp.NET; required for admins via `TwoFactor:RequiredForAdmins`), admin password resets and two-factor switch-off (UserSecurityController), My Portfolio, Awards, Help, the POPIA privacy notice, `ExternalLinks` shortcuts, CSV bulk import of students and lecturers (ImportController), and admin Reports. Needs the `Phase4TwoFactor` migration.
-The site is live on Azure App Service (published by hand). Next: see ROADMAP.md, Phases 5–9 (all approved):
+Phase 5 done: the student API for the Android app under `/api/v1` (Controllers/Api; JWT access tokens + single-use refresh tokens via ApiTokenService, `Jwt` settings; Swagger UI at /swagger in Development; guide in `docs/API.md`). Student actions shared by the website and the API live in `StudentPortalService`. Needs the `Phase5ApiTokens` migration.
+The site is live on Azure App Service (published by hand). Next: see ROADMAP.md, Phases 6–9 (all approved); Phase 6 publishes everything to the live site and tests it there:
 ## Roadmap
 ROADMAP.md holds the remaining work. One phase per session: plan briefly, implement, add tests, run `dotnet build` and `dotnet test`, then stop with a manual test checklist. Tick finished items there and keep Status here current.
 
@@ -86,7 +87,7 @@ Use `dotnet ef migrations add <Name> --project "ISMLTS(WebApp)"` if the dotnet-e
 xUnit project `ISMLTS.Tests` is in the solution and CI runs it on every push. Services get unit tests; security rules get WebApplicationFactory integration tests (environment `Testing`, SQLite in-memory + `EnsureCreated`, DataSeeder skipped).
 
 ## Deployment
-Azure App Service (Windows) + Azure SQL. The connection string, `Seed__AdminPassword` and `Seed__LecturerPassword` live in App Service settings, never in the repo. Email is optional: set `Email__ConnectionString` (Azure Communication Services), `Email__From` (a verified sender address) and `Email__SiteUrl` (the site's https address, used in email links); without them nothing is sent. The weekly digest runs in the app, so the App Service needs Always On. Optional: `ExternalLinks__IieLibrary` and `ExternalLinks__StudentPortal` (https addresses; each shortcut is hidden while empty). `TwoFactor__RequiredForAdmins` defaults to true. `UseSqlServer` keeps `EnableRetryOnFailure()` because Azure SQL can pause and resume.
+Azure App Service (Windows) + Azure SQL. The connection string, `Seed__AdminPassword` and `Seed__LecturerPassword` live in App Service settings, never in the repo. Email is optional: set `Email__ConnectionString` (Azure Communication Services), `Email__From` (a verified sender address) and `Email__SiteUrl` (the site's https address, used in email links); without them nothing is sent. The weekly digest runs in the app, so the App Service needs Always On. `Jwt__SigningKey` (a random secret of 32+ characters) signs the app's tokens; without it they stop working whenever the site restarts. Optional: `ExternalLinks__IieLibrary` and `ExternalLinks__StudentPortal` (https addresses; each shortcut is hidden while empty). `TwoFactor__RequiredForAdmins` defaults to true. `UseSqlServer` keeps `EnableRetryOnFailure()` because Azure SQL can pause and resume.
 xUnit tests for Services, Azure deployment, Web API endpoints for the Android app, file-upload submissions (Azure Blob).
 Known debt: rows saved before Phase 0 stored local time in `Submission.SubmittedAt` and `Ticket.DateOpened`/`DateResolved`, so they now display 2 hours late.
 

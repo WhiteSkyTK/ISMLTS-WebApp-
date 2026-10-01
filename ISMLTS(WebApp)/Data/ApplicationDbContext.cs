@@ -23,6 +23,7 @@ namespace ISMLTS_WebApp_.Data
         public DbSet<NotificationSetting> NotificationSettings => Set<NotificationSetting>();
         public DbSet<Announcement> Announcements => Set<Announcement>();
         public DbSet<MarkChange> MarkChanges => Set<MarkChange>();
+        public DbSet<ApiRefreshToken> ApiRefreshTokens => Set<ApiRefreshToken>();
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             // Explicit precision for every decimal (the default is 18,2, which suits marks)
@@ -52,6 +53,10 @@ namespace ISMLTS_WebApp_.Data
 
             modelBuilder.Entity<Announcement>()
                 .HasOne(a => a.Module).WithMany().HasForeignKey(a => a.ModuleId).OnDelete(DeleteBehavior.Cascade);
+
+            // Refresh tokens are looked up by hash, and revoked together for one user
+            modelBuilder.Entity<ApiRefreshToken>().HasIndex(t => t.TokenHash).IsUnique();
+            modelBuilder.Entity<ApiRefreshToken>().HasIndex(t => new { t.Role, t.UserId });
 
             base.OnModelCreating(modelBuilder);
 

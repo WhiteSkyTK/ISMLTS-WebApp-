@@ -158,6 +158,7 @@ namespace ISMLTS_WebApp_.Services
             {
                 ModuleId = m.ModuleId,
                 ModuleCode = m.Code,
+                ModuleName = m.Name,
                 ModuleDisplay = $"{m.Code} - {m.Name}",
                 Attended = attendedByModule.GetValueOrDefault(m.ModuleId),
                 Total = sessionsByModule.GetValueOrDefault(m.ModuleId)

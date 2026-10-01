@@ -14,8 +14,12 @@ namespace ISMLTS_WebApp_.Repositories
 
         public async Task<IEnumerable<Student>> GetByModuleAsync(int moduleId) =>
             await _dbSet.Where(s => s.Modules.Any(m => m.ModuleId == moduleId)).ToListAsync();
+
+        // With each module's lecturer and course, for the student pages and the app
         public async Task<Student?> GetByIdWithModulesAsync(int id) =>
-    await _dbSet.Include(s => s.Modules).FirstOrDefaultAsync(s => s.StudentId == id);
+            await _dbSet.Include(s => s.Modules).ThenInclude(m => m.Lecturer)
+                .Include(s => s.Modules).ThenInclude(m => m.Course)
+                .FirstOrDefaultAsync(s => s.StudentId == id);
 
         public async Task<bool> IsEnrolledAsync(int studentId, int moduleId) =>
             await _dbSet.AnyAsync(s => s.StudentId == studentId && s.Modules.Any(m => m.ModuleId == moduleId));

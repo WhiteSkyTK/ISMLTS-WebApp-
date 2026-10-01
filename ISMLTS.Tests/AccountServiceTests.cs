@@ -20,7 +20,7 @@ namespace ISMLTS.Tests
 
         private static AccountService Service(ApplicationDbContext context, TimeProvider clock, bool required = true) =>
             new(new AdminRepository(context), new LecturerRepository(context), new StudentRepository(context),
-                Options.Create(new TwoFactorOptions { RequiredForAdmins = required }), clock);
+                Options.Create(new TwoFactorOptions { RequiredForAdmins = required }), clock, new ApiRefreshTokenRepository(context));
 
         private async Task<(Admin Admin, Lecturer Lecturer)> SeedAsync()
         {

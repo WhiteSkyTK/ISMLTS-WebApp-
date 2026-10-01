@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Options;
+using ISMLTS_WebApp_.Extensions;
 using ISMLTS_WebApp_.Models;
 using ISMLTS_WebApp_.Services;
 
@@ -22,7 +23,8 @@ namespace ISMLTS_WebApp_.Filters
         public void OnAuthorization(AuthorizationFilterContext context)
         {
             var user = context.HttpContext.User;
-            if (user.Identity?.IsAuthenticated != true) return;
+            // The app's API refuses temporary passwords and non-students at log-in instead
+            if (user.Identity?.IsAuthenticated != true || ApiProblems.IsApiRequest(context.HttpContext)) return;
             if (context.RouteData.Values["controller"] is string controller && AllowedControllers.Contains(controller)) return;
 
             if (user.HasClaim(AccountService.ChangePasswordClaim, "true"))

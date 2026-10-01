@@ -45,10 +45,12 @@ namespace ISMLTS_WebApp_.Services
         private readonly IStudentRepository _students;
         private readonly TwoFactorOptions _twoFactor;
         private readonly TimeProvider _clock;
+        private readonly IApiRefreshTokenRepository _appSessions;
 
         public AccountService(IAdminRepository admins, ILecturerRepository lecturers, IStudentRepository students,
-            IOptions<TwoFactorOptions> twoFactor, TimeProvider clock)
+            IOptions<TwoFactorOptions> twoFactor, TimeProvider clock, IApiRefreshTokenRepository appSessions)
         {
+            _appSessions = appSessions;
             _admins = admins;
             _lecturers = lecturers;
             _students = students;
@@ -117,6 +119,7 @@ namespace ISMLTS_WebApp_.Services
             account.Entity.PasswordHash = BCrypt.Net.BCrypt.HashPassword(newPassword);
             account.Entity.MustChangePassword = false;
             await SaveAsync(account);
+            await SignOutOfAppAsync(account);
         }
 
         public async Task<string> ResetToTemporaryPasswordAsync(UserAccount account)
@@ -125,6 +128,7 @@ namespace ISMLTS_WebApp_.Services
             account.Entity.PasswordHash = BCrypt.Net.BCrypt.HashPassword(temporary);
             account.Entity.MustChangePassword = true;
             await SaveAsync(account);
+            await SignOutOfAppAsync(account);
             return temporary;
         }
 
@@ -199,7 +203,12 @@ namespace ISMLTS_WebApp_.Services
             account.Entity.TwoFactorSecret = null;
             account.Entity.TwoFactorRecoveryCodes = null;
             await SaveAsync(account);
+            await SignOutOfAppAsync(account);
         }
+
+        // A new password or a switched-off authenticator ends every Android app session for that user
+        private Task SignOutOfAppAsync(UserAccount account) =>
+            _appSessions.RevokeAllAsync(account.Role, account.Id, _clock.GetUtcNow().UtcDateTime);
 
         // The session cookie's claims; the two-factor claim says this sign-in passed the authenticator step
         public static ClaimsPrincipal Principal(UserAccount account, string scheme, bool passedTwoFactor)

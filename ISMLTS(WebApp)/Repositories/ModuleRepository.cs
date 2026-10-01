@@ -53,6 +53,10 @@ namespace ISMLTS_WebApp_.Repositories
         public async Task<List<Module>> GetAllWithCourseAsync() =>
             await _dbSet.Include(m => m.Course).OrderBy(m => m.Term).ThenBy(m => m.Code).ToListAsync();
 
+        public async Task<List<Module>> GetAllWithDetailsAsync() =>
+            await _dbSet.AsNoTracking().Include(m => m.Lecturer).Include(m => m.Course).Include(m => m.Students)
+                .OrderBy(m => m.Term).ThenBy(m => m.Code).ToListAsync();
+
         public async Task<List<Module>> GetByCourseWithStudentsAsync(int courseId) =>
             await _dbSet.Include(m => m.Students).Where(m => m.CourseId == courseId)
                 .OrderBy(m => m.Term).ThenBy(m => m.Code).ToListAsync();

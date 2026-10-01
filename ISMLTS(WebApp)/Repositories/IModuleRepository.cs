@@ -11,6 +11,9 @@ namespace ISMLTS_WebApp_.Repositories
         Task<PagedList<Module>> SearchAsync(string? query, int page, string? sort = null, ModuleListFilter? filter = null);
         Task<Module?> GetByIdWithDetailsAsync(int id);
         Task<List<Module>> GetAllWithCourseAsync();
+
+        // Read-only, with lecturer, course and enrolled students: for reports
+        Task<List<Module>> GetAllWithDetailsAsync();
         Task<List<Module>> GetByCourseWithStudentsAsync(int courseId);
     }
 }

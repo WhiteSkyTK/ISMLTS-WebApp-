@@ -3,7 +3,7 @@
 @inject IOptions<ExternalLinksOptions> ExternalLinks
 @{
     // Shortcuts per role. Site pages link straight through; college sites open in a new tab and are left out
-    // while ExternalLinks has no address for them; pages still to come show "Soon".
+    // while ExternalLinks has no address for them.
     var library = ExternalLinksOptions.Usable(ExternalLinks.Value.IieLibrary);
     var portal = ExternalLinksOptions.Usable(ExternalLinks.Value.StudentPortal);
     var items = new List<(string Icon, string Label, string? Controller, string? Action, string? Url)>();
@@ -33,7 +33,7 @@
         items.Add(("bi-journal-plus", "Add Module", "Modules", "Create", null));
         items.Add(("bi-megaphone", "Announcements", "Announcements", "Index", null));
         items.Add(("bi-upload", "Bulk Import", "Import", "Index", null));
-        items.Add(("bi-bar-chart", "Reports", null, null, null));
+        items.Add(("bi-bar-chart", "Reports", "Reports", "Index", null));
     }
     items.Add(("bi-question-circle", "Help", "Help", "Index", null));
 }
@@ -45,13 +45,9 @@
         {
             <a class="icon-nav-item" href="@item.Url" target="_blank" rel="noopener noreferrer"><i class="bi @item.Icon" aria-hidden="true"></i><span>@item.Label <i class="bi bi-box-arrow-up-right small" aria-hidden="true"></i></span><span class="visually-hidden"> (opens in a new tab)</span></a>
         }
-        else if (item.Controller != null)
-        {
-            <a class="icon-nav-item" asp-controller="@item.Controller" asp-action="@item.Action"><i class="bi @item.Icon" aria-hidden="true"></i><span>@item.Label</span></a>
-        }
         else
         {
-            <span class="icon-nav-item is-soon"><i class="bi @item.Icon" aria-hidden="true"></i><span>@item.Label</span><small class="soon-tag">Soon</small></span>
+            <a class="icon-nav-item" asp-controller="@item.Controller" asp-action="@item.Action"><i class="bi @item.Icon" aria-hidden="true"></i><span>@item.Label</span></a>
         }
     }
 </nav>

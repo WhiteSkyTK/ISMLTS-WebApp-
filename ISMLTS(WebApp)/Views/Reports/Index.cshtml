@@ -1,0 +1,93 @@
+@model List<ISMLTS_WebApp_.Services.ModuleReport>
+@using System.Globalization
+@using ISMLTS_WebApp_.Services
+@{
+    ViewData["Title"] = "Reports";
+    ViewData["FilterLabel"] = "Find a module or lecturer";
+    var users = (UserSummary)ViewBag.Users;
+    int threshold = ViewBag.AttendanceThreshold;
+    ViewData["TableFacets"] = new List<TableFacet>
+    {
+        new() { Name = "course", Label = "Course", AllText = "Every course", Options = Model.Select(m => m.Course).Distinct().Order().Select(c => (TableFacet.Token(c), c)).ToList() },
+        new() { Name = "term", Label = "Term", AllText = "Both terms", Options = new() { ("term-1", "Term 1"), ("term-2", "Term 2") } },
+        new() { Name = "risk", Label = "Risk", AllText = "Any risk", Options = new() { ("at-risk", "Someone at risk"), ("none-at-risk", "Nobody at risk") } }
+    };
+    string Pct(decimal? value) => value is decimal v ? $"{v.ToString("0.#", CultureInfo.InvariantCulture)}%" : "—";
+    string Whole(int? value) => value is int v ? $"{v}%" : "—";
+    string SortValue(decimal? value) => value?.ToString(CultureInfo.InvariantCulture) ?? string.Empty;
+}
+
+<partial name="_PageHeader" model='new PageHeaderModel { Title = "Reports", Subtitle = $"At risk: average below 50% or attendance below {threshold}%. Averages include marks not released yet.", ActionUrl = Url.Action("Export"), ActionText = "Export CSV", ActionIcon = "bi-download" }' />
+
+<div class="row g-3 mb-4">
+    <div class="col-6 col-lg-3"><div class="stat-card"><i class="bi bi-people" aria-hidden="true"></i><div><h2 class="h3">@users.Students</h2><span>Students · @users.StudentsNotEnrolled not enrolled</span></div></div></div>
+    <div class="col-6 col-lg-3"><div class="stat-card"><i class="bi bi-person-badge" aria-hidden="true"></i><div><h2 class="h3">@users.Lecturers</h2><span>Lecturers · @users.LecturersWithoutModules without modules</span></div></div></div>
+    <div class="col-6 col-lg-3"><div class="stat-card"><i class="bi bi-shield-lock" aria-hidden="true"></i><div><h2 class="h3">@users.Admins</h2><span>Admins</span></div></div></div>
+    <div class="col-6 col-lg-3"><div class="stat-card"><i class="bi bi-phone" aria-hidden="true"></i><div><h2 class="h3">@users.TwoFactorOn of @users.TotalUsers</h2><span>Use two-factor sign-in</span></div></div></div>
+</div>
+
+<div class="panel">
+    <h2 class="h5">Modules</h2>
+    @if (Model.Any())
+    {
+        <partial name="_TableFilter" model='"#moduleReport"' />
+        <div class="table-scroll">
+            <table id="moduleReport" class="table align-middle mb-0" data-sortable>
+                <thead>
+                    <tr>
+                        <th scope="col" data-sort="text" aria-sort="ascending">Module</th>
+                        <th scope="col" data-sort="text">Lecturer</th>
+                        <th scope="col" data-sort="number">Enrolled</th>
+                        <th scope="col" data-sort="number">Class average</th>
+                        <th scope="col" data-sort="number">Attendance</th>
+                        <th scope="col" data-sort="number">Handed in</th>
+                        <th scope="col" data-sort="number">At risk</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var report in Model)
+                    {
+                        var insight = report.Insight;
+                        <tr data-course="@TableFacet.Token(report.Course)" data-term="@TableFacet.Token(report.Term)" data-risk="@(insight.AtRisk.Any() ? "at-risk" : "none-at-risk")">
+                            <td data-sort-value="@insight.Code">
+                                <span class="fw-medium font-monospace">@insight.Code</span>
+                                <span class="table-row-sub">@insight.Name · @report.Course · @report.Term</span>
+                            </td>
+                            <td>@report.Lecturer</td>
+                            <td>@insight.Enrolled</td>
+                            <td data-sort-value="@SortValue(insight.ClassAverage)">@Pct(insight.ClassAverage)</td>
+                            <td data-sort-value="@SortValue(insight.AttendanceRate)">
+                                @Whole(insight.AttendanceRate)
+                                <span class="table-row-sub">@report.SessionsHeld @(report.SessionsHeld == 1 ? "class" : "classes") held</span>
+                            </td>
+                            <td data-sort-value="@SortValue(insight.SubmissionRate)">@Whole(insight.SubmissionRate)</td>
+                            <td data-sort-value="@insight.AtRisk.Count">
+                                @if (insight.AtRisk.Any())
+                                {
+                                    <details class="risk-details">
+                                        <summary><span class="badge text-bg-danger">@insight.AtRisk.Count</span> <span class="small">who</span></summary>
+                                        <ul class="list-unstyled small mb-0 mt-1">
+                                            @foreach (var student in insight.AtRisk)
+                                            {
+                                                <li><span class="fw-medium">@student.FullName</span> · @string.Join("; ", student.RiskReasons)</li>
+                                            }
+                                        </ul>
+                                    </details>
+                                }
+                                else
+                                {
+                                    <span class="badge text-bg-success">0</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <p class="text-muted small mt-2 mb-0" data-filter-empty hidden>No modules match.</p>
+    }
+    else
+    {
+        <partial name="_EmptyState" model='new EmptyStateModel { Icon = "bi-journal-plus", Title = "No modules yet", Message = "Reports fill up once modules have students, marks and registers.", ActionUrl = Url.Action("Create", "Modules"), ActionText = "Add module" }' />
+    }
+</div>

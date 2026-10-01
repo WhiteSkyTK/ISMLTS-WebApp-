@@ -144,21 +144,9 @@ a.icon-nav-item:focus-visible {
     color: var(--rb-blue);
 }
 
-.icon-nav-item.is-soon {
-    color: #9AA3B2;
-    cursor: default;
-}
-
-.soon-tag {
-    font-size: 0.6rem;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    color: var(--rb-muted);
-}
-
 /* Phones show icons only; the labels stay available to screen readers */
 @media (max-width: 576px) {
-    .icon-nav-item > span, .soon-tag {
+    .icon-nav-item > span {
         position: absolute;
         width: 1px;
         height: 1px;
@@ -719,11 +707,6 @@ th[aria-sort] .sort-link {
         font-size: 1.2rem;
     }
 
-    .quick-action-btn.is-soon {
-        color: #9AA3B2;
-        cursor: default;
-    }
-
 .nav-tabs-sm .nav-link {
     padding: 0.3rem 0.6rem;
     font-size: 0.8rem;
@@ -1214,4 +1197,13 @@ th[aria-sort] .sort-link {
 
 .footer-links a {
     color: inherit;
+}
+
+.risk-details summary {
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.risk-details ul {
+    min-width: 16rem;
 }

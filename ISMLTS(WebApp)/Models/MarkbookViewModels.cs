@@ -55,7 +55,8 @@ namespace ISMLTS_WebApp_.Models
         {
             get
             {
-                var status = !HasMarks ? MarkbookStatuses.NoMarks : IsAtRisk ? MarkbookStatuses.AtRisk : MarkbookStatuses.OnTrack;
+                var status = MarkbookStatuses.NoMarks;
+                if (HasMarks) status = IsAtRisk ? MarkbookStatuses.AtRisk : MarkbookStatuses.OnTrack;
                 return ToMarkCount > 0 ? $"{status} {MarkbookStatuses.ToMark}" : status;
             }
         }

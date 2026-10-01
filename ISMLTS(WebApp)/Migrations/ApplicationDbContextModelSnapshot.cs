@@ -118,6 +118,46 @@ namespace ISMLTS_WebApp_.Migrations
                     b.ToTable("Announcements");
                 });
 
+            modelBuilder.Entity("ISMLTS_WebApp_.Models.ApiRefreshToken", b =>
+                {
+                    b.Property<int>("ApiRefreshTokenId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ApiRefreshTokenId"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("ExpiresAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("RevokedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("TokenHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("ApiRefreshTokenId");
+
+                    b.HasIndex("TokenHash")
+                        .IsUnique();
+
+                    b.HasIndex("Role", "UserId");
+
+                    b.ToTable("ApiRefreshTokens");
+                });
+
             modelBuilder.Entity("ISMLTS_WebApp_.Models.Assessment", b =>
                 {
                     b.Property<int>("AssessmentId")

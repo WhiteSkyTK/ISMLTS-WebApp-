@@ -353,3 +353,10 @@ C:\Users\Student\source\repos\ISMLTS(WebApp)\ISMLTS(WebApp)\bin\Debug\net9.0\Otp
 C:\Users\Student\source\repos\ISMLTS(WebApp)\ISMLTS(WebApp)\obj\Debug\net9.0\compressed\cr44vt7aff-jf2cq1s5zo.gz
 C:\Users\Student\source\repos\ISMLTS(WebApp)\ISMLTS(WebApp)\obj\Debug\net9.0\compressed\vcmp48prvt-w9e3nlxgl0.gz
 C:\Users\Student\source\repos\ISMLTS(WebApp)\ISMLTS(WebApp)\obj\Debug\net9.0\compressed\7x5g0qedkz-n620fvr0p0.gz
+C:\Users\Student\source\repos\ISMLTS(WebApp)\ISMLTS(WebApp)\bin\Debug\net9.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
+C:\Users\Student\source\repos\ISMLTS(WebApp)\ISMLTS(WebApp)\bin\Debug\net9.0\Microsoft.Bcl.Cryptography.dll
+C:\Users\Student\source\repos\ISMLTS(WebApp)\ISMLTS(WebApp)\bin\Debug\net9.0\Microsoft.OpenApi.dll
+C:\Users\Student\source\repos\ISMLTS(WebApp)\ISMLTS(WebApp)\bin\Debug\net9.0\Swashbuckle.AspNetCore.Swagger.dll
+C:\Users\Student\source\repos\ISMLTS(WebApp)\ISMLTS(WebApp)\bin\Debug\net9.0\Swashbuckle.AspNetCore.SwaggerGen.dll
+C:\Users\Student\source\repos\ISMLTS(WebApp)\ISMLTS(WebApp)\bin\Debug\net9.0\Swashbuckle.AspNetCore.SwaggerUI.dll
+C:\Users\Student\source\repos\ISMLTS(WebApp)\ISMLTS(WebApp)\obj\Debug\net9.0\ISMLTS(WebApp).MvcApplicationPartsAssemblyInfo.cs

@@ -686,3 +686,9 @@ C:\Users\Student\source\repos\ISMLTS(WebApp)\ISMLTS.Tests\bin\Debug\net9.0\runti
 C:\Users\Student\source\repos\ISMLTS(WebApp)\ISMLTS.Tests\obj\Debug\net9.0\MvcTestingAppManifest.json
 C:\Users\Student\source\repos\ISMLTS(WebApp)\ISMLTS.Tests\bin\Debug\net9.0\Azure.Communication.Email.dll
 C:\Users\Student\source\repos\ISMLTS(WebApp)\ISMLTS.Tests\bin\Debug\net9.0\Otp.NET.dll
+C:\Users\Student\source\repos\ISMLTS(WebApp)\ISMLTS.Tests\bin\Debug\net9.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
+C:\Users\Student\source\repos\ISMLTS(WebApp)\ISMLTS.Tests\bin\Debug\net9.0\Microsoft.Bcl.Cryptography.dll
+C:\Users\Student\source\repos\ISMLTS(WebApp)\ISMLTS.Tests\bin\Debug\net9.0\Microsoft.OpenApi.dll
+C:\Users\Student\source\repos\ISMLTS(WebApp)\ISMLTS.Tests\bin\Debug\net9.0\Swashbuckle.AspNetCore.Swagger.dll
+C:\Users\Student\source\repos\ISMLTS(WebApp)\ISMLTS.Tests\bin\Debug\net9.0\Swashbuckle.AspNetCore.SwaggerGen.dll
+C:\Users\Student\source\repos\ISMLTS(WebApp)\ISMLTS.Tests\bin\Debug\net9.0\Swashbuckle.AspNetCore.SwaggerUI.dll

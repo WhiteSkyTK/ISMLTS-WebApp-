@@ -35,6 +35,11 @@ body {
     color: #1d2433;
 }
 
+/* Filters hide rows with the hidden attribute; this beats utilities such as .d-flex that also use !important */
+[hidden] {
+    display: none !important;
+}
+
 .skip-link {
     position: absolute;
     top: 0.5rem;

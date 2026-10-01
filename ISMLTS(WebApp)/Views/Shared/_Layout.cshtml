@@ -74,7 +74,7 @@
                                     <li><a class="dropdown-item" asp-controller="Profile" asp-action="Index"><i class="bi bi-person" aria-hidden="true"></i> Profile and security</a></li>
                                     @if (User.IsInRole("Student"))
                                     {
-                                        <li><span class="dropdown-item disabled" aria-disabled="true"><i class="bi bi-folder2-open" aria-hidden="true"></i> My Portfolio <span class="badge text-bg-light ms-1">Soon</span></span></li>
+                                        <li><a class="dropdown-item" asp-controller="Portfolio" asp-action="Index"><i class="bi bi-folder2-open" aria-hidden="true"></i> My Portfolio</a></li>
                                     }
                                     <li><a class="dropdown-item" asp-controller="Notifications" asp-action="Index"><i class="bi bi-bell" aria-hidden="true"></i> Notifications</a></li>
                                     @if (User.IsInRole("Student") || User.IsInRole("Lecturer"))

@@ -307,6 +307,13 @@
         }
     }
 
+    // ---------- data-print: "Print or save as PDF" buttons ----------
+    function setUpPrintButtons() {
+        for (const button of document.querySelectorAll('[data-print]')) {
+            button.addEventListener('click', () => globalThis.print());
+        }
+    }
+
     // ---------- Student dashboard: read the page aloud, pin and filter module cards ----------
     function setUpStudentDashboard() {
         const listenButton = document.getElementById('listenBtn');
@@ -354,5 +361,6 @@
     setUpNotificationBell();
     setUpCheckAll();
     setUpPasswordFields();
+    setUpPrintButtons();
     setUpStudentDashboard();
 })();

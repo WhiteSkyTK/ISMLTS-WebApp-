@@ -1,0 +1,111 @@
+@model List<ISMLTS_WebApp_.Services.PortfolioModule>
+@using System.Globalization
+@using ISMLTS_WebApp_.Services
+@{
+    ViewData["Title"] = "My Portfolio";
+    var entries = Model.SelectMany(m => m.Entries).ToList();
+    var handedIn = entries.Count(e => e.SubmittedAt != null);
+    var marked = entries.Count(e => e.Mark != null);
+    string Pct(decimal value) => $"{value.ToString("0.#", CultureInfo.InvariantCulture)}%";
+}
+
+<partial name="_PageHeader" model='new PageHeaderModel { Title = "My portfolio", Subtitle = "Everything you have handed in, with marks and feedback once your lecturers release them." }' />
+
+<div class="panel portfolio-summary">
+    <div class="stat-inline mb-0">
+        <div><strong>@handedIn</strong><span class="small text-muted">pieces of work handed in</span></div>
+        <div><strong>@marked</strong><span class="small text-muted">marked and released</span></div>
+        <div><strong>@Model.Count(m => m.Entries.Any())</strong><span class="small text-muted">@(Model.Count == 1 ? "module" : "modules") with work</span></div>
+    </div>
+    <button type="button" class="btn btn-outline-rosebank" data-print><i class="bi bi-printer" aria-hidden="true"></i> Print or save as PDF</button>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="panel">
+        <partial name="_EmptyState" model='new EmptyStateModel { Icon = "bi-folder2-open", Title = "No modules yet", Message = "Your portfolio fills up once you are enrolled in modules and hand in work." }' />
+    </div>
+}
+
+@foreach (var module in Model)
+{
+    <section class="panel portfolio-module" aria-labelledby="module-@module.ModuleId">
+        <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-3">
+            <h2 id="module-@module.ModuleId" class="h5 mb-0">
+                <span class="font-monospace">@module.Code</span>
+                <span class="d-block small text-muted fw-normal">@module.Name · @(module.Term == "Term2" ? "Term 2" : "Term 1")</span>
+            </h2>
+            @if (module.Average is decimal average)
+            {
+                <span class="badge @(average < RiskCalculator.AtRiskThreshold ? "text-bg-danger" : "text-bg-success")">Average @Pct(average)</span>
+            }
+        </div>
+        @if (module.Entries.Any())
+        {
+            <div class="table-scroll">
+                <table class="table align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th scope="col">Work</th>
+                            <th scope="col">Handed in</th>
+                            <th scope="col">Mark and feedback</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var entry in module.Entries)
+                        {
+                            <tr>
+                                <td>
+                                    <span class="fw-medium">@entry.Name</span>
+                                    <span class="badge task-badge task-@entry.Type.ToLowerInvariant()">@entry.Type</span>
+                                    @if (entry.DueDate is DateTime due)
+                                    {
+                                        <span class="table-row-sub">Due @due.ToString("dd MMM yyyy")</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (entry.SubmittedAt is DateTime submitted)
+                                    {
+                                        <partial name="~/Views/Assessments/_SubmissionStatus.cshtml" model="entry.Status" />
+                                        <span class="table-row-sub">@submitted.ToLocalTime().ToString("dd MMM yyyy, HH:mm")</span>
+                                        @if (entry.Link != null)
+                                        {
+                                            <a href="@entry.Link" target="_blank" rel="noopener noreferrer" class="table-row-sub">Open work <i class="bi bi-box-arrow-up-right" aria-hidden="true"></i></a>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">—</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (entry.Mark != null)
+                                    {
+                                        <span class="fw-semibold">@MarkRules.Format(entry.Mark.Score)/@MarkRules.Format(entry.Mark.MaxScore)</span>
+                                        <span class="text-muted">(@Pct(entry.Mark.Percentage))</span>
+                                        @if (!string.IsNullOrEmpty(entry.Mark.Feedback))
+                                        {
+                                            <span class="table-row-sub ticket-message"><i class="bi bi-chat-left-text" aria-hidden="true"></i> @entry.Mark.Feedback</span>
+                                        }
+                                    }
+                                    else if (entry.WaitingForMarks)
+                                    {
+                                        <span class="small text-muted">Waiting for marks</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="small text-muted">Not marked</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <p class="text-muted mb-0">Nothing handed in for this module yet.</p>
+        }
+    </section>
+}

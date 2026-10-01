@@ -31,7 +31,7 @@
 
             @if (!string.IsNullOrEmpty(returnUrl) && ViewData.ModelState.IsValid)
             {
-                <div class="alert alert-info py-2 small" role="status"><i class="bi bi-lock" aria-hidden="true"></i> Log in to continue to that page.</div>
+                <div class="alert alert-info py-2 small"><i class="bi bi-lock" aria-hidden="true"></i> Log in to continue to that page.</div>
             }
 
             <form asp-action="Login" asp-route-returnUrl="@returnUrl" method="post">
@@ -40,7 +40,7 @@
                     <label asp-for="EmailOrUsername" class="form-label"></label>
                     <div class="input-group">
                         <span class="input-group-text"><i class="bi bi-person" aria-hidden="true"></i></span>
-                        <input asp-for="EmailOrUsername" class="form-control" autocomplete="username" placeholder="name@rosebank.iie.ac.za" autofocus />
+                        <input asp-for="EmailOrUsername" class="form-control" autocomplete="username" placeholder="name@rosebank.iie.ac.za" />
                     </div>
                 </div>
                 <div class="mb-3">

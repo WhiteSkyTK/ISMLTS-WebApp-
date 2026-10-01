@@ -2,17 +2,18 @@
 @using ISMLTS_WebApp_.Services
 @{
     var unreadShown = Model.Latest.Where(n => !n.IsRead).ToList();
-    var label = Model.UnreadCount == 0 ? "Notifications" : $"Notifications, {Model.UnreadCount} unread";
     var returnUrl = $"{Context.Request.Path}{Context.Request.QueryString}";
 }
 
-<a class="nav-link position-relative" href="#" role="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false" aria-label="@label" data-notification-bell>
+@* Named by its own text ("Notifications 3 unread") so screen readers read what sighted users see *@
+<button type="button" class="nav-link position-relative" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false" data-notification-bell>
     <i class="bi bi-bell-fill fs-5" aria-hidden="true"></i>
+    <span class="visually-hidden">Notifications</span>
     @if (Model.UnreadCount > 0)
     {
-        <span class="notif-badge" data-notification-count>@(Model.UnreadCount > 9 ? "9+" : Model.UnreadCount.ToString())</span>
+        <span class="notif-badge" data-notification-count><span data-notification-number>@(Model.UnreadCount > 9 ? "9+" : Model.UnreadCount.ToString())</span><span class="visually-hidden"> unread</span></span>
     }
-</a>
+</button>
 <div class="dropdown-menu dropdown-menu-end notif-dropdown p-0">
     <div class="notif-header">
         <span class="fw-semibold">Notifications</span>

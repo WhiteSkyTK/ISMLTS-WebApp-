@@ -103,7 +103,7 @@ else
                                         @column.Name
                                         @if (!column.MarksReleased)
                                         {
-                                            <i class="bi bi-eye-slash" role="img" aria-label="hidden from students"></i>
+                                            <i class="bi bi-eye-slash" aria-hidden="true"></i><span class="visually-hidden">(hidden from students)</span>
                                         }
                                     </span>
                                     <span class="table-row-sub">Out of @MarkRules.Format(column.MaxScore)</span>
@@ -137,7 +137,7 @@ else
                                         </a>
                                         @if (!string.IsNullOrEmpty(mark.Feedback))
                                         {
-                                            <i class="bi bi-chat-left-text text-muted" role="img" aria-label="Feedback: @mark.Feedback" data-bs-toggle="tooltip" data-bs-title="@mark.Feedback"></i>
+                                            <i class="bi bi-chat-left-text text-muted" aria-hidden="true" data-bs-toggle="tooltip" data-bs-title="@mark.Feedback"></i><span class="visually-hidden">Feedback: @mark.Feedback</span>
                                         }
                                     </td>
                                 }

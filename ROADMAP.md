@@ -45,6 +45,13 @@ One phase per session: plan briefly, implement, add tests, run `dotnet build` an
 - [x] CSV import of marks for a whole assessment, with a preview and per-row errors
 - [x] Unit tests for every new calculation
 
+## After Phase 3 — Testing feedback
+- [x] Demo data in Development (`Seed:DemoData`, `Seed:DemoPassword`): 3 courses, 16 modules, 4 lecturers, 30 students, assessments, submissions, marks, attendance, tickets, announcements; only fills a database with no students
+- [x] Student emails must end in `@rcconnect.edu.za` (`Students:EmailDomain`)
+- [x] Markbook: students × assessments grid with Release marks / Hide marks cards; the same buttons on the assessments list and the gradebook; Delete on the Edit Mark page
+- [x] Sortable columns and "Show" filters on lecturer, student and enrolment tables; server-side sort and filters on the admin lists
+- [x] SonarCloud accessibility and contrast fixes (real buttons for the bell and account menu, no autofocus, no `role="img"`/`"status"`/`"switch"`)
+
 ## Phase 4 — Pages behind every link
 - [ ] Profile for all roles: details + change password (current password required)
 - [ ] Two-factor sign-in with an authenticator app (TOTP via Otp.NET, QR via QRCoder): optional for everyone, required for Admins

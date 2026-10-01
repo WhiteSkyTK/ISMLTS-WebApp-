@@ -82,6 +82,7 @@ builder.Services.Configure<AttendanceOptions>(builder.Configuration.GetSection("
 builder.Services.Configure<RiskOptions>(builder.Configuration.GetSection("Risk"));
 builder.Services.Configure<StudentOptions>(builder.Configuration.GetSection("Students"));
 builder.Services.Configure<TwoFactorOptions>(builder.Configuration.GetSection("TwoFactor"));
+builder.Services.Configure<ExternalLinksOptions>(builder.Configuration.GetSection("ExternalLinks"));
 builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddSingleton<IAttendanceVerifier, AttendanceVerifier>();
 builder.Services.AddSingleton<IQrCodeService, QrCodeService>();

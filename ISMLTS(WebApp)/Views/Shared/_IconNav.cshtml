@@ -1,40 +1,51 @@
+@using Microsoft.Extensions.Options
+@using ISMLTS_WebApp_.Services
+@inject IOptions<ExternalLinksOptions> ExternalLinks
 @{
-    // Shortcuts per role. Pages that exist link straight through; pages planned for Phase 3/4 show "Soon".
-    var items = new List<(string Icon, string Label, string? Controller, string? Action)>();
-    if (User.IsInRole("Student"))
+    // Shortcuts per role. Site pages link straight through; college sites open in a new tab and are left out
+    // while ExternalLinks has no address for them; pages still to come show "Soon".
+    var library = ExternalLinksOptions.Usable(ExternalLinks.Value.IieLibrary);
+    var portal = ExternalLinksOptions.Usable(ExternalLinks.Value.StudentPortal);
+    var items = new List<(string Icon, string Label, string? Controller, string? Action, string? Url)>();
+    if (User.IsInRole(Roles.Student))
     {
-        items.Add(("bi-qr-code-scan", "Scan In", "Attendance", "Scan"));
-        items.Add(("bi-journal-check", "Work To Do", "Assessments", "MyAssessments"));
-        items.Add(("bi-megaphone", "Announcements", "Announcements", "Index"));
-        items.Add(("bi-graph-up", "My Progress", "Insights", "MyProgress"));
-        items.Add(("bi-trophy", "Awards", "Awards", "Index"));
-        items.Add(("bi-folder2-open", "Portfolio", "Portfolio", "Index"));
-        items.Add(("bi-book", "IIE Library", null, null));
+        items.Add(("bi-qr-code-scan", "Scan In", "Attendance", "Scan", null));
+        items.Add(("bi-journal-check", "Work To Do", "Assessments", "MyAssessments", null));
+        items.Add(("bi-megaphone", "Announcements", "Announcements", "Index", null));
+        items.Add(("bi-graph-up", "My Progress", "Insights", "MyProgress", null));
+        items.Add(("bi-trophy", "Awards", "Awards", "Index", null));
+        items.Add(("bi-folder2-open", "Portfolio", "Portfolio", "Index", null));
+        if (library != null) items.Add(("bi-book", "IIE Library", null, null, library));
+        if (portal != null) items.Add(("bi-mortarboard", "Student Portal", null, null, portal));
     }
-    else if (User.IsInRole("Lecturer"))
+    else if (User.IsInRole(Roles.Lecturer))
     {
-        items.Add(("bi-qr-code", "Take Register", "Attendance", "Index"));
-        items.Add(("bi-clipboard-check", "Capture Marks", "Marks", "Index"));
-        items.Add(("bi-megaphone", "Announcements", "Announcements", "Index"));
-        items.Add(("bi-clipboard-data", "Quick Eval", "Grading", "QuickEval"));
-        items.Add(("bi-graph-up", "Class Insights", "Insights", "Class"));
-        items.Add(("bi-book", "IIE Library", null, null));
+        items.Add(("bi-qr-code", "Take Register", "Attendance", "Index", null));
+        items.Add(("bi-clipboard-check", "Capture Marks", "Marks", "Index", null));
+        items.Add(("bi-megaphone", "Announcements", "Announcements", "Index", null));
+        items.Add(("bi-clipboard-data", "Quick Eval", "Grading", "QuickEval", null));
+        items.Add(("bi-graph-up", "Class Insights", "Insights", "Class", null));
+        if (library != null) items.Add(("bi-book", "IIE Library", null, null, library));
     }
-    else if (User.IsInRole("Admin"))
+    else if (User.IsInRole(Roles.Admin))
     {
-        items.Add(("bi-person-plus", "Add Student", "Students", "Create"));
-        items.Add(("bi-journal-plus", "Add Module", "Modules", "Create"));
-        items.Add(("bi-megaphone", "Announcements", "Announcements", "Index"));
-        items.Add(("bi-upload", "Bulk Import", null, null));
-        items.Add(("bi-bar-chart", "Reports", null, null));
+        items.Add(("bi-person-plus", "Add Student", "Students", "Create", null));
+        items.Add(("bi-journal-plus", "Add Module", "Modules", "Create", null));
+        items.Add(("bi-megaphone", "Announcements", "Announcements", "Index", null));
+        items.Add(("bi-upload", "Bulk Import", null, null, null));
+        items.Add(("bi-bar-chart", "Reports", null, null, null));
     }
-    items.Add(("bi-question-circle", "Help", "Help", "Index"));
+    items.Add(("bi-question-circle", "Help", "Help", "Index", null));
 }
 
 <nav class="icon-nav-row" aria-label="Shortcuts">
     @foreach (var item in items)
     {
-        if (item.Controller != null)
+        if (item.Url != null)
+        {
+            <a class="icon-nav-item" href="@item.Url" target="_blank" rel="noopener noreferrer"><i class="bi @item.Icon" aria-hidden="true"></i><span>@item.Label <i class="bi bi-box-arrow-up-right small" aria-hidden="true"></i></span><span class="visually-hidden"> (opens in a new tab)</span></a>
+        }
+        else if (item.Controller != null)
         {
             <a class="icon-nav-item" asp-controller="@item.Controller" asp-action="@item.Action"><i class="bi @item.Icon" aria-hidden="true"></i><span>@item.Label</span></a>
         }

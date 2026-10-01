@@ -134,7 +134,12 @@ if (apiSigningKey.IsGenerated && !isTesting)
     app.Logger.LogWarning("Jwt:SigningKey is not set, so app sign-ins end whenever the site restarts. Set Jwt__SigningKey (32+ characters).");
 }
 
-if (!app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment())
+{
+    // Swagger UI at /swagger, for trying the API and for the Android teammate
+    app.UseStudentApiDocs();
+}
+else
 {
     // The app gets a JSON problem; the website gets the error page
     app.UseWhen(ApiProblems.IsApiRequest, api => api.UseExceptionHandler(error => error.Run(http =>

@@ -199,6 +199,17 @@ namespace ISMLTS.Tests.Integration
             Assert.Equal(HttpStatusCode.NotFound, (await _factory.ClientFor().GetAsync("/swagger/v1/swagger.json")).StatusCode);
         }
 
+        [Fact]
+        public void SwaggerDocument_ListsTheApi_AndNotTheWebsite()
+        {
+            var document = _factory.Services.GetRequiredService<Swashbuckle.AspNetCore.Swagger.ISwaggerProvider>().GetSwagger("v1");
+
+            Assert.Contains("/api/v1/auth/login", document.Paths.Keys);
+            Assert.Contains("/api/v1/assessments/{id}/submission", document.Paths.Keys);
+            Assert.All(document.Paths.Keys, path => Assert.StartsWith("/api/v1/", path));
+            Assert.Contains("Bearer", document.Components!.SecuritySchemes!.Keys);
+        }
+
         // ---------- Refresh and log out ----------
 
         [Fact]

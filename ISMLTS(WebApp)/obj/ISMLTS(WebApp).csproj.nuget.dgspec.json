@@ -50,6 +50,10 @@
         "net9.0": {
           "targetAlias": "net9.0",
           "dependencies": {
+            "Azure.Communication.Email": {
+              "target": "Package",
+              "version": "[1.1.0, )"
+            },
             "BCrypt.Net-Next": {
               "target": "Package",
               "version": "[4.2.0, )"
@@ -71,6 +75,10 @@
             "Microsoft.VisualStudio.Web.CodeGeneration.Design": {
               "target": "Package",
               "version": "[9.0.12, )"
+            },
+            "Otp.NET": {
+              "target": "Package",
+              "version": "[1.4.1, )"
             },
             "QRCoder": {
               "target": "Package",

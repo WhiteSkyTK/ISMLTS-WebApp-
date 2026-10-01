@@ -1,0 +1,37 @@
+﻿{
+    "version":  "0.0.1",
+    "configurations":  [
+                           {
+                               "port":  5269,
+                               "runtimeExecutable":  "dotnet",
+                               "name":  "ismlts-web",
+                               "runtimeArgs":  [
+                                                   "run",
+                                                   "--project",
+                                                   "ISMLTS(WebApp)/ISMLTS(WebApp).csproj",
+                                                   "--launch-profile",
+                                                   "http"
+                                               ]
+                           },
+                           {
+                               "port":  5270,
+                               "runtimeExecutable":  "powershell",
+                               "name":  "ismlts-ui-check",
+                               "runtimeArgs":  [
+                                                   "-NoProfile",
+                                                   "-Command",
+                                                   "$env:ASPNETCORE_ENVIRONMENT=\u0027Development\u0027; $env:ConnectionStrings__ApplicationDbContext=\u0027Server=(localdb)\\mssqllocaldb;Database=ISMLTS_UiCheck;Trusted_Connection=True;MultipleActiveResultSets=true\u0027; $env:Seed__AdminPassword=\u0027Ui-0eoCyOknTsycHkG8\u0027; $env:Seed__LecturerPassword=\u0027Ui-0eoCyOknTsycHkG8\u0027; dotnet run --project \u0027ISMLTS(WebApp)/ISMLTS(WebApp).csproj\u0027 --no-launch-profile --artifacts-path 'C:/Users/Student/AppData/Local/Temp/claude/C--Users-Student-source-repos-ISMLTS-WebApp-/771e1493-dd5d-4f76-bcfc-11b2a0a6b66e/scratchpad/artifacts' --urls http://localhost:5270"
+                                               ]
+                           },
+                           {
+                               "port":  5271,
+                               "runtimeExecutable":  "powershell",
+                               "name":  "ismlts-demo-check",
+                               "runtimeArgs":  [
+                                                   "-NoProfile",
+                                                   "-Command",
+                                                   "$env:ASPNETCORE_ENVIRONMENT='Development'; $env:ConnectionStrings__ApplicationDbContext='Server=(localdb)\\mssqllocaldb;Database=ISMLTS_DemoCheck;Trusted_Connection=True;MultipleActiveResultSets=true'; dotnet run --project 'ISMLTS(WebApp)/ISMLTS(WebApp).csproj' --no-launch-profile --artifacts-path 'C:/Users/Student/AppData/Local/Temp/claude/C--Users-Student-source-repos-ISMLTS-WebApp-/771e1493-dd5d-4f76-bcfc-11b2a0a6b66e/scratchpad/artifacts' --urls http://localhost:5271"
+                                               ]
+                           }
+                       ]
+}

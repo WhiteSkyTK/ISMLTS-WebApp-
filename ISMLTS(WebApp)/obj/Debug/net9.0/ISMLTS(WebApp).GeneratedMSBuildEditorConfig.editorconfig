@@ -32,20 +32,24 @@ build_property.EnableCodeStyleSeverity =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxBY2Nlc3NEZW5pZWQuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Account/Account.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxBY2NvdW50LmNzaHRtbA==
-build_metadata.AdditionalFiles.CssScope = 
-
 [C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Account/Login.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxMb2dpbi5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Admins/Create.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5zXENyZWF0ZS5jc2h0bWw=
+[C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Account/SetUpTwoFactor.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxTZXRVcFR3b0ZhY3Rvci5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Admins/Delete.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5zXERlbGV0ZS5jc2h0bWw=
+[C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Account/TooManyAttempts.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxUb29NYW55QXR0ZW1wdHMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Account/TwoFactor.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxUd29GYWN0b3IuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Admins/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5zXENyZWF0ZS5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Admins/Details.cshtml]
@@ -60,12 +64,20 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5zXEluZGV4LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Assessments/Create.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQXNzZXNzbWVudHNcQ3JlYXRlLmNzaHRtbA==
+[C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Announcements/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQW5ub3VuY2VtZW50c1xDcmVhdGUuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Assessments/Delete.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQXNzZXNzbWVudHNcRGVsZXRlLmNzaHRtbA==
+[C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Announcements/Details.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQW5ub3VuY2VtZW50c1xEZXRhaWxzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Announcements/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQW5ub3VuY2VtZW50c1xJbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Assessments/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQXNzZXNzbWVudHNcQ3JlYXRlLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Assessments/Edit.cshtml]
@@ -90,6 +102,14 @@ build_metadata.AdditionalFiles.CssScope =
 
 [C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Assessments/Submit.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQXNzZXNzbWVudHNcU3VibWl0LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Assessments/_AssessmentFields.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQXNzZXNzbWVudHNcX0Fzc2Vzc21lbnRGaWVsZHMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Assessments/_SubmissionStatus.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQXNzZXNzbWVudHNcX1N1Ym1pc3Npb25TdGF0dXMuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Attendance/Details.cshtml]
@@ -120,12 +140,12 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQXR0ZW5kYW5jZVxfUmVjb3Jkcy5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Courses/Create.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ291cnNlc1xDcmVhdGUuY3NodG1s
+[C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Awards/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQXdhcmRzXEluZGV4LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Courses/Delete.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ291cnNlc1xEZWxldGUuY3NodG1s
+[C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Courses/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ291cnNlc1xDcmVhdGUuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Courses/Details.cshtml]
@@ -136,8 +156,40 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ291cnNlc1xFZGl0LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
+[C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Courses/Enrol.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ291cnNlc1xFbnJvbC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Courses/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ291cnNlc1xJbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Courses/Modules.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ291cnNlc1xNb2R1bGVzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Courses/_CourseFields.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ291cnNlc1xfQ291cnNlRmllbGRzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Grading/Gradebook.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcR3JhZGluZ1xHcmFkZWJvb2suY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Grading/Import.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcR3JhZGluZ1xJbXBvcnQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Grading/ImportPreview.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcR3JhZGluZ1xJbXBvcnRQcmV2aWV3LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Grading/QuickEval.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcR3JhZGluZ1xRdWlja0V2YWwuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Help/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSGVscFxJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Home/Index.cshtml]
@@ -152,12 +204,36 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxQcml2YWN5LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Lecturers/Create.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTGVjdHVyZXJzXENyZWF0ZS5jc2h0bWw=
+[C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Home/Status.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxTdGF0dXMuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Lecturers/Delete.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTGVjdHVyZXJzXERlbGV0ZS5jc2h0bWw=
+[C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Home/_DashboardAnnouncements.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxfRGFzaGJvYXJkQW5ub3VuY2VtZW50cy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Import/Imported.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSW1wb3J0XEltcG9ydGVkLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Import/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSW1wb3J0XEluZGV4LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Import/Preview.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSW1wb3J0XFByZXZpZXcuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Insights/Class.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSW5zaWdodHNcQ2xhc3MuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Insights/MyProgress.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSW5zaWdodHNcTXlQcm9ncmVzcy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Lecturers/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTGVjdHVyZXJzXENyZWF0ZS5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Lecturers/Details.cshtml]
@@ -172,12 +248,12 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTGVjdHVyZXJzXEluZGV4LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Marks/Create.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWFya3NcQ3JlYXRlLmNzaHRtbA==
+[C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Lecturers/_LecturerFields.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTGVjdHVyZXJzXF9MZWN0dXJlckZpZWxkcy5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Marks/Delete.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWFya3NcRGVsZXRlLmNzaHRtbA==
+[C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Marks/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWFya3NcQ3JlYXRlLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Marks/Edit.cshtml]
@@ -196,12 +272,12 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWFya3NcTXlNYXJrcy5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Modules/Create.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTW9kdWxlc1xDcmVhdGUuY3NodG1s
+[C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Marks/_MarkFields.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWFya3NcX01hcmtGaWVsZHMuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Modules/Delete.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTW9kdWxlc1xEZWxldGUuY3NodG1s
+[C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Modules/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTW9kdWxlc1xDcmVhdGUuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Modules/Details.cshtml]
@@ -220,6 +296,34 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTW9kdWxlc1xJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
+[C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Modules/_ModuleFields.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTW9kdWxlc1xfTW9kdWxlRmllbGRzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Notifications/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTm90aWZpY2F0aW9uc1xJbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Notifications/Settings.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTm90aWZpY2F0aW9uc1xTZXR0aW5ncy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Portfolio/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUG9ydGZvbGlvXEluZGV4LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Profile/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUHJvZmlsZVxJbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Profile/TwoFactor.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUHJvZmlsZVxUd29GYWN0b3IuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Reports/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUmVwb3J0c1xJbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Shared/Components/ModuleSwitcher/Default.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXENvbXBvbmVudHNcTW9kdWxlU3dpdGNoZXJcRGVmYXVsdC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
@@ -232,16 +336,76 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXEVycm9yLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
+[C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Shared/RecoveryCodes.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXFJlY292ZXJ5Q29kZXMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Shared/_AnnouncementItem.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9Bbm5vdW5jZW1lbnRJdGVtLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Shared/_ConfirmModal.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9Db25maXJtTW9kYWwuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Shared/_EmptyState.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9FbXB0eVN0YXRlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Shared/_IconNav.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9JY29uTmF2LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Shared/_Layout.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9MYXlvdXQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Shared/_ListSearch.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9MaXN0U2VhcmNoLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Shared/_ModulePicker.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9Nb2R1bGVQaWNrZXIuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Shared/_PageHeader.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9QYWdlSGVhZGVyLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Shared/_Pager.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9QYWdlci5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Shared/_ReleaseButton.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9SZWxlYXNlQnV0dG9uLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Shared/_SortHeader.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9Tb3J0SGVhZGVyLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Shared/_StatusMessage.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9TdGF0dXNNZXNzYWdlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Shared/_TableFilter.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9UYWJsZUZpbHRlci5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Shared/_TwoFactorSetup.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9Ud29GYWN0b3JTZXR1cC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Shared/_UserSecurity.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9Vc2VyU2VjdXJpdHkuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Shared/_ValidationScriptsPartial.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9WYWxpZGF0aW9uU2NyaXB0c1BhcnRpYWwuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Students/Create.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU3R1ZGVudHNcQ3JlYXRlLmNzaHRtbA==
-build_metadata.AdditionalFiles.CssScope = 
-
-[C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Students/Delete.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU3R1ZGVudHNcRGVsZXRlLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Students/Details.cshtml]
@@ -254,6 +418,10 @@ build_metadata.AdditionalFiles.CssScope =
 
 [C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Students/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU3R1ZGVudHNcSW5kZXguY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Students/_StudentFields.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU3R1ZGVudHNcX1N0dWRlbnRGaWVsZHMuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Tickets/Create.cshtml]
@@ -272,6 +440,14 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVGlja2V0c1xSZXNwb25kLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
+[C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Tickets/_TicketStatus.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVGlja2V0c1xfVGlja2V0U3RhdHVzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/UserSecurity/PasswordReset.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVXNlclNlY3VyaXR5XFBhc3N3b3JkUmVzZXQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/_ViewImports.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcX1ZpZXdJbXBvcnRzLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
@@ -279,7 +455,3 @@ build_metadata.AdditionalFiles.CssScope =
 [C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/_ViewStart.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcX1ZpZXdTdGFydC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
-
-[C:/Users/Student/source/repos/ISMLTS(WebApp)/ISMLTS(WebApp)/Views/Shared/_Layout.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9MYXlvdXQuY3NodG1s
-build_metadata.AdditionalFiles.CssScope = b-9ki8mnabn7

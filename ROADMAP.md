@@ -53,14 +53,14 @@ One phase per session: plan briefly, implement, add tests, run `dotnet build` an
 - [x] SonarCloud accessibility and contrast fixes (real buttons for the bell and account menu, no autofocus, no `role="img"`/`"status"`/`"switch"`)
 
 ## Phase 4 — Pages behind every link
-- [ ] Profile for all roles: details + change password (current password required)
-- [ ] Two-factor sign-in with an authenticator app (TOTP via Otp.NET, QR via QRCoder): optional for everyone, required for Admins
-- [ ] My Portfolio (student): all submissions with marks and feedback, grouped by module
-- [ ] Awards (student): badges computed from existing data (95%+ attendance, top mark in an assessment, every submission on time this term)
-- [ ] Help: FAQ per role, ending with "Still stuck? Raise a ticket"
-- [ ] Privacy: POPIA notice covering marks, submissions, and the IP and GPS captured at attendance scans (why, who sees it, how long it's kept)
-- [ ] IIE Library and Student Portal: URLs from an `ExternalLinks` config section, opening in a new tab; hide an icon when its URL is empty
-- [ ] Admin: CSV bulk import of students and lecturers with a preview and per-row errors before saving; reset a user's password; Reports page (users, at-risk by module, attendance by module)
+- [x] Profile for all roles: details + change password (current password required)
+- [x] Two-factor sign-in with an authenticator app (TOTP via Otp.NET, QR via QRCoder): optional for everyone, required for Admins
+- [x] My Portfolio (student): all submissions with marks and feedback, grouped by module
+- [x] Awards (student): badges computed from existing data (95%+ attendance, top mark in an assessment, every submission on time this term)
+- [x] Help: FAQ per role, ending with "Still stuck? Raise a ticket"
+- [x] Privacy: POPIA notice covering marks, submissions, and the IP and GPS captured at attendance scans (why, who sees it, how long it's kept)
+- [x] IIE Library and Student Portal: URLs from an `ExternalLinks` config section, opening in a new tab; hide an icon when its URL is empty
+- [x] Admin: CSV bulk import of students and lecturers with a preview and per-row errors before saving; reset a user's password; Reports page (users, at-risk by module, attendance by module)
 
 ## Phase 5 — API for the Android app
 - [ ] `/api/v1` controllers with JWT bearer auth: login, my modules, marks, assessments, submit, tickets, notifications, attendance scan (same AttendanceVerifier)
@@ -76,6 +76,7 @@ One phase per session: plan briefly, implement, add tests, run `dotnet build` an
 - [ ] `.gitignore` covers `ISMLTS(WebApp)/bin`, `obj` and the test project's output; the tracked build output is removed from git
 - [ ] SonarCloud receives test coverage from CI (coverlet, OpenCover format)
 - [ ] Deployment runbook in README: required settings, first-run seeding, rollback
+- [ ] Optional "Sign in with Microsoft" (OpenID Connect with Microsoft Entra ID, `Microsoft.AspNetCore.Authentication.OpenIdConnect`): the button only shows when `Authentication:Microsoft` is configured; it signs in an existing student or lecturer whose college email matches the verified Microsoft account and never creates accounts; password log-in stays. Check early whether the IIE tenant needs IT to approve (admin consent) the app registration
 
 ## Phase 7 — File submissions
 - [ ] Students can upload a file (PDF, DOCX, ZIP; size limit from config) as well as, or instead of, a link; files go to a private Azure Blob container (Azurite locally), never under wwwroot

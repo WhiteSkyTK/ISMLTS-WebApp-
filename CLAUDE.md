@@ -55,7 +55,8 @@ After Phase 1: course pages to group modules and enrol a class per term (`Course
 Phase 2 done: notifications (bell with unread count, list, settings), announcements, ticket emails and a Monday "due this week" digest via Azure Communication Services. Needs the `Phase2Notifications` migration.
 Phase 3 done: marks link to assessments with feedback and a release switch (students only see released marks), a mark history on every mark (MarkService / MarkChange), gradebook, Quick Eval, CSV import with preview (GradingController), My Progress and Class Insights (InsightsController, `Risk:AttendanceThreshold`, default 75), CSV exports of marks and registers (Csv escapes formulas). Needs the `Phase3Marking` migration.
 After Phase 3: development demo data, the markbook (Marks/ForModule: students × assessments with Release marks / Hide marks cards), sortable and filterable tables everywhere, and SonarCloud accessibility fixes.
-The site is live on Azure App Service (published by hand). Next: see ROADMAP.md, Phases 4–9 (all approved):
+Phase 4 done: Profile (change password), authenticator two-factor sign-in (TwoFactor service, Otp.NET; required for admins via `TwoFactor:RequiredForAdmins`), admin password resets and two-factor switch-off (UserSecurityController), My Portfolio, Awards, Help, the POPIA privacy notice, `ExternalLinks` shortcuts, CSV bulk import of students and lecturers (ImportController), and admin Reports. Needs the `Phase4TwoFactor` migration.
+The site is live on Azure App Service (published by hand). Next: see ROADMAP.md, Phases 5–9 (all approved):
 ## Roadmap
 ROADMAP.md holds the remaining work. One phase per session: plan briefly, implement, add tests, run `dotnet build` and `dotnet test`, then stop with a manual test checklist. Tick finished items there and keep Status here current.
 
@@ -65,6 +66,8 @@ Use `dotnet ef migrations add <Name> --project "ISMLTS(WebApp)"` if the dotnet-e
 ## Security baseline
 - Every controller carries `[Authorize]`. Role attributes on a class and an action combine with AND, so a controller serving two roles puts plain `[Authorize]` on the class and roles on each action.
 - Never trust ids from routes or forms: re-check ownership (lecturer → module, student → own records) in every action.
+- Sign-in, passwords and two-factor go through `IAccountService` (users live in three tables; `UserAccount` wraps whichever one). The session's claims come from `AccountService.Principal`; `AccountSetupFilter` keeps people on their profile while a temporary password must be changed or an admin's session hasn't passed the authenticator step.
+- Never show a password or recovery code twice: temporary passwords and recovery codes appear once, on the page that creates them. Store only BCrypt hashes (passwords) or SHA-256 hashes (recovery codes).
 
 ## UI conventions
 - Pages use the `_PageHeader` and `_EmptyState` partials and `panel` sections; forms sit in `panel form-panel` with a `form-actions` row (primary `btn-rosebank`, Cancel `btn-outline-secondary`).
@@ -83,7 +86,7 @@ Use `dotnet ef migrations add <Name> --project "ISMLTS(WebApp)"` if the dotnet-e
 xUnit project `ISMLTS.Tests` is in the solution and CI runs it on every push. Services get unit tests; security rules get WebApplicationFactory integration tests (environment `Testing`, SQLite in-memory + `EnsureCreated`, DataSeeder skipped).
 
 ## Deployment
-Azure App Service (Windows) + Azure SQL. The connection string, `Seed__AdminPassword` and `Seed__LecturerPassword` live in App Service settings, never in the repo. Email is optional: set `Email__ConnectionString` (Azure Communication Services), `Email__From` (a verified sender address) and `Email__SiteUrl` (the site's https address, used in email links); without them nothing is sent. The weekly digest runs in the app, so the App Service needs Always On. `UseSqlServer` keeps `EnableRetryOnFailure()` because Azure SQL can pause and resume.
+Azure App Service (Windows) + Azure SQL. The connection string, `Seed__AdminPassword` and `Seed__LecturerPassword` live in App Service settings, never in the repo. Email is optional: set `Email__ConnectionString` (Azure Communication Services), `Email__From` (a verified sender address) and `Email__SiteUrl` (the site's https address, used in email links); without them nothing is sent. The weekly digest runs in the app, so the App Service needs Always On. Optional: `ExternalLinks__IieLibrary` and `ExternalLinks__StudentPortal` (https addresses; each shortcut is hidden while empty). `TwoFactor__RequiredForAdmins` defaults to true. `UseSqlServer` keeps `EnableRetryOnFailure()` because Azure SQL can pause and resume.
 xUnit tests for Services, Azure deployment, Web API endpoints for the Android app, file-upload submissions (Azure Blob).
 Known debt: rows saved before Phase 0 stored local time in `Submission.SubmittedAt` and `Ticket.DateOpened`/`DateResolved`, so they now display 2 hours late.
 

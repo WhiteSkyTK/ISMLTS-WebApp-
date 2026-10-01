@@ -1,0 +1,45 @@
+@model List<ISMLTS_WebApp_.Services.Award>
+@using ISMLTS_WebApp_.Services
+@{
+    ViewData["Title"] = "Awards";
+    var subtitle = Model.Count switch
+    {
+        0 => "No badges yet. Here is how to earn them.",
+        1 => "You have earned 1 badge.",
+        _ => $"You have earned {Model.Count} badges."
+    };
+}
+
+<partial name="_PageHeader" model='new PageHeaderModel { Title = "Awards", Subtitle = subtitle }' />
+
+<div class="award-grid">
+    @foreach (var kind in Awards.Kinds)
+    {
+        var earned = Model.Where(a => a.Kind == kind.Key).ToList();
+        <section class="panel award-card @(earned.Any() ? "is-earned" : null)" aria-labelledby="award-@kind.Key">
+            <div class="award-head">
+                <span class="award-icon"><i class="bi @kind.Icon" aria-hidden="true"></i></span>
+                <div>
+                    <h2 id="award-@kind.Key" class="h6 mb-0">@kind.Title</h2>
+                    <span class="small text-muted">@kind.HowToEarn</span>
+                </div>
+            </div>
+            @if (earned.Any())
+            {
+                <ul class="award-list">
+                    @foreach (var award in earned)
+                    {
+                        <li>
+                            <i class="bi bi-patch-check-fill" aria-hidden="true"></i>
+                            <span><span class="fw-medium">@award.Title</span><span class="table-row-sub">@award.Detail</span></span>
+                        </li>
+                    }
+                </ul>
+            }
+            else
+            {
+                <p class="small text-muted mb-0"><i class="bi bi-lock" aria-hidden="true"></i> Not earned yet</p>
+            }
+        </section>
+    }
+</div>

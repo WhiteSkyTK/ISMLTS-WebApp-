@@ -10,7 +10,9 @@ namespace ISMLTS_WebApp_.Repositories
         Task<IEnumerable<Student>> GetByModuleAsync(int moduleId);
         Task<bool> IsEnrolledAsync(int studentId, int moduleId);
         Task<bool> EmailExistsAsync(string email, int exceptStudentId = 0);
-        Task<PagedList<Student>> SearchAsync(string? query, int page);
+        // programme: an exact programme name, or ListFilters.None for students without one
+        Task<PagedList<Student>> SearchAsync(string? query, int page, string? sort = null, string? programme = null);
+        Task<List<string>> GetProgrammesAsync();
         Task<IEnumerable<Student>> GetByIdsAsync(IEnumerable<int> ids);
         Task<List<Student>> GetAllWithModulesAsync();
     }

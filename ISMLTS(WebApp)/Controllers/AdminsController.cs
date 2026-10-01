@@ -20,8 +20,8 @@ namespace ISMLTS_WebApp_.Controllers
             _adminRepository = adminRepository;
         }
 
-        public async Task<IActionResult> Index(string? q, int page = 1) =>
-            View(await _adminRepository.SearchAsync(q, page));
+        public async Task<IActionResult> Index(string? q, int page = 1, string? sort = null) =>
+            View(await _adminRepository.SearchAsync(q, page, sort));
 
         public async Task<IActionResult> Details(int id)
         {

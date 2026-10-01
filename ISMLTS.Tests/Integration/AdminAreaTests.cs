@@ -42,7 +42,7 @@ namespace ISMLTS.Tests.Integration
             Assert.DoesNotContain("Paging Student 08", search);
 
             var noMatch = await Admin.GetStringAsync("/Students?q=nobody-by-this-name");
-            Assert.Contains("No students match that search", noMatch);
+            Assert.Contains("No students match", noMatch);
         }
 
         [Theory]

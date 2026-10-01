@@ -159,6 +159,13 @@
         }
     }
 
+    // ---------- data-auto-submit: filter dropdowns on the paged admin lists apply as soon as they change ----------
+    function setUpAutoSubmit() {
+        for (const control of document.querySelectorAll('[data-auto-submit]')) {
+            control.addEventListener('change', () => control.form?.requestSubmit());
+        }
+    }
+
     // ---------- table[data-sortable]: th[data-sort="text|number"] headers sort the rows on click ----------
     // A cell's data-sort-value wins over its text; empty values always go to the bottom.
     const collator = new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' });
@@ -342,6 +349,7 @@
     setUpConfirmDialog();
     setUpLoadingButtons();
     setUpTableFilters();
+    setUpAutoSubmit();
     setUpSortableTables();
     setUpNotificationBell();
     setUpCheckAll();

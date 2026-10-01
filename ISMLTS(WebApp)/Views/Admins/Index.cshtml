@@ -16,8 +16,8 @@
             <table class="table table-hover align-middle mb-0">
                 <thead>
                     <tr>
-                        <th scope="col">Username</th>
-                        <th scope="col">Role</th>
+                        <partial name="_SortHeader" model='new SortHeaderModel { Label = "Username", Key = "username", Current = Model.Sort }' />
+                        <partial name="_SortHeader" model='new SortHeaderModel { Label = "Role", Key = "role", Current = Model.Sort }' />
                         <th scope="col"><span class="visually-hidden">Actions</span></th>
                     </tr>
                 </thead>

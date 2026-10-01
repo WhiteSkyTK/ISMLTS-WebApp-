@@ -1,9 +1,11 @@
+using System.Globalization;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ISMLTS_WebApp_.Extensions;
 using ISMLTS_WebApp_.Models;
 using ISMLTS_WebApp_.Repositories;
+using ISMLTS_WebApp_.Services;
 
 namespace ISMLTS_WebApp_.Controllers
 {
@@ -29,8 +31,48 @@ namespace ISMLTS_WebApp_.Controllers
             _courseRepository = courseRepository;
         }
 
-        public async Task<IActionResult> Index(string? q, int page = 1) =>
-            View(await _moduleRepository.SearchAsync(q, page));
+        public async Task<IActionResult> Index(string? q, int page = 1, string? sort = null, string? course = null, string? term = null, int? lecturer = null)
+        {
+            var filter = new ModuleListFilter(CourseFilter(course), term is CourseTerms.Term1 or CourseTerms.Term2 ? term : null, lecturer);
+            var courses = (await _courseRepository.GetAllAsync()).OrderBy(c => c.Code);
+            var lecturers = (await _lecturerRepository.GetAllAsync()).OrderBy(l => l.FullName);
+            ViewData["ListFilters"] = new List<ListFilter>
+            {
+                new()
+                {
+                    Name = "course",
+                    Label = "Course",
+                    AllText = "Every course",
+                    Selected = course,
+                    Options = courses.Select(c => (c.CourseId.ToString(CultureInfo.InvariantCulture), c.Code))
+                        .Append((ListFilters.None, "Not in a course")).ToList()
+                },
+                new()
+                {
+                    Name = "term",
+                    Label = "Term",
+                    AllText = "Both terms",
+                    Selected = filter.Term,
+                    Options = new() { (CourseTerms.Term1, "Term 1"), (CourseTerms.Term2, "Term 2") }
+                },
+                new()
+                {
+                    Name = "lecturer",
+                    Label = "Lecturer",
+                    AllText = "Every lecturer",
+                    Selected = lecturer?.ToString(CultureInfo.InvariantCulture),
+                    Options = lecturers.Select(l => (l.LecturerId.ToString(CultureInfo.InvariantCulture), l.FullName)).ToList()
+                }
+            };
+            return View(await _moduleRepository.SearchAsync(q, page, sort, filter));
+        }
+
+        // "none" means modules outside any course (CourseId 0 in the filter); anything that isn't a number is ignored
+        private static int? CourseFilter(string? course)
+        {
+            if (course == ListFilters.None) return 0;
+            return int.TryParse(course, NumberStyles.None, CultureInfo.InvariantCulture, out var id) ? id : null;
+        }
 
         public async Task<IActionResult> Details(int id)
         {

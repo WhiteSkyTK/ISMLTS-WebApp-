@@ -30,8 +30,22 @@ namespace ISMLTS_WebApp_.Controllers
             _studentOptions = studentOptions.Value;
         }
 
-        public async Task<IActionResult> Index(string? q, int page = 1) =>
-            View(await _studentRepository.SearchAsync(q, page));
+        public async Task<IActionResult> Index(string? q, int page = 1, string? sort = null, string? programme = null)
+        {
+            ViewData["ListFilters"] = new List<ListFilter>
+            {
+                new()
+                {
+                    Name = "programme",
+                    Label = "Programme",
+                    AllText = "Every programme",
+                    Selected = programme,
+                    Options = (await _studentRepository.GetProgrammesAsync()).Select(p => (p, p))
+                        .Append((ListFilters.None, "No programme set")).ToList()
+                }
+            };
+            return View(await _studentRepository.SearchAsync(q, page, sort, programme));
+        }
 
         public async Task<IActionResult> Details(int id)
         {

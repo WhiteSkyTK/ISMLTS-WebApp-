@@ -2,6 +2,7 @@
 @{
     ViewData["Title"] = "Students";
     ViewData["SearchLabel"] = "Search by name, email or programme";
+    var searching = !string.IsNullOrEmpty(Model.Query) || (ViewData["ListFilters"] as List<ListFilter>)?.Exists(f => !string.IsNullOrEmpty(f.Selected)) == true;
 }
 
 <partial name="_PageHeader" model='new PageHeaderModel { Title = "Students", Subtitle = "Everyone who can log in as a student.", ActionUrl = Url.Action("Create"), ActionText = "Add student" }' />
@@ -14,9 +15,9 @@
             <table class="table table-hover align-middle mb-0">
                 <thead>
                     <tr>
-                        <th scope="col">Name</th>
-                        <th scope="col">Email</th>
-                        <th scope="col">Programme</th>
+                        <partial name="_SortHeader" model='new SortHeaderModel { Label = "Name", Key = "name", Current = Model.Sort }' />
+                        <partial name="_SortHeader" model='new SortHeaderModel { Label = "Email", Key = "email", Current = Model.Sort }' />
+                        <partial name="_SortHeader" model='new SortHeaderModel { Label = "Programme", Key = "programme", Current = Model.Sort }' />
                         <th scope="col"><span class="visually-hidden">Actions</span></th>
                     </tr>
                 </thead>
@@ -43,9 +44,9 @@
         </div>
         <partial name="_Pager" model="Model" />
     }
-    else if (!string.IsNullOrEmpty(Model.Query))
+    else if (searching)
     {
-        <partial name="_EmptyState" model='new EmptyStateModel { Icon = "bi-search", Title = "No students match that search", Message = "Try part of a name or email address." }' />
+        <partial name="_EmptyState" model='new EmptyStateModel { Icon = "bi-search", Title = "No students match", Message = "Try part of a name or email address, or clear the filter." }' />
     }
     else
     {

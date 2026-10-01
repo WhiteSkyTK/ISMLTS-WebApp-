@@ -1,18 +1,39 @@
 @model IPagedList
 @{
     var label = ViewData["SearchLabel"] as string ?? "Search";
+    var filters = ViewData["ListFilters"] as List<ListFilter> ?? new List<ListFilter>();
+    var filtered = !string.IsNullOrEmpty(Model.Query) || filters.Exists(f => !string.IsNullOrEmpty(f.Selected));
+    // A new search starts at page 1 but keeps the column the list is sorted by
+    var sort = Context.Request.Query["sort"].ToString();
+    var clearRoute = string.IsNullOrEmpty(sort) ? new Dictionary<string, string>() : new Dictionary<string, string> { ["sort"] = sort };
 }
 
-@* Server-side search for the paged admin lists; submits with Enter *@
+@* Server-side search and filters for the paged admin lists; dropdowns submit as soon as they change *@
 <form method="get" class="table-toolbar" role="search">
+    @if (!string.IsNullOrEmpty(sort))
+    {
+        <input type="hidden" name="sort" value="@sort" />
+    }
     <label for="q" class="visually-hidden">@label</label>
     <div class="input-group table-search">
         <span class="input-group-text"><i class="bi bi-search" aria-hidden="true"></i></span>
         <input id="q" name="q" type="search" value="@Model.Query" class="form-control" placeholder="@label" />
         <button type="submit" class="btn btn-outline-rosebank">Search</button>
     </div>
-    @if (!string.IsNullOrEmpty(Model.Query))
+    @foreach (var filter in filters)
     {
-        <a asp-route-q="" class="btn btn-link btn-sm">Clear search</a>
+        var id = $"filter-{filter.Name}";
+        <label for="@id" class="visually-hidden">@filter.Label</label>
+        <select id="@id" name="@filter.Name" class="form-select table-facet" data-auto-submit>
+            <option value="">@filter.AllText</option>
+            @foreach (var (value, text) in filter.Options)
+            {
+                <option value="@value" selected="@(value == filter.Selected)">@text</option>
+            }
+        </select>
+    }
+    @if (filtered)
+    {
+        <a asp-all-route-data="clearRoute" class="btn btn-link btn-sm">Clear</a>
     }
 </form>

@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using ISMLTS_WebApp_.Models;
+using ISMLTS_WebApp_.Services;
 using ISMLTS_WebApp_.Data;
 
 namespace ISMLTS_WebApp_.Repositories
@@ -14,7 +15,7 @@ namespace ISMLTS_WebApp_.Repositories
         public async Task<bool> UsernameExistsAsync(string username, int exceptAdminId = 0) =>
             await _dbSet.AnyAsync(a => a.Username == username && a.AdminId != exceptAdminId);
 
-        public async Task<PagedList<Admin>> SearchAsync(string? query, int page)
+        public async Task<PagedList<Admin>> SearchAsync(string? query, int page, string? sort = null)
         {
             var admins = _dbSet.AsNoTracking();
             if (!string.IsNullOrWhiteSpace(query))
@@ -22,7 +23,11 @@ namespace ISMLTS_WebApp_.Repositories
                 var term = query.Trim();
                 admins = admins.Where(a => a.Username.Contains(term));
             }
-            return await admins.OrderBy(a => a.Username).ToPagedListAsync(page, query);
+            var order = ListSort.Parse(sort, "username", "username", "role");
+            admins = order.Key == "role"
+                ? admins.OrderBy(a => a.Role, order.Descending).ThenBy(a => a.Username)
+                : admins.OrderBy(a => a.Username, order.Descending);
+            return await admins.ToPagedListAsync(page, query, order);
         }
     }
 }

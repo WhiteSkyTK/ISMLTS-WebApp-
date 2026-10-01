@@ -386,8 +386,9 @@ footer {
     max-width: 16rem;
 }
 
-/* Sortable headers: site.js wraps each th[data-sort] in one of these */
-.sort-button {
+/* Sortable headers: site.js wraps each th[data-sort] in a .sort-button; paged admin lists use .sort-link (_SortHeader) */
+.sort-button,
+.sort-link {
     display: inline-flex;
     align-items: center;
     gap: 0.3rem;
@@ -399,14 +400,17 @@ footer {
     letter-spacing: inherit;
     text-transform: inherit;
     text-align: left;
+    text-decoration: none;
     cursor: pointer;
 }
 
-    .sort-button:hover {
+    .sort-button:hover,
+    .sort-link:hover {
         color: var(--rb-navy);
     }
 
-    .sort-button:focus-visible {
+    .sort-button:focus-visible,
+    .sort-link:focus-visible {
         outline: none;
         border-radius: 0.25rem;
         box-shadow: var(--rb-focus);
@@ -417,7 +421,8 @@ footer {
     opacity: 0.6;
 }
 
-th[aria-sort] .sort-button {
+th[aria-sort] .sort-button,
+th[aria-sort] .sort-link {
     color: var(--rb-navy);
 }
 

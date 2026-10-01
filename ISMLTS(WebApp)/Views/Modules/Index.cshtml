@@ -2,6 +2,7 @@
 @{
     ViewData["Title"] = "Modules";
     ViewData["SearchLabel"] = "Search by code, name or lecturer";
+    var searching = !string.IsNullOrEmpty(Model.Query) || (ViewData["ListFilters"] as List<ListFilter>)?.Exists(f => !string.IsNullOrEmpty(f.Selected)) == true;
 }
 
 <partial name="_PageHeader" model='new PageHeaderModel { Title = "Modules", Subtitle = "Each module has one lecturer and the students enrolled in it.", ActionUrl = Url.Action("Create"), ActionText = "Add module" }' />
@@ -14,10 +15,10 @@
             <table class="table table-hover align-middle mb-0">
                 <thead>
                     <tr>
-                        <th scope="col">Code</th>
-                        <th scope="col">Name</th>
-                        <th scope="col">Lecturer</th>
-                        <th scope="col">Term</th>
+                        <partial name="_SortHeader" model='new SortHeaderModel { Label = "Code", Key = "code", Current = Model.Sort }' />
+                        <partial name="_SortHeader" model='new SortHeaderModel { Label = "Name", Key = "name", Current = Model.Sort }' />
+                        <partial name="_SortHeader" model='new SortHeaderModel { Label = "Lecturer", Key = "lecturer", Current = Model.Sort }' />
+                        <partial name="_SortHeader" model='new SortHeaderModel { Label = "Term", Key = "term", Current = Model.Sort }' />
                         <th scope="col"><span class="visually-hidden">Actions</span></th>
                     </tr>
                 </thead>
@@ -52,9 +53,9 @@
         </div>
         <partial name="_Pager" model="Model" />
     }
-    else if (!string.IsNullOrEmpty(Model.Query))
+    else if (searching)
     {
-        <partial name="_EmptyState" model='new EmptyStateModel { Icon = "bi-search", Title = "No modules match that search", Message = "Try a module code such as XADAD7112, or a lecturer name." }' />
+        <partial name="_EmptyState" model='new EmptyStateModel { Icon = "bi-search", Title = "No modules match", Message = "Try a module code such as XADAD7112 or a lecturer name, or clear the filters." }' />
     }
     else
     {

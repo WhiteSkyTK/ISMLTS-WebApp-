@@ -1,0 +1,23 @@
+@model RecoveryCodesViewModel
+@{
+    ViewData["Title"] = "Recovery codes";
+}
+
+<partial name="_PageHeader" model='new PageHeaderModel { Title = "Save your recovery codes", Subtitle = "Two-factor sign-in is on" }' />
+
+<div class="panel form-panel">
+    <div class="alert alert-warning small">
+        <i class="bi bi-exclamation-triangle" aria-hidden="true"></i>
+        This is the only time these codes are shown. If you lose your phone, each one logs you in once instead of an app code.
+        Print them, or keep them in a password manager.
+    </div>
+    <ul class="recovery-codes" aria-label="Recovery codes">
+        @foreach (var code in Model.Codes)
+        {
+            <li><code>@code</code></li>
+        }
+    </ul>
+    <div class="form-actions">
+        <a href="@Model.ContinueUrl" class="btn btn-rosebank"><i class="bi bi-check-lg" aria-hidden="true"></i> I've saved them · @Model.ContinueText</a>
+    </div>
+</div>

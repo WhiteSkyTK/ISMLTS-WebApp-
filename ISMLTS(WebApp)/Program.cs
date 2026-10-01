@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Threading.RateLimiting;
 using ISMLTS_WebApp_.Controllers;
 using ISMLTS_WebApp_.Data;
+using ISMLTS_WebApp_.Filters;
 using ISMLTS_WebApp_.Repositories;
 using ISMLTS_WebApp_.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -25,9 +26,18 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
     {
         options.LoginPath = "/Account/Login";
         options.AccessDeniedPath = "/Account/AccessDenied";
+    })
+    // Holds who passed the password step while they enter their authenticator code; never grants access on its own
+    .AddCookie(AccountController.TwoFactorScheme, options =>
+    {
+        options.Cookie.Name = ".ISMLTS.TwoFactor";
+        options.Cookie.HttpOnly = true;
+        options.ExpireTimeSpan = TimeSpan.FromMinutes(5);
+        options.SlidingExpiration = false;
+        options.LoginPath = "/Account/Login";
     });
 
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews(options => options.Filters.Add<RequireAdminTwoFactorFilter>());
 
 // Slows password guessing on the login form. Campus Wi-Fi may put a whole class behind one IP,
 // so the limit is a setting that can be raised in App Service without a redeploy.
@@ -71,6 +81,8 @@ builder.Services.AddScoped<IMarkChangeRepository, MarkChangeRepository>();
 builder.Services.Configure<AttendanceOptions>(builder.Configuration.GetSection("Attendance"));
 builder.Services.Configure<RiskOptions>(builder.Configuration.GetSection("Risk"));
 builder.Services.Configure<StudentOptions>(builder.Configuration.GetSection("Students"));
+builder.Services.Configure<TwoFactorOptions>(builder.Configuration.GetSection("TwoFactor"));
+builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddSingleton<IAttendanceVerifier, AttendanceVerifier>();
 builder.Services.AddSingleton<IQrCodeService, QrCodeService>();
 builder.Services.AddScoped<ICourseService, CourseService>();

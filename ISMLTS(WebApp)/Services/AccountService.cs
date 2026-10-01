@@ -1,9 +1,14 @@
+using System.Globalization;
+using System.Security.Claims;
+using Microsoft.Extensions.Options;
 using ISMLTS_WebApp_.Models;
 using ISMLTS_WebApp_.Repositories;
 
 namespace ISMLTS_WebApp_.Services
 {
     public record PasswordChangeError(string Field, string Message);
+
+    public enum TwoFactorCheck { Wrong, AppCode, RecoveryCode }
 
     public interface IAccountService
     {
@@ -13,19 +18,36 @@ namespace ISMLTS_WebApp_.Services
         Task SaveAsync(UserAccount account);
         Task<PasswordChangeError?> ChangePasswordAsync(UserAccount account, string currentPassword, string newPassword);
         Task ResetPasswordAsync(UserAccount account, string newPassword);
+
+        // Admins must have an authenticator app (unless TwoFactor:RequiredForAdmins is false)
+        bool MustSetUpTwoFactor(UserAccount account);
+        bool CanTurnOffTwoFactor(UserAccount account);
+        Task<string> StartTwoFactorSetupAsync(UserAccount account);
+        Task<List<string>?> EnableTwoFactorAsync(UserAccount account, string? code);
+        Task<TwoFactorCheck> CheckTwoFactorAsync(UserAccount account, string? code);
+        Task<List<string>> NewRecoveryCodesAsync(UserAccount account);
+        Task TurnOffTwoFactorAsync(UserAccount account);
     }
 
     public class AccountService : IAccountService
     {
+        // On the session cookie of anyone who passed the authenticator step
+        public const string TwoFactorClaim = "ismlts_2fa";
+
         private readonly IAdminRepository _admins;
         private readonly ILecturerRepository _lecturers;
         private readonly IStudentRepository _students;
+        private readonly TwoFactorOptions _twoFactor;
+        private readonly TimeProvider _clock;
 
-        public AccountService(IAdminRepository admins, ILecturerRepository lecturers, IStudentRepository students)
+        public AccountService(IAdminRepository admins, ILecturerRepository lecturers, IStudentRepository students,
+            IOptions<TwoFactorOptions> twoFactor, TimeProvider clock)
         {
             _admins = admins;
             _lecturers = lecturers;
             _students = students;
+            _twoFactor = twoFactor.Value;
+            _clock = clock;
         }
 
         public async Task<UserAccount?> SignInAsync(string login, string password)
@@ -88,6 +110,92 @@ namespace ISMLTS_WebApp_.Services
         {
             account.Entity.PasswordHash = BCrypt.Net.BCrypt.HashPassword(newPassword);
             await SaveAsync(account);
+        }
+
+        public bool MustSetUpTwoFactor(UserAccount account) =>
+            account.Role == Roles.Admin && _twoFactor.RequiredForAdmins && !account.Entity.TwoFactorEnabled;
+
+        public bool CanTurnOffTwoFactor(UserAccount account) =>
+            !(account.Role == Roles.Admin && _twoFactor.RequiredForAdmins);
+
+        // Keeps the same secret until it's switched on, so refreshing the page doesn't break a QR code already scanned
+        public async Task<string> StartTwoFactorSetupAsync(UserAccount account)
+        {
+            if (account.Entity.TwoFactorSecret == null)
+            {
+                account.Entity.TwoFactorSecret = TwoFactor.NewSecret();
+                account.Entity.TwoFactorEnabled = false;
+                await SaveAsync(account);
+            }
+            return account.Entity.TwoFactorSecret;
+        }
+
+        // Switches two-factor on once the app shows the right code. Returns the new recovery codes, or null if the code is wrong.
+        public async Task<List<string>?> EnableTwoFactorAsync(UserAccount account, string? code)
+        {
+            var entity = account.Entity;
+            if (entity.TwoFactorEnabled || entity.TwoFactorSecret == null) return null;
+            var step = TwoFactor.Verify(entity.TwoFactorSecret, code, entity.TwoFactorLastStep, _clock.GetUtcNow().UtcDateTime);
+            if (step == null) return null;
+
+            var recoveryCodes = TwoFactor.NewRecoveryCodes();
+            entity.TwoFactorEnabled = true;
+            entity.TwoFactorLastStep = step.Value;
+            entity.TwoFactorRecoveryCodes = TwoFactor.HashRecoveryCodes(recoveryCodes);
+            await SaveAsync(account);
+            return recoveryCodes;
+        }
+
+        // A code from the app, or one of the recovery codes (each works once)
+        public async Task<TwoFactorCheck> CheckTwoFactorAsync(UserAccount account, string? code)
+        {
+            var entity = account.Entity;
+            if (!entity.TwoFactorEnabled || entity.TwoFactorSecret == null) return TwoFactorCheck.Wrong;
+
+            if (TwoFactor.LooksLikeAppCode(code))
+            {
+                var step = TwoFactor.Verify(entity.TwoFactorSecret, code, entity.TwoFactorLastStep, _clock.GetUtcNow().UtcDateTime);
+                if (step == null) return TwoFactorCheck.Wrong;
+                entity.TwoFactorLastStep = step.Value;
+                await SaveAsync(account);
+                return TwoFactorCheck.AppCode;
+            }
+
+            var remaining = TwoFactor.UseRecoveryCode(entity.TwoFactorRecoveryCodes, code);
+            if (remaining == null) return TwoFactorCheck.Wrong;
+            entity.TwoFactorRecoveryCodes = remaining;
+            await SaveAsync(account);
+            return TwoFactorCheck.RecoveryCode;
+        }
+
+        public async Task<List<string>> NewRecoveryCodesAsync(UserAccount account)
+        {
+            var codes = TwoFactor.NewRecoveryCodes();
+            account.Entity.TwoFactorRecoveryCodes = TwoFactor.HashRecoveryCodes(codes);
+            await SaveAsync(account);
+            return codes;
+        }
+
+        // Also used by admins for someone who lost their phone
+        public async Task TurnOffTwoFactorAsync(UserAccount account)
+        {
+            account.Entity.TwoFactorEnabled = false;
+            account.Entity.TwoFactorSecret = null;
+            account.Entity.TwoFactorRecoveryCodes = null;
+            await SaveAsync(account);
+        }
+
+        // The session cookie's claims; the two-factor claim says this sign-in passed the authenticator step
+        public static ClaimsPrincipal Principal(UserAccount account, string scheme, bool passedTwoFactor)
+        {
+            var claims = new List<Claim>
+            {
+                new(ClaimTypes.NameIdentifier, account.Id.ToString(CultureInfo.InvariantCulture)),
+                new(ClaimTypes.Name, account.DisplayName),
+                new(ClaimTypes.Role, account.Role)
+            };
+            if (passedTwoFactor) claims.Add(new Claim(TwoFactorClaim, "true"));
+            return new ClaimsPrincipal(new ClaimsIdentity(claims, scheme));
         }
 
         // Accounts saved before hashing was added hold text BCrypt can't parse: treat as a failed login

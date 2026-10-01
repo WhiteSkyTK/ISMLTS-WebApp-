@@ -1,0 +1,31 @@
+@model TwoFactorSetupViewModel
+
+@* The three setup steps, used while an admin logs in and from the profile page *@
+<ol class="setup-steps">
+    <li>
+        <strong>Install an authenticator app</strong> on your phone, such as Microsoft Authenticator or Google Authenticator.
+    </li>
+    <li>
+        <strong>Scan this QR code</strong> with the app, or type the key in by hand.
+        <div class="totp-qr-wrap">
+            <img class="totp-qr" src="@Model.QrDataUri" alt="QR code that adds ISMLTS (@Model.Login) to an authenticator app" width="200" height="200" />
+            <div>
+                <span class="small text-muted d-block">Key</span>
+                <code class="totp-secret">@Model.Secret</code>
+                <span class="small text-muted d-block mt-2">Account: ISMLTS (@Model.Login) · time-based · 6 digits</span>
+            </div>
+        </div>
+    </li>
+    <li>
+        <strong>Type the 6-digit code</strong> the app shows for ISMLTS.
+        <form asp-controller="@Model.FormController" asp-action="@Model.FormAction" asp-route-returnUrl="@Model.ReturnUrl" method="post" class="totp-form">
+            @if (Model.Error != null)
+            {
+                <div class="alert alert-danger small" role="alert">@Model.Error</div>
+            }
+            <label for="code" class="form-label">Code from the app</label>
+            <input id="code" name="code" class="form-control totp-input" inputmode="numeric" autocomplete="one-time-code" maxlength="7" required />
+            <button type="submit" class="btn btn-rosebank mt-3" data-loading="Checking…"><i class="bi bi-shield-check" aria-hidden="true"></i> Switch on two-factor sign-in</button>
+        </form>
+    </li>
+</ol>

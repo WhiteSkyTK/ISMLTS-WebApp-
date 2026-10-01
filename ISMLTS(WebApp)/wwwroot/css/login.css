@@ -127,6 +127,24 @@
     margin-bottom: 1.5rem;
 }
 
+/* Two-factor steps: one column, no brand panel */
+.auth-card-single {
+    max-width: 32rem;
+}
+
+.auth-card-wide {
+    max-width: 44rem;
+}
+
+.auth-step-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--rb-navy);
+    font-weight: 600;
+    margin-bottom: 1.25rem;
+}
+
 .auth-footnote {
     font-size: 0.85rem;
     color: var(--rb-muted);
@@ -138,6 +156,10 @@
 @media (min-width: 768px) {
     .auth-card {
         grid-template-columns: 5fr 6fr;
+    }
+
+    .auth-card.auth-card-single {
+        grid-template-columns: 1fr;
     }
 
     .auth-brand {

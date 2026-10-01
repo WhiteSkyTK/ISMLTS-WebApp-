@@ -12,6 +12,10 @@ namespace ISMLTS_WebApp_.Models
         // Modules a student takes or a lecturer teaches, as "CODE - Name"
         public List<string> Modules { get; set; } = new();
 
+        public bool TwoFactorEnabled { get; set; }
+        public bool CanTurnOffTwoFactor { get; set; }
+        public int RecoveryCodesLeft { get; set; }
+
         public ChangePasswordForm Password { get; set; } = new();
     }
 
@@ -32,5 +36,25 @@ namespace ISMLTS_WebApp_.Models
         [Compare(nameof(NewPassword), ErrorMessage = "The two new passwords don't match.")]
         [Display(Name = "Confirm new password")]
         public string ConfirmPassword { get; set; } = string.Empty;
+    }
+
+    // The "scan this QR code" step, used while logging in (admins) and from the profile page (everyone)
+    public class TwoFactorSetupViewModel
+    {
+        public string QrDataUri { get; set; } = string.Empty;
+        public string Secret { get; set; } = string.Empty;
+        public string Login { get; set; } = string.Empty;
+        public string FormController { get; set; } = string.Empty;
+        public string FormAction { get; set; } = string.Empty;
+        public string? ReturnUrl { get; set; }
+        public string? Error { get; set; }
+    }
+
+    // Shown once, straight after the codes are made
+    public class RecoveryCodesViewModel
+    {
+        public List<string> Codes { get; set; } = new();
+        public string ContinueUrl { get; set; } = "/";
+        public string ContinueText { get; set; } = "Continue";
     }
 }

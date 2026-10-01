@@ -1,0 +1,35 @@
+@{
+    ViewData["Title"] = "Two-factor sign-in";
+    var returnUrl = ViewData["ReturnUrl"] as string;
+}
+@section Styles {
+    <link rel="stylesheet" href="~/css/login.css" asp-append-version="true" />
+}
+
+<div class="auth-shell">
+    <div class="auth-card auth-card-single">
+        <div class="auth-form">
+            <p class="auth-step-brand"><i class="bi bi-shield-lock-fill" aria-hidden="true"></i> ISMLTS · step 2 of 2</p>
+            <h1>Enter your code</h1>
+            <p class="text-muted mb-4">Open your authenticator app and type the 6-digit code it shows for ISMLTS.</p>
+
+            <form asp-action="TwoFactor" asp-route-returnUrl="@returnUrl" method="post">
+                <div asp-validation-summary="All" class="alert alert-danger py-2 small" role="alert"></div>
+                <div class="mb-3">
+                    <label for="code" class="form-label">Code</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-123" aria-hidden="true"></i></span>
+                        <input id="code" name="code" class="form-control totp-input" autocomplete="one-time-code" maxlength="20" required aria-describedby="codeHelp" />
+                    </div>
+                    <div id="codeHelp" class="form-text">Lost your phone? Type one of your recovery codes instead (it looks like ABCD-EFGH).</div>
+                </div>
+                <button type="submit" class="btn btn-rosebank btn-lg w-100 mt-2" data-loading="Checking…"><i class="bi bi-shield-check" aria-hidden="true"></i> Verify</button>
+            </form>
+
+            <p class="auth-footnote">
+                <i class="bi bi-question-circle" aria-hidden="true"></i> No phone and no recovery codes? The admin office can switch two-factor sign-in off for you.
+                <a asp-action="Login">Back to log in</a>
+            </p>
+        </div>
+    </div>
+</div>

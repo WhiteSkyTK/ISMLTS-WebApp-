@@ -999,3 +999,79 @@ th[aria-sort] .sort-link {
         box-shadow: 0 0 0 5px rgba(220, 53, 69, 0);
     }
 }
+
+/* ===== Two-factor sign-in ===== */
+.setup-steps {
+    padding-left: 1.25rem;
+}
+
+    .setup-steps > li {
+        margin-bottom: 1.25rem;
+    }
+
+.totp-qr-wrap {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 0.75rem;
+}
+
+.totp-qr {
+    width: 12rem;
+    height: 12rem;
+    border: 1px solid var(--rb-border);
+    border-radius: var(--rb-radius);
+    image-rendering: pixelated;
+}
+
+.totp-secret {
+    font-size: 1rem;
+    letter-spacing: 0.05em;
+    user-select: all;
+    word-break: break-all;
+}
+
+.totp-form {
+    max-width: 20rem;
+    margin-top: 0.75rem;
+}
+
+.totp-input {
+    font-size: 1.25rem;
+    letter-spacing: 0.2em;
+    font-variant-numeric: tabular-nums;
+}
+
+.recovery-codes {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.5rem;
+    max-width: 24rem;
+    padding: 0;
+    list-style: none;
+}
+
+    .recovery-codes li {
+        padding: 0.5rem 0.75rem;
+        border: 1px solid var(--rb-border);
+        border-radius: 0.4rem;
+        text-align: center;
+    }
+
+    .recovery-codes code {
+        font-size: 1rem;
+        color: var(--rb-navy);
+        letter-spacing: 0.05em;
+    }
+
+.two-factor-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 0.5rem;
+}
+
+    .two-factor-actions .form-control {
+        min-width: 14rem;
+    }

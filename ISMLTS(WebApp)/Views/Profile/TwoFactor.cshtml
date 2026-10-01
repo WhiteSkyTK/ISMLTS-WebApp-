@@ -1,0 +1,15 @@
+@model TwoFactorSetupViewModel
+@{
+    ViewData["Title"] = "Set up two-factor sign-in";
+    var required = ViewData["Required"] is true;
+}
+
+<partial name="_PageHeader" model='new PageHeaderModel { Title = "Set up two-factor sign-in", Subtitle = "A code from your phone after your password", BackUrl = Url.Action("Index"), BackText = "Profile" }' />
+
+<div class="panel form-panel">
+    @if (required)
+    {
+        <div class="alert alert-warning small"><i class="bi bi-exclamation-triangle" aria-hidden="true"></i> Admins have to set this up before they can use the rest of the site.</div>
+    }
+    <partial name="_TwoFactorSetup" model="Model" />
+</div>

@@ -1,0 +1,18 @@
+@model TwoFactorSetupViewModel
+@{
+    ViewData["Title"] = "Set up two-factor sign-in";
+}
+@section Styles {
+    <link rel="stylesheet" href="~/css/login.css" asp-append-version="true" />
+}
+
+<div class="auth-shell">
+    <div class="auth-card auth-card-single auth-card-wide">
+        <div class="auth-form">
+            <p class="auth-step-brand"><i class="bi bi-shield-lock-fill" aria-hidden="true"></i> ISMLTS · one more step</p>
+            <h1>Set up two-factor sign-in</h1>
+            <p class="text-muted mb-4">Admins log in with a password and a code from their phone, so a stolen password isn't enough. This takes about a minute.</p>
+            <partial name="_TwoFactorSetup" model="Model" />
+        </div>
+    </div>
+</div>

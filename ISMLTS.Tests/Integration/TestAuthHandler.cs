@@ -14,6 +14,9 @@ namespace ISMLTS.Tests.Integration
         public const string RoleHeader = "X-Test-Role";
         public const string UserIdHeader = "X-Test-UserId";
 
+        // Test users count as having passed the authenticator step unless this header is sent
+        public const string NoTwoFactorHeader = "X-Test-NoTwoFactor";
+
         public TestAuthHandler(IOptionsMonitor<AuthenticationSchemeOptions> options, ILoggerFactory logger, UrlEncoder encoder)
             : base(options, logger, encoder) { }
 
@@ -24,12 +27,16 @@ namespace ISMLTS.Tests.Integration
                 return Task.FromResult(AuthenticateResult.NoResult());
             }
 
-            var claims = new[]
+            var claims = new List<Claim>
             {
-                new Claim(ClaimTypes.NameIdentifier, userId.ToString()),
-                new Claim(ClaimTypes.Name, $"Test {role}"),
-                new Claim(ClaimTypes.Role, role.ToString())
+                new(ClaimTypes.NameIdentifier, userId.ToString()),
+                new(ClaimTypes.Name, $"Test {role}"),
+                new(ClaimTypes.Role, role.ToString())
             };
+            if (!Request.Headers.ContainsKey(NoTwoFactorHeader))
+            {
+                claims.Add(new Claim(ISMLTS_WebApp_.Services.AccountService.TwoFactorClaim, "true"));
+            }
             var principal = new ClaimsPrincipal(new ClaimsIdentity(claims, SchemeName));
             return Task.FromResult(AuthenticateResult.Success(new AuthenticationTicket(principal, SchemeName)));
         }

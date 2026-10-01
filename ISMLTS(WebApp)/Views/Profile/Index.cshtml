@@ -72,3 +72,37 @@
         </section>
     </div>
 </div>
+
+<section class="panel mt-4" aria-labelledby="twoFactorTitle">
+    <h2 id="twoFactorTitle" class="h5">Two-factor sign-in</h2>
+    @if (Model.TwoFactorEnabled)
+    {
+        <p>
+            <span class="badge text-bg-success">On</span>
+            After your password you enter a code from your authenticator app. You have @Model.RecoveryCodesLeft unused recovery @(Model.RecoveryCodesLeft == 1 ? "code" : "codes").
+        </p>
+        <form method="post" class="two-factor-actions">
+            <div>
+                <label for="twoFactorPassword" class="form-label">Your password, to confirm</label>
+                <input id="twoFactorPassword" name="currentPassword" type="password" class="form-control" autocomplete="current-password" required />
+            </div>
+            <button type="submit" asp-action="NewRecoveryCodes" class="btn btn-outline-rosebank" data-loading="Making codes…"><i class="bi bi-arrow-repeat" aria-hidden="true"></i> New recovery codes</button>
+            @if (Model.CanTurnOffTwoFactor)
+            {
+                <button type="submit" asp-action="TurnOffTwoFactor" class="btn btn-outline-danger" data-confirm="Turn off two-factor sign-in? Your password alone will be enough to log in." data-confirm-label="Turn off"><i class="bi bi-shield-x" aria-hidden="true"></i> Turn off</button>
+            }
+        </form>
+        @if (!Model.CanTurnOffTwoFactor)
+        {
+            <p class="small text-muted mt-2 mb-0">Admins have to keep two-factor sign-in on.</p>
+        }
+    }
+    else
+    {
+        <p>
+            <span class="badge text-bg-secondary">Off</span>
+            Add a code from your phone on top of your password, so a stolen password isn't enough to get in.
+        </p>
+        <a asp-action="TwoFactor" class="btn btn-rosebank"><i class="bi bi-shield-lock" aria-hidden="true"></i> Set up two-factor sign-in</a>
+    }
+</section>

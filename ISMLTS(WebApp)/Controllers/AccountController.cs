@@ -1,10 +1,10 @@
-using System.Globalization;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using ISMLTS_WebApp_.Extensions;
 using ISMLTS_WebApp_.Models;
 using ISMLTS_WebApp_.Services;
 
@@ -15,11 +15,16 @@ namespace ISMLTS_WebApp_.Controllers
     {
         public const string LoginRateLimitPolicy = "login";
 
-        private readonly IAccountService _accountService;
+        // A short-lived cookie for someone who passed the password step and still owes an authenticator code
+        public const string TwoFactorScheme = "TwoFactorPending";
 
-        public AccountController(IAccountService accountService)
+        private readonly IAccountService _accountService;
+        private readonly IQrCodeService _qrCodeService;
+
+        public AccountController(IAccountService accountService, IQrCodeService qrCodeService)
         {
             _accountService = accountService;
+            _qrCodeService = qrCodeService;
         }
 
         [AllowAnonymous]
@@ -46,8 +51,89 @@ namespace ISMLTS_WebApp_.Controllers
                 return View(model);
             }
 
-            await SignInAsync(account);
+            if (account.Entity.TwoFactorEnabled)
+            {
+                await StartPendingSignInAsync(account);
+                return RedirectToAction(nameof(TwoFactor), new { returnUrl });
+            }
+            if (_accountService.MustSetUpTwoFactor(account))
+            {
+                await StartPendingSignInAsync(account);
+                return RedirectToAction(nameof(SetUpTwoFactor), new { returnUrl });
+            }
+
+            await SignInAsync(account, passedTwoFactor: false);
             return RedirectAfterSignIn(returnUrl);
+        }
+
+        // Second step for accounts with an authenticator app
+        [AllowAnonymous]
+        [HttpGet]
+        public async Task<IActionResult> TwoFactor(string? returnUrl = null)
+        {
+            if (await PendingAccountAsync() == null) return RedirectToAction(nameof(Login), new { returnUrl });
+            ViewData["ReturnUrl"] = returnUrl;
+            return View();
+        }
+
+        [AllowAnonymous]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [EnableRateLimiting(LoginRateLimitPolicy)]
+        public async Task<IActionResult> TwoFactor(string? code, string? returnUrl = null)
+        {
+            var account = await PendingAccountAsync();
+            if (account == null) return RedirectToAction(nameof(Login), new { returnUrl });
+            ViewData["ReturnUrl"] = returnUrl;
+
+            var check = await _accountService.CheckTwoFactorAsync(account, code);
+            if (check == TwoFactorCheck.Wrong)
+            {
+                ModelState.AddModelError(string.Empty, "That code didn't work. Use the newest code from your app, or one of your recovery codes.");
+                return View();
+            }
+
+            await HttpContext.SignOutAsync(TwoFactorScheme);
+            await SignInAsync(account, passedTwoFactor: true);
+            if (check == TwoFactorCheck.RecoveryCode)
+            {
+                var left = Services.TwoFactor.RecoveryCodesLeft(account.Entity.TwoFactorRecoveryCodes);
+                this.Toast($"You used a recovery code ({left} left). Make new ones on your profile if you're running low.", ToastTypes.Info);
+            }
+            return RedirectAfterSignIn(returnUrl);
+        }
+
+        // Admins without an authenticator app set one up before they get in
+        [AllowAnonymous]
+        [HttpGet]
+        public async Task<IActionResult> SetUpTwoFactor(string? returnUrl = null)
+        {
+            var account = await PendingAccountAsync();
+            if (account == null) return RedirectToAction(nameof(Login), new { returnUrl });
+            if (account.Entity.TwoFactorEnabled) return RedirectToAction(nameof(TwoFactor), new { returnUrl });
+
+            return View(await SetupModelAsync(account, returnUrl, error: null));
+        }
+
+        [AllowAnonymous]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [EnableRateLimiting(LoginRateLimitPolicy)]
+        public async Task<IActionResult> SetUpTwoFactor(string? code, string? returnUrl = null)
+        {
+            var account = await PendingAccountAsync();
+            if (account == null) return RedirectToAction(nameof(Login), new { returnUrl });
+            if (account.Entity.TwoFactorEnabled) return RedirectToAction(nameof(TwoFactor), new { returnUrl });
+
+            var recoveryCodes = await _accountService.EnableTwoFactorAsync(account, code);
+            if (recoveryCodes == null)
+            {
+                return View(await SetupModelAsync(account, returnUrl, "That code didn't match. Check the time on your phone is set automatically, then try the newest code."));
+            }
+
+            await HttpContext.SignOutAsync(TwoFactorScheme);
+            await SignInAsync(account, passedTwoFactor: true);
+            return View("RecoveryCodes", new RecoveryCodesViewModel { Codes = recoveryCodes, ContinueUrl = SafeReturnUrl(returnUrl) });
         }
 
         [HttpPost]
@@ -65,22 +151,39 @@ namespace ISMLTS_WebApp_.Controllers
             return View();
         }
 
-        private Task SignInAsync(UserAccount account)
+        private async Task<TwoFactorSetupViewModel> SetupModelAsync(UserAccount account, string? returnUrl, string? error)
         {
-            var claims = new List<Claim>
+            var secret = await _accountService.StartTwoFactorSetupAsync(account);
+            return new TwoFactorSetupViewModel
             {
-                new(ClaimTypes.NameIdentifier, account.Id.ToString(CultureInfo.InvariantCulture)),
-                new(ClaimTypes.Name, account.DisplayName),
-                new(ClaimTypes.Role, account.Role)
+                QrDataUri = _qrCodeService.ToPngDataUri(Services.TwoFactor.OtpAuthUri(secret, account.Login)),
+                Secret = Services.TwoFactor.Grouped(secret),
+                Login = account.Login,
+                FormController = "Account",
+                FormAction = nameof(SetUpTwoFactor),
+                ReturnUrl = returnUrl,
+                Error = error
             };
-            var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-            return HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(identity));
         }
 
+        private Task StartPendingSignInAsync(UserAccount account) =>
+            HttpContext.SignInAsync(TwoFactorScheme, AccountService.Principal(account, TwoFactorScheme, passedTwoFactor: false));
+
+        private async Task<UserAccount?> PendingAccountAsync()
+        {
+            var pending = await HttpContext.AuthenticateAsync(TwoFactorScheme);
+            if (!pending.Succeeded || pending.Principal.GetUserId() is not int id) return null;
+            return await _accountService.FindAsync(pending.Principal.FindFirstValue(ClaimTypes.Role) ?? string.Empty, id);
+        }
+
+        private Task SignInAsync(UserAccount account, bool passedTwoFactor) =>
+            HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme,
+                AccountService.Principal(account, CookieAuthenticationDefaults.AuthenticationScheme, passedTwoFactor));
+
         // Only follow return URLs on this site (blocks open-redirect attacks)
-        private IActionResult RedirectAfterSignIn(string? returnUrl) =>
-            !string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl)
-                ? LocalRedirect(returnUrl)
-                : RedirectToAction("Index", "Home");
+        private string SafeReturnUrl(string? returnUrl) =>
+            !string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl) ? returnUrl : Url.Action("Index", "Home") ?? "/";
+
+        private IActionResult RedirectAfterSignIn(string? returnUrl) => LocalRedirect(SafeReturnUrl(returnUrl));
     }
 }

@@ -47,6 +47,8 @@ namespace ISMLTS_WebApp_.Models
 
     public class MyAttendanceRow
     {
+        public int ModuleId { get; set; }
+        public string ModuleCode { get; set; } = string.Empty;
         public string ModuleDisplay { get; set; } = string.Empty;
         public int Attended { get; set; }
         public int Total { get; set; }

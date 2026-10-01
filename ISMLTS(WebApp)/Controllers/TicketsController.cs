@@ -16,12 +16,14 @@ namespace ISMLTS_WebApp_.Controllers
         private readonly ITicketRepository _ticketRepository;
         private readonly IStudentRepository _studentRepository;
         private readonly INotificationService _notifications;
+        private readonly IStudentPortalService _portal;
 
-        public TicketsController(ITicketRepository ticketRepository, IStudentRepository studentRepository, INotificationService notifications)
+        public TicketsController(ITicketRepository ticketRepository, IStudentRepository studentRepository, INotificationService notifications, IStudentPortalService portal)
         {
             _ticketRepository = ticketRepository;
             _studentRepository = studentRepository;
             _notifications = notifications;
+            _portal = portal;
         }
 
         [Authorize(Roles = "Lecturer")]
@@ -93,29 +95,22 @@ namespace ISMLTS_WebApp_.Controllers
         {
             if (User.GetUserId() is not int studentId) return Forbid();
 
-            if (!await _studentRepository.IsEnrolledAsync(studentId, ticket.ModuleId))
-                ModelState.AddModelError(nameof(Ticket.ModuleId), "Pick one of your modules.");
-
-            if (!ModelState.IsValid)
+            if (ModelState.IsValid)
             {
-                var student = await _studentRepository.GetByIdWithModulesAsync(studentId);
-                ViewBag.Modules = student?.Modules
-                    .Select(m => new { m.ModuleId, Display = $"{m.Code} - {m.Name}" })
-                    .Cast<object>().ToList() ?? new List<object>();
-                return View(ticket);
+                var result = await _portal.RaiseTicketAsync(studentId, ticket.ModuleId, ticket.Subject, ticket.Description);
+                if (result.Ticket != null)
+                {
+                    this.Toast("Your ticket was sent to your lecturer.");
+                    return RedirectToAction(nameof(MyTickets));
+                }
+                ModelState.AddModelError(result.Field ?? string.Empty, result.Error ?? "Your ticket could not be sent.");
             }
 
-            ticket.StudentId = studentId;
-            await _ticketRepository.AddAsync(ticket);
-            await _ticketRepository.SaveChangesAsync();
-
-            var saved = await _ticketRepository.GetByIdWithDetailsAsync(ticket.TicketId);
-            if (saved?.Module != null)
-            {
-                await _notifications.TicketRaisedAsync(saved, saved.Module, saved.Student?.FullName ?? "A student");
-            }
-            this.Toast("Your ticket was sent to your lecturer.");
-            return RedirectToAction(nameof(MyTickets));
+            var student = await _studentRepository.GetByIdWithModulesAsync(studentId);
+            ViewBag.Modules = student?.Modules
+                .Select(m => new { m.ModuleId, Display = $"{m.Code} - {m.Name}" })
+                .Cast<object>().ToList() ?? new List<object>();
+            return View(ticket);
         }
 
         // A ticket on another lecturer's module looks exactly like one that doesn't exist

@@ -13,24 +13,24 @@ namespace ISMLTS_WebApp_.Controllers
         private readonly IAssessmentRepository _assessmentRepository;
         private readonly ISubmissionRepository _submissionRepository;
         private readonly IModuleRepository _moduleRepository;
-        private readonly IStudentRepository _studentRepository;
         private readonly INotificationService _notifications;
         private readonly IMarkRepository _markRepository;
         private readonly IMarkService _markService;
+        private readonly IStudentPortalService _portal;
 
         public AssessmentsController(
             IAssessmentRepository assessmentRepository,
             ISubmissionRepository submissionRepository,
             IModuleRepository moduleRepository,
-            IStudentRepository studentRepository,
             INotificationService notifications,
             IMarkRepository markRepository,
-            IMarkService markService)
+            IMarkService markService,
+            IStudentPortalService portal)
         {
+            _portal = portal;
             _assessmentRepository = assessmentRepository;
             _submissionRepository = submissionRepository;
             _moduleRepository = moduleRepository;
-            _studentRepository = studentRepository;
             _notifications = notifications;
             _markRepository = markRepository;
             _markService = markService;
@@ -191,38 +191,7 @@ namespace ISMLTS_WebApp_.Controllers
         public async Task<IActionResult> MyAssessments()
         {
             if (User.GetUserId() is not int studentId) return Forbid();
-
-            var student = await _studentRepository.GetByIdWithModulesAsync(studentId);
-            if (student == null) return NotFound();
-
-            var mySubmissions = (await _submissionRepository.GetByStudentAsync(studentId)).ToDictionary(s => s.AssessmentId);
-            var myMarks = (await _markRepository.GetByStudentAsync(studentId))
-                .Where(m => m.AssessmentId != null && m.IsVisibleToStudent)
-                .ToDictionary(m => m.AssessmentId!.Value);
-
-            var rows = new List<MyAssessmentRow>();
-            foreach (var module in student.Modules)
-            {
-                foreach (var a in await _assessmentRepository.GetByModuleAsync(module.ModuleId))
-                {
-                    mySubmissions.TryGetValue(a.AssessmentId, out var sub);
-                    myMarks.TryGetValue(a.AssessmentId, out var mark);
-                    rows.Add(new MyAssessmentRow
-                    {
-                        AssessmentId = a.AssessmentId,
-                        Name = a.Name,
-                        ModuleCode = module.Code,
-                        Type = a.Type,
-                        DueDate = a.DueDate,
-                        Status = sub?.Status ?? "Not Submitted",
-                        Link = sub?.Link,
-                        Mark = mark,
-                        MarksReleased = a.MarksReleased
-                    });
-                }
-            }
-
-            return View(rows.OrderBy(r => r.DueDate).ToList());
+            return View(await _portal.AssessmentsAsync(studentId));
         }
 
         [Authorize(Roles = "Student")]
@@ -231,7 +200,7 @@ namespace ISMLTS_WebApp_.Controllers
         {
             if (User.GetUserId() is not int studentId) return Forbid();
 
-            var assessment = await GetEnrolledAssessmentAsync(id, studentId);
+            var assessment = await _portal.EnrolledAssessmentAsync(studentId, id);
             if (assessment == null) return NotFound();
 
             var existing = await _submissionRepository.GetByAssessmentAndStudentAsync(id, studentId);
@@ -248,32 +217,18 @@ namespace ISMLTS_WebApp_.Controllers
         {
             if (User.GetUserId() is not int studentId) return Forbid();
 
-            var assessment = await GetEnrolledAssessmentAsync(id, studentId);
-            if (assessment == null) return NotFound();
+            var result = await _portal.SubmitAsync(studentId, id, link);
+            if (result.Outcome == SubmitOutcome.NotFound || result.Assessment == null) return NotFound();
+            var assessment = result.Assessment;
 
-            link = link?.Trim();
-            if (!LinkValidator.IsWebLink(link))
+            if (result.Outcome == SubmitOutcome.BadLink)
             {
-                ModelState.AddModelError(nameof(Submission.Link), "Paste the full link to your work, starting with https://");
+                ModelState.AddModelError(nameof(Submission.Link), StudentPortalService.BadLinkMessage);
                 ViewBag.AssessmentDisplay = $"{assessment.Name} ({assessment.Module?.Code})";
                 ViewBag.DueDate = assessment.DueDate;
-                return View(new Submission { AssessmentId = id, StudentId = studentId, Link = link });
+                return View(new Submission { AssessmentId = id, StudentId = studentId, Link = link?.Trim() });
             }
 
-            var existing = await _submissionRepository.GetByAssessmentAndStudentAsync(id, studentId);
-            if (existing == null)
-            {
-                existing = new Submission { AssessmentId = id, StudentId = studentId, Link = link, SubmittedAt = DateTime.UtcNow };
-                await _submissionRepository.AddAsync(existing);
-            }
-            else
-            {
-                existing.Link = link;
-                existing.SubmittedAt = DateTime.UtcNow;
-                _submissionRepository.Update(existing);
-            }
-
-            await _submissionRepository.SaveChangesAsync();
             this.Toast($"Your work for {assessment.Name} was submitted.");
             return RedirectToAction(nameof(MyAssessments));
         }
@@ -289,12 +244,6 @@ namespace ISMLTS_WebApp_.Controllers
         {
             var assessment = await _assessmentRepository.GetByIdWithModuleAsync(id);
             return assessment?.Module != null && assessment.Module.LecturerId == User.GetUserId() ? assessment : null;
-        }
-
-        private async Task<Assessment?> GetEnrolledAssessmentAsync(int id, int studentId)
-        {
-            var assessment = await _assessmentRepository.GetByIdWithModuleAsync(id);
-            return assessment != null && await _studentRepository.IsEnrolledAsync(studentId, assessment.ModuleId) ? assessment : null;
         }
     }
 }

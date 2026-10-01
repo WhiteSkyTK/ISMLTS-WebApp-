@@ -12,24 +12,24 @@ namespace ISMLTS_WebApp_.Controllers
     [Authorize]
     public class InsightsController : Controller
     {
-        private readonly IStudentRepository _studentRepository;
         private readonly IMarkRepository _markRepository;
         private readonly IAttendanceRepository _attendanceRepository;
         private readonly IAssessmentRepository _assessmentRepository;
         private readonly ISubmissionRepository _submissionRepository;
         private readonly IModuleRepository _moduleRepository;
+        private readonly IStudentPortalService _portal;
         private readonly RiskOptions _risk;
 
         public InsightsController(
-            IStudentRepository studentRepository,
             IMarkRepository markRepository,
             IAttendanceRepository attendanceRepository,
             IAssessmentRepository assessmentRepository,
             ISubmissionRepository submissionRepository,
             IModuleRepository moduleRepository,
+            IStudentPortalService portal,
             IOptions<RiskOptions> risk)
         {
-            _studentRepository = studentRepository;
+            _portal = portal;
             _markRepository = markRepository;
             _attendanceRepository = attendanceRepository;
             _assessmentRepository = assessmentRepository;
@@ -79,39 +79,8 @@ namespace ISMLTS_WebApp_.Controllers
         {
             if (User.GetUserId() is not int studentId) return Forbid();
 
-            var student = await _studentRepository.GetByIdWithModulesAsync(studentId);
-            if (student == null) return NotFound();
-
-            var moduleIds = student.Modules.Select(m => m.ModuleId).ToList();
-            var marks = (await _markRepository.GetByStudentAsync(studentId)).Where(m => m.IsVisibleToStudent).ToList();
-            var attendedByModule = (await _attendanceRepository.GetRecordsByStudentAsync(studentId))
-                .Where(r => r.Session != null)
-                .GroupBy(r => r.Session!.ModuleId)
-                .ToDictionary(g => g.Key, g => g.Select(r => r.SessionId).Distinct().Count());
-            var sessionsByModule = await _attendanceRepository.CountSessionsByModuleAsync(moduleIds);
-            var assessments = await _assessmentRepository.GetByModulesAsync(moduleIds);
-            var submitted = (await _submissionRepository.GetByStudentAsync(studentId))
-                .Where(s => s.SubmittedAt != null)
-                .Select(s => s.AssessmentId)
-                .ToHashSet();
-
-            var modules = student.Modules.OrderBy(m => m.Term).ThenBy(m => m.Code).Select(m => Progress.ForModule(
-                new StudentModuleData(
-                    m,
-                    marks.Where(x => x.ModuleId == m.ModuleId).ToList(),
-                    sessionsByModule.GetValueOrDefault(m.ModuleId),
-                    attendedByModule.GetValueOrDefault(m.ModuleId),
-                    assessments.Where(a => a.ModuleId == m.ModuleId).ToList(),
-                    submitted),
-                DateTime.Today,
-                _risk.AttendanceThreshold)).ToList();
-
-            return View(new MyProgressViewModel
-            {
-                Modules = modules,
-                Summary = Progress.Summarise(modules),
-                AttendanceThreshold = _risk.AttendanceThreshold
-            });
+            var progress = await _portal.ProgressAsync(studentId);
+            return progress == null ? NotFound() : View(progress);
         }
     }
 }

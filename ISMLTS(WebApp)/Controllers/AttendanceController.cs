@@ -19,7 +19,7 @@ namespace ISMLTS_WebApp_.Controllers
         private readonly IAttendanceRepository _attendanceRepository;
         private readonly IModuleRepository _moduleRepository;
         private readonly IStudentRepository _studentRepository;
-        private readonly IAttendanceVerifier _verifier;
+        private readonly IStudentPortalService _portal;
         private readonly IQrCodeService _qrCodeService;
         private readonly AttendanceOptions _options;
         private readonly INotificationService _notifications;
@@ -28,7 +28,7 @@ namespace ISMLTS_WebApp_.Controllers
             IAttendanceRepository attendanceRepository,
             IModuleRepository moduleRepository,
             IStudentRepository studentRepository,
-            IAttendanceVerifier verifier,
+            IStudentPortalService portal,
             IQrCodeService qrCodeService,
             IOptions<AttendanceOptions> options,
             INotificationService notifications)
@@ -36,7 +36,7 @@ namespace ISMLTS_WebApp_.Controllers
             _attendanceRepository = attendanceRepository;
             _moduleRepository = moduleRepository;
             _studentRepository = studentRepository;
-            _verifier = verifier;
+            _portal = portal;
             _qrCodeService = qrCodeService;
             _options = options.Value;
             _notifications = notifications;
@@ -206,89 +206,27 @@ namespace ISMLTS_WebApp_.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Scan(string? code, double? latitude, double? longitude, double? accuracy)
         {
-            var normalised = code?.Trim().ToUpperInvariant() ?? string.Empty;
-            var studentId = User.GetUserId();
-            var session = await _attendanceRepository.GetByCodeAsync(normalised);
-            if (session == null || studentId == null)
+            if (User.GetUserId() is not int studentId) return Forbid();
+
+            var result = await _portal.ScanAsync(studentId, code, HttpContext.Connection.RemoteIpAddress, latitude, longitude, accuracy);
+            if (!result.Present)
             {
-                return ScanFailed(normalised, "That code doesn't match an attendance session. Check it and try again.");
+                TempData[ScanErrorKey] = result.Message;
+                return RedirectToAction(nameof(Scan), new { code = code?.Trim().ToUpperInvariant() ?? string.Empty });
             }
 
-            var problem = await FindScanProblemAsync(session, studentId.Value);
-            if (problem != null)
-            {
-                return ScanFailed(normalised, problem);
-            }
-
-            var ip = HttpContext.Connection.RemoteIpAddress;
-            var check = _verifier.Verify(session, ip, latitude, longitude);
-            if (!check.Passed)
-            {
-                return ScanFailed(normalised, "We couldn't confirm you're in class. Connect to the campus Wi-Fi or allow location access, then try again.");
-            }
-
-            await _attendanceRepository.AddRecordAsync(new AttendanceRecord
-            {
-                SessionId = session.SessionId,
-                StudentId = studentId.Value,
-                ScannedAt = DateTime.UtcNow,
-                IpAddress = ip?.ToString(),
-                IpOnCampus = check.IpOnCampus,
-                Latitude = latitude,
-                Longitude = longitude,
-                AccuracyMeters = accuracy,
-                DistanceMeters = check.DistanceMeters,
-                LocationVerified = check.LocationVerified
-            });
-            await _attendanceRepository.SaveChangesAsync();
-
-            this.Toast($"You're marked present for {session.Module?.Code}.");
+            this.Toast(result.Message);
             return RedirectToAction(nameof(MyAttendance));
         }
 
         [Authorize(Roles = "Student")]
         public async Task<IActionResult> MyAttendance()
         {
-            var studentId = User.GetUserId();
-            if (studentId == null) return Forbid();
-
-            var student = await _studentRepository.GetByIdWithModulesAsync(studentId.Value);
-            var attendedByModule = (await _attendanceRepository.GetRecordsByStudentAsync(studentId.Value))
-                .GroupBy(r => r.Session?.ModuleId ?? 0)
-                .ToDictionary(g => g.Key, g => g.Count());
-
-            var rows = new List<MyAttendanceRow>();
-            foreach (var module in student?.Modules ?? new List<Module>())
-            {
-                rows.Add(new MyAttendanceRow
-                {
-                    ModuleDisplay = $"{module.Code} - {module.Name}",
-                    Attended = attendedByModule.GetValueOrDefault(module.ModuleId),
-                    Total = await _attendanceRepository.CountByModuleAsync(module.ModuleId)
-                });
-            }
-            return View(rows);
+            if (User.GetUserId() is not int studentId) return Forbid();
+            return View(await _portal.AttendanceAsync(studentId));
         }
 
         // ---------- Helpers ----------
-
-        private RedirectToActionResult ScanFailed(string code, string message)
-        {
-            TempData[ScanErrorKey] = message;
-            return RedirectToAction(nameof(Scan), new { code });
-        }
-
-        private async Task<string?> FindScanProblemAsync(AttendanceSession session, int studentId)
-        {
-            if (!session.IsOpen) return "This attendance session has closed.";
-
-            var enrolled = await _studentRepository.GetByModuleAsync(session.ModuleId);
-            if (enrolled.All(s => s.StudentId != studentId)) return "You're not enrolled in this module.";
-
-            return await _attendanceRepository.HasScannedAsync(session.SessionId, studentId)
-                ? "You're already marked present for this session."
-                : null;
-        }
 
         private async Task<Module?> GetOwnedModuleAsync(int moduleId)
         {

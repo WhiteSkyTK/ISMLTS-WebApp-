@@ -20,6 +20,7 @@ namespace ISMLTS_WebApp_.Models
 
         [MaxLength(600)]
         public string? TwoFactorRecoveryCodes { get; set; }
+        public bool MustChangePassword { get; set; }
 
         [Required, MaxLength(50)]
         public string Role { get; set; } = "Admin";

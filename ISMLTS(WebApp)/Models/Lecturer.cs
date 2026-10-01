@@ -24,6 +24,7 @@ namespace ISMLTS_WebApp_.Models
 
         [MaxLength(600)]
         public string? TwoFactorRecoveryCodes { get; set; }
+        public bool MustChangePassword { get; set; }
 
         // Navigation
         public ICollection<Module> Modules { get; set; } = new List<Module>();

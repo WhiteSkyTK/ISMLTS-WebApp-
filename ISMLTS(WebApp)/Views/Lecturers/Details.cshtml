@@ -23,3 +23,5 @@
         </dd>
     </dl>
 </div>
+
+<partial name="_UserSecurity" model="new UserSecurityModel { Role = Roles.Lecturer, Id = Model.LecturerId, Name = Model.FullName, TwoFactorEnabled = Model.TwoFactorEnabled, MustChangePassword = Model.MustChangePassword }" />

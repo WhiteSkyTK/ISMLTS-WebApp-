@@ -12,6 +12,7 @@ namespace ISMLTS_WebApp_.Models
         // Modules a student takes or a lecturer teaches, as "CODE - Name"
         public List<string> Modules { get; set; } = new();
 
+        public bool MustChangePassword { get; set; }
         public bool TwoFactorEnabled { get; set; }
         public bool CanTurnOffTwoFactor { get; set; }
         public int RecoveryCodesLeft { get; set; }
@@ -56,5 +57,24 @@ namespace ISMLTS_WebApp_.Models
         public List<string> Codes { get; set; } = new();
         public string ContinueUrl { get; set; } = "/";
         public string ContinueText { get; set; } = "Continue";
+    }
+
+    // Shown to the admin once, straight after a reset
+    public class PasswordResetViewModel
+    {
+        public string Name { get; set; } = string.Empty;
+        public string Login { get; set; } = string.Empty;
+        public string TemporaryPassword { get; set; } = string.Empty;
+        public string BackUrl { get; set; } = "/";
+    }
+
+    // The "Sign-in and security" panel on a user's Details page (admins only)
+    public class UserSecurityModel
+    {
+        public string Role { get; set; } = string.Empty;
+        public int Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public bool TwoFactorEnabled { get; set; }
+        public bool MustChangePassword { get; set; }
     }
 }

@@ -1075,3 +1075,9 @@ th[aria-sort] .sort-link {
     .two-factor-actions .form-control {
         min-width: 14rem;
     }
+
+.temp-password {
+    font-size: 1.25rem;
+    letter-spacing: 0.05em;
+    user-select: all;
+}

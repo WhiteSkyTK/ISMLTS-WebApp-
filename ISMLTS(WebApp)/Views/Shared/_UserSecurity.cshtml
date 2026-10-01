@@ -1,0 +1,34 @@
+@model UserSecurityModel
+
+@* Admins only: shown on the Students, Lecturers and Admins details pages *@
+<section class="panel form-panel mt-4" aria-labelledby="securityTitle">
+    <h2 id="securityTitle" class="h5">Sign-in and security</h2>
+    <dl class="row detail-list">
+        <dt class="col-sm-4">Two-factor sign-in</dt>
+        <dd class="col-sm-8">
+            @if (Model.TwoFactorEnabled)
+            {
+                <span class="badge text-bg-success">On</span>
+            }
+            else
+            {
+                <span class="badge text-bg-secondary">Off</span>
+            }
+        </dd>
+        <dt class="col-sm-4">Password</dt>
+        <dd class="col-sm-8">@(Model.MustChangePassword ? "Temporary, must be changed at next log-in" : "Set by them")</dd>
+    </dl>
+    <div class="form-actions mt-0">
+        <form asp-controller="UserSecurity" asp-action="ResetPassword" asp-route-role="@Model.Role" asp-route-id="@Model.Id" method="post"
+              data-confirm="Reset the password for @Model.Name? Their current password stops working straight away and you'll get a temporary one to give them." data-confirm-label="Reset password">
+            <button type="submit" class="btn btn-outline-danger"><i class="bi bi-key" aria-hidden="true"></i> Reset password</button>
+        </form>
+        @if (Model.TwoFactorEnabled)
+        {
+            <form asp-controller="UserSecurity" asp-action="TurnOffTwoFactor" asp-route-role="@Model.Role" asp-route-id="@Model.Id" method="post"
+                  data-confirm="Turn off two-factor sign-in for @Model.Name? Only do this if you are sure it is them, for example after a lost phone." data-confirm-label="Turn off">
+                <button type="submit" class="btn btn-outline-danger"><i class="bi bi-shield-x" aria-hidden="true"></i> Turn off two-factor</button>
+            </form>
+        }
+    </div>
+</section>

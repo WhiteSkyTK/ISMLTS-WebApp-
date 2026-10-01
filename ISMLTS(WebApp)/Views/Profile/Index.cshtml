@@ -7,6 +7,11 @@
 
 <partial name="_PageHeader" model='new PageHeaderModel { Title = "Your profile", Subtitle = Model.Role }' />
 
+@if (Model.MustChangePassword)
+{
+    <div class="alert alert-warning" role="alert"><i class="bi bi-key" aria-hidden="true"></i> An admin reset your password. Choose a new one below before you carry on: use the temporary password as your current password.</div>
+}
+
 <div class="row g-4">
     <div class="col-lg-6">
         <section class="panel h-100" aria-labelledby="detailsTitle">

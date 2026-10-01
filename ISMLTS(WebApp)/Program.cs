@@ -37,7 +37,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.LoginPath = "/Account/Login";
     });
 
-builder.Services.AddControllersWithViews(options => options.Filters.Add<RequireAdminTwoFactorFilter>());
+builder.Services.AddControllersWithViews(options => options.Filters.Add<AccountSetupFilter>());
 
 // Slows password guessing on the login form. Campus Wi-Fi may put a whole class behind one IP,
 // so the limit is a setting that can be raised in App Service without a redeploy.

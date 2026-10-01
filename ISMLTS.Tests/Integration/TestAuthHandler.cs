@@ -17,6 +17,9 @@ namespace ISMLTS.Tests.Integration
         // Test users count as having passed the authenticator step unless this header is sent
         public const string NoTwoFactorHeader = "X-Test-NoTwoFactor";
 
+        // Simulates a session that still has to replace a temporary password
+        public const string MustChangePasswordHeader = "X-Test-MustChangePassword";
+
         public TestAuthHandler(IOptionsMonitor<AuthenticationSchemeOptions> options, ILoggerFactory logger, UrlEncoder encoder)
             : base(options, logger, encoder) { }
 
@@ -36,6 +39,10 @@ namespace ISMLTS.Tests.Integration
             if (!Request.Headers.ContainsKey(NoTwoFactorHeader))
             {
                 claims.Add(new Claim(ISMLTS_WebApp_.Services.AccountService.TwoFactorClaim, "true"));
+            }
+            if (Request.Headers.ContainsKey(MustChangePasswordHeader))
+            {
+                claims.Add(new Claim(ISMLTS_WebApp_.Services.AccountService.ChangePasswordClaim, "true"));
             }
             var principal = new ClaimsPrincipal(new ClaimsIdentity(claims, SchemeName));
             return Task.FromResult(AuthenticateResult.Success(new AuthenticationTicket(principal, SchemeName)));

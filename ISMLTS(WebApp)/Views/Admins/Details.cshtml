@@ -13,3 +13,5 @@
         <dd class="col-sm-8 mb-0">@Model.Role</dd>
     </dl>
 </div>
+
+<partial name="_UserSecurity" model="new UserSecurityModel { Role = Roles.Admin, Id = Model.AdminId, Name = Model.Username, TwoFactorEnabled = Model.TwoFactorEnabled, MustChangePassword = Model.MustChangePassword }" />

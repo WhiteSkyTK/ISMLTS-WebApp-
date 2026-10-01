@@ -46,6 +46,9 @@ namespace ISMLTS_WebApp_.Controllers
                 var error = await _accountService.ChangePasswordAsync(account, password.CurrentPassword, password.NewPassword);
                 if (error == null)
                 {
+                    // A fresh session cookie drops the "temporary password" reminder and keeps the two-factor step it passed
+                    await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme,
+                        AccountService.Principal(account, CookieAuthenticationDefaults.AuthenticationScheme, User.HasClaim(AccountService.TwoFactorClaim, "true")));
                     this.Toast("Your password has been changed.");
                     return RedirectToAction(nameof(Index));
                 }
@@ -163,6 +166,7 @@ namespace ISMLTS_WebApp_.Controllers
                 Role = account.Role,
                 DisplayName = account.DisplayName,
                 Login = account.Login,
+                MustChangePassword = account.Entity.MustChangePassword,
                 TwoFactorEnabled = account.Entity.TwoFactorEnabled,
                 CanTurnOffTwoFactor = _accountService.CanTurnOffTwoFactor(account),
                 RecoveryCodesLeft = Services.TwoFactor.RecoveryCodesLeft(account.Entity.TwoFactorRecoveryCodes)

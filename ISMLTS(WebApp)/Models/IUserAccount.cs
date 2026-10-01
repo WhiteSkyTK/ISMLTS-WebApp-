@@ -12,6 +12,9 @@ namespace ISMLTS_WebApp_.Models
         bool TwoFactorEnabled { get; set; }
         long TwoFactorLastStep { get; set; }
         string? TwoFactorRecoveryCodes { get; set; }
+
+        // Set when an admin resets the password; the user has to choose a new one before doing anything else
+        bool MustChangePassword { get; set; }
     }
 
     // One signed-in user, whichever table they live in. Login is the admin username or the lecturer/student email.

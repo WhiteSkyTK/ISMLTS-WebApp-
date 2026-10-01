@@ -19,6 +19,9 @@ namespace ISMLTS_WebApp_.Services
         Task<PasswordChangeError?> ChangePasswordAsync(UserAccount account, string currentPassword, string newPassword);
         Task ResetPasswordAsync(UserAccount account, string newPassword);
 
+        // An admin reset: a temporary password the user must change at their next sign-in
+        Task<string> ResetToTemporaryPasswordAsync(UserAccount account);
+
         // Admins must have an authenticator app (unless TwoFactor:RequiredForAdmins is false)
         bool MustSetUpTwoFactor(UserAccount account);
         bool CanTurnOffTwoFactor(UserAccount account);
@@ -33,6 +36,9 @@ namespace ISMLTS_WebApp_.Services
     {
         // On the session cookie of anyone who passed the authenticator step
         public const string TwoFactorClaim = "ismlts_2fa";
+
+        // On the session cookie while the user still has to replace a temporary password
+        public const string ChangePasswordClaim = "ismlts_change_password";
 
         private readonly IAdminRepository _admins;
         private readonly ILecturerRepository _lecturers;
@@ -109,7 +115,17 @@ namespace ISMLTS_WebApp_.Services
         public async Task ResetPasswordAsync(UserAccount account, string newPassword)
         {
             account.Entity.PasswordHash = BCrypt.Net.BCrypt.HashPassword(newPassword);
+            account.Entity.MustChangePassword = false;
             await SaveAsync(account);
+        }
+
+        public async Task<string> ResetToTemporaryPasswordAsync(UserAccount account)
+        {
+            var temporary = PasswordRules.NewTemporaryPassword();
+            account.Entity.PasswordHash = BCrypt.Net.BCrypt.HashPassword(temporary);
+            account.Entity.MustChangePassword = true;
+            await SaveAsync(account);
+            return temporary;
         }
 
         public bool MustSetUpTwoFactor(UserAccount account) =>
@@ -195,6 +211,7 @@ namespace ISMLTS_WebApp_.Services
                 new(ClaimTypes.Role, account.Role)
             };
             if (passedTwoFactor) claims.Add(new Claim(TwoFactorClaim, "true"));
+            if (account.Entity.MustChangePassword) claims.Add(new Claim(ChangePasswordClaim, "true"));
             return new ClaimsPrincipal(new ClaimsIdentity(claims, scheme));
         }
 

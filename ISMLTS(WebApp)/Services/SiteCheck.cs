@@ -187,7 +187,7 @@ namespace ISMLTS_WebApp_.Services
                 ExternalLinksOptions.Usable(_links.IieLibrary) != null,
                 ExternalLinksOptions.Usable(_links.StudentPortal) != null,
                 _configuration.GetValue<bool>("Seed:DemoData"),
-                !string.IsNullOrWhiteSpace(_configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"] ?? _configuration["ApplicationInsights:ConnectionString"]),
+                !string.IsNullOrWhiteSpace(_configuration[Program.MonitoringConnectionSetting]),
                 TimeZoneInfo.Local.GetUtcOffset(DateTime.UtcNow),
                 TimeZoneInfo.Local.DisplayName));
         }

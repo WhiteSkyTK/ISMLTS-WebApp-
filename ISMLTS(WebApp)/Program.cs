@@ -8,6 +8,8 @@ using ISMLTS_WebApp_.Repositories;
 using ISMLTS_WebApp_.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.HttpOverrides;
+using Azure.Monitor.OpenTelemetry.AspNetCore;
+using OpenTelemetry.Logs;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.EntityFrameworkCore;
@@ -58,6 +60,14 @@ if (useForwardedHeaders)
         options.KnownProxies.Clear();
         options.ForwardLimit = 1;
     });
+}
+
+// Application Insights (errors, slow requests, warnings), only when App Service has the connection string.
+// Log lines below Warning stay on the server; recorded URLs have their query-string values blanked by OpenTelemetry.
+if (!string.IsNullOrWhiteSpace(builder.Configuration[MonitoringConnectionSetting]))
+{
+    builder.Services.AddOpenTelemetry().UseAzureMonitor();
+    builder.Logging.AddFilter<OpenTelemetryLoggerProvider>(null, LogLevel.Warning);
 }
 
 // GET /health: "Healthy" (200) when the database answers, "Unhealthy" (503) when it doesn't; App Service's health check uses it
@@ -206,4 +216,5 @@ await app.RunAsync();
 public partial class Program
 {
     public const string HealthPath = "/health";
+    public const string MonitoringConnectionSetting = "APPLICATIONINSIGHTS_CONNECTION_STRING";
 }

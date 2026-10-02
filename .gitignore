@@ -10,6 +10,9 @@ publish/
 *.user
 *.suo
 *.pubxml.user
+# Visual Studio publish profiles hold this PC's Azure details (CI deploys with OpenID Connect instead)
+**/Properties/PublishProfiles/
+**/Properties/ServiceDependencies/
 
 # Local Claude Code preview settings
 .claude/launch.json

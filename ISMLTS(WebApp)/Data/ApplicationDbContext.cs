@@ -25,6 +25,10 @@ namespace ISMLTS_WebApp_.Data
         public DbSet<MarkChange> MarkChanges => Set<MarkChange>();
         public DbSet<ApiRefreshToken> ApiRefreshTokens => Set<ApiRefreshToken>();
         public DbSet<SubmissionFile> SubmissionFiles => Set<SubmissionFile>();
+        public DbSet<Term> Terms => Set<Term>();
+        public DbSet<TimetableSlot> TimetableSlots => Set<TimetableSlot>();
+        public DbSet<CollegeDate> CollegeDates => Set<CollegeDate>();
+        public DbSet<CalendarNote> CalendarNotes => Set<CalendarNote>();
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             // Explicit precision for every decimal (the default is 18,2, which suits marks)
@@ -124,6 +128,15 @@ namespace ISMLTS_WebApp_.Data
 
             modelBuilder.Entity<SubmissionFile>()
                 .HasIndex(f => f.StoredName).IsUnique();
+
+            modelBuilder.Entity<TimetableSlot>()
+                .HasOne(s => s.Module).WithMany().HasForeignKey(s => s.ModuleId).OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<CalendarNote>().HasIndex(n => new { n.Role, n.UserId, n.Date });
+
+            // The calendar feed finds its student by the hash of the link's secret
+            modelBuilder.Entity<Student>()
+                .HasIndex(s => s.CalendarTokenHash).IsUnique().HasFilter("[CalendarTokenHash] IS NOT NULL");
 
             modelBuilder.Entity<Ticket>()
                 .HasOne(t => t.Student).WithMany().HasForeignKey(t => t.StudentId).OnDelete(DeleteBehavior.Cascade);

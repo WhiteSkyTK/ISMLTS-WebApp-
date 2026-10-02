@@ -1232,3 +1232,126 @@ th[aria-sort] .sort-link {
             border-top: 0;
             padding-top: 0;
         }
+
+/* ===== Calendar: one heading per day, then its classes and due dates ===== */
+.agenda-day {
+    margin: 1.25rem 0 0.5rem;
+}
+
+    .agenda-day:first-child {
+        margin-top: 0;
+    }
+
+.agenda-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+    .agenda-list li {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: baseline;
+        gap: 0.5rem;
+        padding: 0.5rem 0;
+        border-top: 1px solid var(--rb-border);
+    }
+
+.agenda-time {
+    min-width: 6.5rem;
+    color: var(--rb-muted);
+    font-variant-numeric: tabular-nums;
+}
+
+/* ===== Calendar month grid and its coloured entries ===== */
+.cal-grid {
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    border-top: 1px solid var(--rb-border);
+    border-left: 1px solid var(--rb-border);
+}
+
+.cal-head {
+    padding: 0.35rem 0.5rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--rb-muted);
+    border-right: 1px solid var(--rb-border);
+    border-bottom: 1px solid var(--rb-border);
+}
+
+.cal-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    min-height: 6.5rem;
+    padding: 0.35rem;
+    border-right: 1px solid var(--rb-border);
+    border-bottom: 1px solid var(--rb-border);
+    min-width: 0;
+}
+
+.cal-other {
+    background: var(--rb-page);
+}
+
+.cal-today .cal-date {
+    background: var(--rb-navy);
+    color: #FFFFFF;
+    border-radius: 1rem;
+    padding: 0 0.45rem;
+}
+
+.cal-date {
+    align-self: flex-start;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.cal-chip {
+    display: inline-block;
+    max-width: 100%;
+    padding: 0.1rem 0.4rem;
+    border-radius: 0.35rem;
+    font-size: 0.75rem;
+    line-height: 1.3;
+    overflow-wrap: anywhere;
+}
+
+.cal-class {
+    background: #E8EEFB;
+    color: #14274E;
+}
+
+.cal-due {
+    background: #FDECEC;
+    color: #8A1C1C;
+}
+
+.cal-closing {
+    background: #FFF1D6;
+    color: #6B4300;
+}
+
+.cal-term {
+    background: #E6F4EA;
+    color: #1E5631;
+}
+
+.cal-college {
+    background: #EFE8FB;
+    color: #4B2A84;
+}
+
+.cal-note {
+    background: #F1F3F5;
+    color: #343A40;
+}
+
+.cal-done {
+    text-decoration: line-through;
+}
+
+.cal-month {
+    min-width: 10rem;
+    text-align: center;
+}

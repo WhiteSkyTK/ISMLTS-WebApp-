@@ -57,12 +57,108 @@ namespace ISMLTS_WebApp_.Data
 
         private const string CodeAlphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
         private const int SessionsPerModule = 6;
+        private const double DemoLatitude = -26.1455;
+        private const double DemoLongitude = 28.0436;
 
         // The first extra course doubles as the marker that the demo data is already in
         public static string MarkerCourseCode => ExtraCourses[0].Code;
 
         public static bool IsEnabled(IConfiguration configuration) =>
             configuration.GetValue<bool>("Seed:DemoData") && PasswordRules.IsLongEnough(configuration["Seed:DemoPassword"]);
+
+        // Terms, a timetable for every module and the year's college dates, each only while its table is empty,
+        // so a database that got the demo data before these existed (the live site) gets them on its next start
+        public static async Task SeedCalendarAsync(ApplicationDbContext context, IConfiguration configuration)
+        {
+            if (!IsEnabled(configuration)) return;
+            var year = DateTime.Today.Year;
+
+            if (!await context.Terms.AnyAsync())
+            {
+                var term1End = new DateTime(year, 6, 19);
+                context.Terms.AddRange(
+                    new Term { Name = $"{year} Term 1", Code = CourseTerms.Term1, StartDate = new DateTime(year, 2, 2), EndDate = term1End },
+                    new Term { Name = $"{year} Term 2", Code = CourseTerms.Term2, StartDate = new DateTime(year, 7, 13), EndDate = new DateTime(year, 11, 20) });
+
+                // The demo registers are all from the last six weeks; move the Term 1 modules' ones (taken at the demo
+                // campus position) back inside Term 1, so those modules keep their attendance once terms count
+                var cutoff = DateTime.SpecifyKind(term1End, DateTimeKind.Local).ToUniversalTime();
+                var late = await context.AttendanceSessions
+                    .Where(s => s.Module!.Term == CourseTerms.Term1 && s.StartedAt > cutoff && s.Latitude == DemoLatitude && s.Longitude == DemoLongitude)
+                    .ToListAsync();
+                if (late.Count > 0)
+                {
+                    var shift = TimeSpan.FromDays(7 * Math.Ceiling((late.Max(s => s.StartedAt) - cutoff.AddDays(-7)).TotalDays / 7));
+                    foreach (var session in late)
+                    {
+                        session.StartedAt -= shift;
+                        session.ExpiresAt -= shift;
+                    }
+                }
+            }
+
+            if (!await context.TimetableSlots.AnyAsync())
+            {
+                var modules = await context.Modules.OrderBy(m => m.ModuleId).ToListAsync();
+                for (var i = 0; i < modules.Count; i++)
+                {
+                    var start = new TimeOnly(8, 0).AddHours(2 * (i / 5 % 4));
+                    context.TimetableSlots.Add(new TimetableSlot
+                    {
+                        ModuleId = modules[i].ModuleId,
+                        Day = Timetable.TeachingDays[i % 5],
+                        StartTime = start,
+                        EndTime = start.AddMinutes(90),
+                        Venue = $"Room {1 + i % 4}.{10 + i % 6}"
+                    });
+                }
+            }
+
+            if (!await context.CollegeDates.AnyAsync())
+            {
+                context.CollegeDates.AddRange(CollegeDatesFor(year));
+            }
+            await context.SaveChangesAsync();
+        }
+
+        // South African public holidays plus a typical IIE year: registration closing, assignment and exam weeks, the break
+        public static List<CollegeDate> CollegeDatesFor(int year)
+        {
+            var easter = EasterSunday(year);
+            CollegeDate Day(string title, string kind, DateTime from, DateTime? to = null) =>
+                new() { Title = title, Kind = kind, StartDate = from, EndDate = to ?? from };
+            return
+            [
+                Day("New Year's Day", CollegeDateKinds.Holiday, new DateTime(year, 1, 1)),
+                Day("Registration closes", CollegeDateKinds.Deadline, new DateTime(year, 2, 13)),
+                Day("Human Rights Day", CollegeDateKinds.Holiday, new DateTime(year, 3, 21)),
+                Day("Good Friday", CollegeDateKinds.Holiday, easter.AddDays(-2)),
+                Day("Family Day", CollegeDateKinds.Holiday, easter.AddDays(1)),
+                Day("Freedom Day", CollegeDateKinds.Holiday, new DateTime(year, 4, 27)),
+                Day("Workers' Day", CollegeDateKinds.Holiday, new DateTime(year, 5, 1)),
+                Day("Term 1 assignment week", CollegeDateKinds.Assignments, new DateTime(year, 5, 4), new DateTime(year, 5, 8)),
+                Day("Term 1 exams", CollegeDateKinds.Exams, new DateTime(year, 6, 1), new DateTime(year, 6, 12)),
+                Day("Youth Day", CollegeDateKinds.Holiday, new DateTime(year, 6, 16)),
+                Day("Mid-year break", CollegeDateKinds.Break, new DateTime(year, 6, 22), new DateTime(year, 7, 10)),
+                Day("Term 2 module changes close", CollegeDateKinds.Deadline, new DateTime(year, 7, 24)),
+                Day("National Women's Day", CollegeDateKinds.Holiday, new DateTime(year, 8, 9)),
+                Day("Heritage Day", CollegeDateKinds.Holiday, new DateTime(year, 9, 24)),
+                Day("Term 2 assignment week", CollegeDateKinds.Assignments, new DateTime(year, 10, 12), new DateTime(year, 10, 16)),
+                Day("Term 2 exams", CollegeDateKinds.Exams, new DateTime(year, 11, 2), new DateTime(year, 11, 13)),
+                Day("Day of Reconciliation", CollegeDateKinds.Holiday, new DateTime(year, 12, 16)),
+                Day("Christmas Day", CollegeDateKinds.Holiday, new DateTime(year, 12, 25)),
+                Day("Day of Goodwill", CollegeDateKinds.Holiday, new DateTime(year, 12, 26))
+            ];
+        }
+
+        // Gregorian Easter (Meeus/Jones/Butcher)
+        public static DateTime EasterSunday(int year)
+        {
+            int a = year % 19, b = year / 100, c = year % 100, d = b / 4, e = b % 4, f = (b + 8) / 25, g = (b - f + 1) / 3;
+            int h = (19 * a + b - d - g + 15) % 30, i = c / 4, k = c % 4, l = (32 + 2 * e + 2 * i - h - k) % 7, m = (a + 11 * h + 22 * l) / 451;
+            int month = (h + l - 7 * m + 114) / 31, day = (h + l - 7 * m + 114) % 31 + 1;
+            return new DateTime(year, month, day);
+        }
 
         // Runs once per database, also next to real data (the live site): accounts, emails, module codes and
         // attendance codes that already exist are left alone rather than added twice
@@ -292,8 +388,8 @@ namespace ISMLTS_WebApp_.Data
                     StartedAt = started,
                     ExpiresAt = started.AddMinutes(15),
                     IsClosed = true,
-                    Latitude = -26.1455,
-                    Longitude = 28.0436
+                    Latitude = DemoLatitude,
+                    Longitude = DemoLongitude
                 };
                 context.AttendanceSessions.Add(session);
 

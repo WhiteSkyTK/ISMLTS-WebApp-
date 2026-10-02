@@ -24,6 +24,9 @@ namespace ISMLTS_WebApp_.Models
 
         public bool IsClosed { get; set; }
 
+        // A class that didn't happen after all: kept, but left out of everyone's attendance percentage
+        public bool IsCancelled { get; set; }
+
         public ICollection<AttendanceRecord> Records { get; set; } = new List<AttendanceRecord>();
 
         [NotMapped]

@@ -56,6 +56,7 @@ namespace ISMLTS_WebApp_.Services
         private readonly IAttendanceVerifier _verifier;
         private readonly ISubmissionFileService _files;
         private readonly TimeProvider _time;
+        private readonly ITermService _terms;
         private readonly RiskOptions _risk;
 
         public StudentPortalService(
@@ -69,6 +70,7 @@ namespace ISMLTS_WebApp_.Services
             IAttendanceVerifier verifier,
             ISubmissionFileService files,
             TimeProvider time,
+            ITermService terms,
             IOptions<RiskOptions> risk)
         {
             _students = students;
@@ -81,6 +83,7 @@ namespace ISMLTS_WebApp_.Services
             _verifier = verifier;
             _files = files;
             _time = time;
+            _terms = terms;
             _risk = risk.Value;
         }
 
@@ -135,8 +138,9 @@ namespace ISMLTS_WebApp_.Services
 
             var moduleIds = student.Modules.Select(m => m.ModuleId).ToList();
             var marks = (await _marks.GetByStudentAsync(studentId)).Where(m => m.IsVisibleToStudent).ToList();
-            var attendedByModule = await AttendedByModuleAsync(studentId);
-            var sessionsByModule = await _attendance.CountSessionsByModuleAsync(moduleIds);
+            var periods = await _terms.AttendancePeriodsAsync();
+            var attendedByModule = await AttendedByModuleAsync(studentId, periods);
+            var sessionsByModule = await _attendance.CountSessionsByModuleAsync(moduleIds, periods);
             var assessments = await _assessments.GetByModulesAsync(moduleIds);
             var submitted = (await _submissions.GetByStudentAsync(studentId))
                 .Where(s => s.SubmittedAt != null)
@@ -167,8 +171,9 @@ namespace ISMLTS_WebApp_.Services
             var student = await _students.GetByIdWithModulesAsync(studentId);
             if (student == null) return new List<MyAttendanceRow>();
 
-            var attendedByModule = await AttendedByModuleAsync(studentId);
-            var sessionsByModule = await _attendance.CountSessionsByModuleAsync(student.Modules.Select(m => m.ModuleId).ToList());
+            var periods = await _terms.AttendancePeriodsAsync();
+            var attendedByModule = await AttendedByModuleAsync(studentId, periods);
+            var sessionsByModule = await _attendance.CountSessionsByModuleAsync(student.Modules.Select(m => m.ModuleId).ToList(), periods);
             return student.Modules.OrderBy(m => m.Code).Select(m => new MyAttendanceRow
             {
                 ModuleId = m.ModuleId,
@@ -321,8 +326,8 @@ namespace ISMLTS_WebApp_.Services
             return new ScanResult(true, ScanCodes.Present, $"You're marked present for {session.Module?.Code}.", session.Module);
         }
 
-        private async Task<Dictionary<int, int>> AttendedByModuleAsync(int studentId) =>
-            (await _attendance.GetRecordsByStudentAsync(studentId))
+        private async Task<Dictionary<int, int>> AttendedByModuleAsync(int studentId, AttendancePeriods periods) =>
+            (await _attendance.GetRecordsByStudentAsync(studentId, periods))
                 .Where(r => r.Session != null)
                 .GroupBy(r => r.Session!.ModuleId)
                 .ToDictionary(g => g.Key, g => g.Select(r => r.SessionId).Distinct().Count());

@@ -12,8 +12,9 @@ namespace ISMLTS_WebApp_.Repositories
         Task<bool> HasScannedAsync(int sessionId, int studentId);
         Task AddRecordAsync(AttendanceRecord record);
         void RemoveRecord(AttendanceRecord record);
-        Task<IEnumerable<AttendanceRecord>> GetRecordsByStudentAsync(int studentId);
-        Task<List<AttendanceRecord>> GetRecordsByModulesAsync(IReadOnlyCollection<int> moduleIds);
-        Task<Dictionary<int, int>> CountSessionsByModuleAsync(IReadOnlyCollection<int> moduleIds);
+        // These three only look at sessions that count: not cancelled, and inside their module's term (see AttendancePeriods)
+        Task<IEnumerable<AttendanceRecord>> GetRecordsByStudentAsync(int studentId, AttendancePeriods periods);
+        Task<List<AttendanceRecord>> GetRecordsByModulesAsync(IReadOnlyCollection<int> moduleIds, AttendancePeriods periods);
+        Task<Dictionary<int, int>> CountSessionsByModuleAsync(IReadOnlyCollection<int> moduleIds, AttendancePeriods periods);
     }
 }

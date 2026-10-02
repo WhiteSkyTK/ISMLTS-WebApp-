@@ -25,6 +25,7 @@
         items.Add(("bi-megaphone", "Announcements", "Announcements", "Index", null));
         items.Add(("bi-clipboard-data", "Quick Eval", "Grading", "QuickEval", null));
         items.Add(("bi-graph-up", "Class Insights", "Insights", "Class", null));
+        items.Add(("bi-clock", "Timetable", "Timetable", "Index", null));
         if (library != null) items.Add(("bi-book", "IIE Library", null, null, library));
     }
     else if (User.IsInRole(Roles.Admin))
@@ -34,8 +35,10 @@
         items.Add(("bi-megaphone", "Announcements", "Announcements", "Index", null));
         items.Add(("bi-upload", "Bulk Import", "Import", "Index", null));
         items.Add(("bi-bar-chart", "Reports", "Reports", "Index", null));
+        items.Add(("bi-calendar-range", "Terms", "Terms", "Index", null));
         items.Add(("bi-heart-pulse", "Site Check", "SiteCheck", "Index", null));
     }
+    items.Add(("bi-calendar3", "Calendar", "Calendar", "Index", null));
     items.Add(("bi-question-circle", "Help", "Help", "Index", null));
 }
 

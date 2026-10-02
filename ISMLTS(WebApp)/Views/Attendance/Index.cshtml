@@ -1,8 +1,32 @@
 @model IEnumerable<Module>
+@using ISMLTS_WebApp_.Services
 @{
     ViewData["Title"] = "Attendance";
     ViewData["PickerIcon"] = "bi-qr-code";
+    var now = ViewBag.NowSlot as TimetableSlot;
 }
 
 <partial name="_PageHeader" model='new PageHeaderModel { Title = "Attendance", Subtitle = "Pick a module to start a register or look at past sessions." }' />
+
+@if (now != null)
+{
+    <div class="panel mb-4">
+        <form asp-action="Start" method="post" data-geo-form class="d-flex flex-wrap align-items-center gap-3">
+            <input type="hidden" name="moduleId" value="@now.ModuleId" />
+            <input type="hidden" name="latitude" />
+            <input type="hidden" name="longitude" />
+            <div class="flex-grow-1">
+                <strong>On now: <span class="font-monospace">@now.Module?.Code</span></strong>
+                <span class="text-muted">· @Timetable.Times(now) · @now.Venue</span>
+                <p class="small text-muted mb-0" data-geo-status><i class="bi bi-geo-alt" aria-hidden="true"></i> Your browser asks for your location; student scans are checked against it.</p>
+            </div>
+            <button type="submit" class="btn btn-rosebank btn-lg" data-loading="Starting…"><i class="bi bi-qr-code" aria-hidden="true"></i> Take register</button>
+        </form>
+    </div>
+}
+
 <partial name="_ModulePicker" model="Model" />
+
+@section Scripts {
+    <script src="~/js/attendance.js" asp-append-version="true"></script>
+}

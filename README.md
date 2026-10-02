@@ -86,6 +86,7 @@ container on the first upload and hands files out through download links that ex
   Accounts whose email already exists are skipped. Switch the setting off afterwards. Before real students use
   the site, start from a fresh database instead of keeping the demo data.
 - The first admin log-in asks for an authenticator app (admins must use two-factor sign-in).
+- Add the year's terms under **Terms** (admin) so dashboards and attendance follow the term, and ask lecturers to fill in their **Timetable**.
 - After each deploy: open `/health` (it should say `Healthy`), log in as an admin and open **Site check**. Fix
   anything marked Problem or Check. It shows unapplied migrations, the time zone, the address the site sees, and
   which settings are missing.

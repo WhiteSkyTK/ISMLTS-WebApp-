@@ -29,6 +29,10 @@ namespace ISMLTS_WebApp_.Models
         public string? TwoFactorRecoveryCodes { get; set; }
         public bool MustChangePassword { get; set; }
 
+        // SHA-256 of the secret in the student's calendar feed link (the link itself is shown once)
+        [MaxLength(64)]
+        public string? CalendarTokenHash { get; set; }
+
         // Navigation
         public ICollection<Module> Modules { get; set; } = new List<Module>();
     }

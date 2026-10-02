@@ -276,6 +276,9 @@ namespace ISMLTS_WebApp_.Migrations
                     b.Property<DateTime>("ExpiresAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<bool>("IsCancelled")
+                        .HasColumnType("bit");
+
                     b.Property<bool>("IsClosed")
                         .HasColumnType("bit");
 
@@ -299,6 +302,82 @@ namespace ISMLTS_WebApp_.Migrations
                     b.HasIndex("ModuleId");
 
                     b.ToTable("AttendanceSessions");
+                });
+
+            modelBuilder.Entity("ISMLTS_WebApp_.Models.CalendarNote", b =>
+                {
+                    b.Property<int>("NoteId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("NoteId"));
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Details")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<bool>("IsDone")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("Remind")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("RemindedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<TimeOnly?>("Time")
+                        .HasColumnType("time");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("nvarchar(120)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("NoteId");
+
+                    b.HasIndex("Role", "UserId", "Date");
+
+                    b.ToTable("CalendarNotes");
+                });
+
+            modelBuilder.Entity("ISMLTS_WebApp_.Models.CollegeDate", b =>
+                {
+                    b.Property<int>("CollegeDateId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CollegeDateId"));
+
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("CollegeDateId");
+
+                    b.ToTable("CollegeDates");
                 });
 
             modelBuilder.Entity("ISMLTS_WebApp_.Models.Course", b =>
@@ -617,6 +696,10 @@ namespace ISMLTS_WebApp_.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("StudentId"));
 
+                    b.Property<string>("CalendarTokenHash")
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasMaxLength(150)
@@ -653,6 +736,10 @@ namespace ISMLTS_WebApp_.Migrations
                         .HasColumnType("nvarchar(64)");
 
                     b.HasKey("StudentId");
+
+                    b.HasIndex("CalendarTokenHash")
+                        .IsUnique()
+                        .HasFilter("[CalendarTokenHash] IS NOT NULL");
 
                     b.HasIndex("Email")
                         .IsUnique();
@@ -733,6 +820,35 @@ namespace ISMLTS_WebApp_.Migrations
                     b.ToTable("SubmissionFiles");
                 });
 
+            modelBuilder.Entity("ISMLTS_WebApp_.Models.Term", b =>
+                {
+                    b.Property<int>("TermId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TermId"));
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(60)
+                        .HasColumnType("nvarchar(60)");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("TermId");
+
+                    b.ToTable("Terms");
+                });
+
             modelBuilder.Entity("ISMLTS_WebApp_.Models.Ticket", b =>
                 {
                     b.Property<int>("TicketId")
@@ -779,6 +895,41 @@ namespace ISMLTS_WebApp_.Migrations
                     b.HasIndex("StudentId");
 
                     b.ToTable("Tickets");
+                });
+
+            modelBuilder.Entity("ISMLTS_WebApp_.Models.TimetableSlot", b =>
+                {
+                    b.Property<int>("SlotId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("SlotId"));
+
+                    b.Property<int>("Day")
+                        .HasColumnType("int");
+
+                    b.Property<TimeOnly>("EndTime")
+                        .HasColumnType("time");
+
+                    b.Property<int>("ModuleId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("OnDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<TimeOnly>("StartTime")
+                        .HasColumnType("time");
+
+                    b.Property<string>("Venue")
+                        .IsRequired()
+                        .HasMaxLength(60)
+                        .HasColumnType("nvarchar(60)");
+
+                    b.HasKey("SlotId");
+
+                    b.HasIndex("ModuleId");
+
+                    b.ToTable("TimetableSlots");
                 });
 
             modelBuilder.Entity("ModuleStudent", b =>
@@ -937,6 +1088,17 @@ namespace ISMLTS_WebApp_.Migrations
                     b.Navigation("Module");
 
                     b.Navigation("Student");
+                });
+
+            modelBuilder.Entity("ISMLTS_WebApp_.Models.TimetableSlot", b =>
+                {
+                    b.HasOne("ISMLTS_WebApp_.Models.Module", "Module")
+                        .WithMany()
+                        .HasForeignKey("ModuleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Module");
                 });
 
             modelBuilder.Entity("ModuleStudent", b =>

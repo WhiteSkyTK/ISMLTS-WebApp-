@@ -1,15 +1,17 @@
-@model List<Term>
+@model TermsPageModel
+@using System.Globalization
 @using ISMLTS_WebApp_.Services
 @{
     ViewData["Title"] = "Terms";
-    int? currentId = ViewBag.CurrentTermId;
+    var currentId = Model.CurrentTermId;
+    var d = Model.NewDate;
     var today = DateTime.Today;
 }
 
 <partial name="_PageHeader" model='new PageHeaderModel { Title = "Terms", Subtitle = "The latest term that has started is the current one: it decides which modules are current and which classes count for attendance.", ActionUrl = Url.Action("Create"), ActionText = "Add a term" }' />
 
 <div class="panel">
-    @if (Model.Any())
+    @if (Model.Terms.Any())
     {
         <div class="table-scroll">
             <table class="table align-middle mb-0">
@@ -23,7 +25,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var t in Model)
+                    @foreach (var t in Model.Terms)
                     {
                         <tr>
                             <td class="fw-medium">@t.Name</td>
@@ -61,4 +63,81 @@
     {
         <partial name="_EmptyState" model='new EmptyStateModel { Icon = "bi-calendar-range", Title = "No terms yet", Message = "Until you add one, every module counts as current and every class counts for attendance.", ActionUrl = Url.Action("Create"), ActionText = "Add a term" }' />
     }
+</div>
+
+<div class="row g-4 mt-1">
+    <div class="col-lg-7">
+        <div class="panel">
+            <h2 class="h6 mb-3"><i class="bi bi-calendar-event" aria-hidden="true"></i> College dates on everyone's calendar</h2>
+            @if (Model.Dates.Any())
+            {
+                <div class="table-scroll">
+                    <table class="table align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th scope="col">What</th>
+                                <th scope="col">Kind</th>
+                                <th scope="col">When</th>
+                                <th scope="col"><span class="visually-hidden">Actions</span></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var c in Model.Dates)
+                            {
+                                <tr>
+                                    <td class="fw-medium">@c.Title</td>
+                                    <td>@CalendarBuilder.BadgeLabel(c.Kind)</td>
+                                    <td class="text-nowrap">@c.StartDate.ToString("dd MMM yyyy")@(c.EndDate > c.StartDate ? " – " + c.EndDate.ToString("dd MMM yyyy") : null)</td>
+                                    <td>
+                                        <form asp-action="DeleteDate" asp-route-id="@c.CollegeDateId" method="post" data-confirm="Remove @c.Title from the calendar?">
+                                            <button type="submit" class="btn btn-icon btn-icon-danger" data-bs-toggle="tooltip" data-bs-title="Remove"><i class="bi bi-trash" aria-hidden="true"></i><span class="visually-hidden">Remove @c.Title</span></button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <p class="text-muted mb-0">No college dates yet: add holidays, exam weeks, assignment weeks, breaks and closing dates.</p>
+            }
+        </div>
+    </div>
+    <div class="col-lg-5">
+        <div class="panel form-panel">
+            <h2 class="h6 mb-3">Add a college date</h2>
+            <form asp-action="AddDate" method="post">
+                <div class="mb-3">
+                    <label for="Title" class="form-label">What</label>
+                    <input id="Title" name="Title" class="form-control" value="@d.Title" maxlength="100" placeholder="e.g. Term 2 exams" required />
+                </div>
+                <div class="mb-3">
+                    <label for="Kind" class="form-label">Kind</label>
+                    <select id="Kind" name="Kind" class="form-select">
+                        @foreach (var (kind, label) in CollegeDateKinds.All)
+                        {
+                            <option value="@kind" selected="@(kind == d.Kind)">@label</option>
+                        }
+                    </select>
+                    @Html.ValidationMessage("Kind", new { @class = "text-danger small" })
+                </div>
+                <div class="row g-3 mb-3">
+                    <div class="col-6">
+                        <label for="StartDate" class="form-label">From</label>
+                        <input id="StartDate" name="StartDate" type="date" class="form-control" value="@d.StartDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)" required />
+                    </div>
+                    <div class="col-6">
+                        <label for="EndDate" class="form-label">To</label>
+                        <input id="EndDate" name="EndDate" type="date" class="form-control" value="@d.EndDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)" required />
+                        @Html.ValidationMessage("EndDate", new { @class = "text-danger small" })
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-rosebank" data-loading="Adding…"><i class="bi bi-plus-lg" aria-hidden="true"></i> Add date</button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>

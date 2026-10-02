@@ -116,6 +116,8 @@ builder.Services.AddScoped<ISubmissionRepository, SubmissionRepository>();
 builder.Services.AddScoped<ISubmissionFileRepository, SubmissionFileRepository>();
 builder.Services.AddScoped<ITermRepository, TermRepository>();
 builder.Services.AddScoped<ITimetableRepository, TimetableRepository>();
+builder.Services.AddScoped<ICollegeDateRepository, CollegeDateRepository>();
+builder.Services.AddScoped<ICalendarNoteRepository, CalendarNoteRepository>();
 builder.Services.AddScoped<ITicketRepository, TicketRepository>();
 builder.Services.AddScoped<IAttendanceRepository, AttendanceRepository>();
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
@@ -142,6 +144,7 @@ builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<IMarkService, MarkService>();
 builder.Services.AddScoped<ITermService, TermService>();
 builder.Services.AddScoped<ICalendarService, CalendarService>();
+builder.Services.AddScoped<INoteReminderSender, NoteReminderSender>();
 
 // Email goes through Azure Communication Services only when Email:ConnectionString and Email:From are set
 var emailSection = builder.Configuration.GetSection("Email");
@@ -158,6 +161,7 @@ builder.Services.AddScoped<IWeeklyDigestSender, WeeklyDigestSender>();
 if (!isTesting)
 {
     builder.Services.AddHostedService<WeeklyDigestService>();
+    builder.Services.AddHostedService<NoteReminderService>();
 }
 
 var app = builder.Build();

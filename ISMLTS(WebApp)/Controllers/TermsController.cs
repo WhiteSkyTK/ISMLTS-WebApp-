@@ -12,17 +12,56 @@ namespace ISMLTS_WebApp_.Controllers
     public class TermsController : Controller
     {
         private readonly ITermRepository _terms;
+        private readonly ICollegeDateRepository _dates;
 
-        public TermsController(ITermRepository terms)
+        public TermsController(ITermRepository terms, ICollegeDateRepository dates)
         {
             _terms = terms;
+            _dates = dates;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index() => View(await PageAsync(null));
+
+        // Holidays, exam and assignment weeks, breaks and closing dates show on everyone's calendar
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddDate([Bind("Title,Kind,StartDate,EndDate")] CollegeDate date)
+        {
+            date.Title = date.Title?.Trim() ?? string.Empty;
+            if (!CollegeDateKinds.IsValid(date.Kind)) ModelState.AddModelError(nameof(CollegeDate.Kind), "Pick what kind of date this is.");
+            if (date.EndDate.Date < date.StartDate.Date) ModelState.AddModelError(nameof(CollegeDate.EndDate), "The last day must be on or after the first day.");
+            if (!ModelState.IsValid) return View(nameof(Index), await PageAsync(date));
+
+            date.StartDate = date.StartDate.Date;
+            date.EndDate = date.EndDate.Date;
+            await _dates.AddAsync(date);
+            await _dates.SaveChangesAsync();
+            this.Toast($"{date.Title} was added to the calendar.");
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteDate(int id)
+        {
+            var date = await _dates.GetByIdAsync(id);
+            if (date == null) return NotFound();
+            _dates.Delete(date);
+            await _dates.SaveChangesAsync();
+            this.Toast($"{date.Title} was removed from the calendar.");
+            return RedirectToAction(nameof(Index));
+        }
+
+        private async Task<TermsPageModel> PageAsync(CollegeDate? form)
         {
             var terms = await _terms.GetOrderedAsync();
-            ViewBag.CurrentTermId = Terms.Current(terms, DateTime.Today)?.TermId;
-            return View(terms);
+            return new TermsPageModel
+            {
+                Terms = terms,
+                CurrentTermId = Terms.Current(terms, DateTime.Today)?.TermId,
+                Dates = await _dates.GetOrderedAsync(),
+                NewDate = form ?? new CollegeDate { StartDate = DateTime.Today, EndDate = DateTime.Today }
+            };
         }
 
         [HttpGet]

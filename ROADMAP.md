@@ -98,6 +98,7 @@ This is where everything built since Phase 1 reaches the live site and gets test
 - [x] Timetable slots per module (day, time, venue); "Take register" goes straight to the class happening now
 - [x] Attendance percentages count only the current term's sessions; cancelled classes can be excluded
 - [x] Calendar page for each role with classes and due dates, plus an `.ics` feed students can subscribe to on their phone
+- [x] Month view with college dates (holidays, exam and assignment weeks, breaks, closing dates; Admin → Terms), assessment closing dates, one-off extra classes, and personal notes and to-dos with bell reminders; demo data seeds terms, timetables and the college year
 - [ ] On the live site: publish with the `Phase8Terms` migration, add this year's terms (Admin → Terms) and each module's classes (Lecturer → Timetable), then check dashboards, attendance percentages and a phone subscription
 
 ## Phase 9 — Data care and accessibility

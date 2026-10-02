@@ -2,6 +2,7 @@ using System.Net;
 using System.Text.RegularExpressions;
 using ISMLTS_WebApp_.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace ISMLTS.Tests.Integration
 {
@@ -29,6 +30,35 @@ namespace ISMLTS.Tests.Integration
             Assert.Contains($"{_factory.Data.ModuleBCode}: POE B due", admin);
             Assert.Contains("Get my calendar link", student);
             Assert.DoesNotContain("Get my calendar link", lecturer);
+        }
+
+        [Fact]
+        public async Task Notes_BelongToTheirOwner_AndRemindInTheBell()
+        {
+            var student = _factory.ClientFor(Roles.Student, _factory.Data.StudentId);
+            var token = await IsmltsFactory.GetAntiforgeryTokenAsync(student, "/Calendar");
+            var title = $"Read chapter {Guid.NewGuid():N}"[..20];
+            var added = await student.PostAsync("/Calendar/AddNote", new FormUrlEncodedContent(new Dictionary<string, string>
+            {
+                ["__RequestVerificationToken"] = token, ["Date"] = DateTime.Today.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture),
+                ["Time"] = "00:01", ["Title"] = title, ["Remind"] = "true"
+            }));
+            Assert.Equal(HttpStatusCode.Redirect, added.StatusCode);
+            var noteId = await _factory.WithDbAsync(db => db.CalendarNotes.Where(n => n.Title == title).Select(n => n.NoteId).SingleAsync());
+            Assert.Contains(title, await student.GetStringAsync("/Calendar"));
+
+            // Someone else's note looks like it doesn't exist
+            var other = _factory.ClientFor(Roles.Student, _factory.Data.OtherStudentId);
+            var otherToken = await IsmltsFactory.GetAntiforgeryTokenAsync(other, "/Calendar");
+            var refused = await other.PostAsync($"/Calendar/DeleteNote/{noteId}", new FormUrlEncodedContent(new Dictionary<string, string> { ["__RequestVerificationToken"] = otherToken }));
+            Assert.Equal(HttpStatusCode.NotFound, refused.StatusCode);
+            Assert.DoesNotContain(title, await other.GetStringAsync("/Calendar"));
+
+            using var scope = _factory.Services.CreateScope();
+            var sent = await scope.ServiceProvider.GetRequiredService<ISMLTS_WebApp_.Services.INoteReminderSender>().SendDueAsync(DateTime.Today.AddHours(1));
+            Assert.True(sent >= 1);
+            Assert.True(await _factory.WithDbAsync(db => db.Notifications.AnyAsync(n => n.Role == Roles.Student && n.UserId == _factory.Data.StudentId && n.Title == "Reminder: " + title)));
+            Assert.Equal(0, await scope.ServiceProvider.GetRequiredService<ISMLTS_WebApp_.Services.INoteReminderSender>().SendDueAsync(DateTime.Today.AddHours(2)));
         }
 
         [Fact]

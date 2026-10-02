@@ -6,7 +6,7 @@
     var form = Model.Form;
 }
 
-<partial name="_PageHeader" model='new PageHeaderModel { Title = "Timetable", Subtitle = "Your weekly classes. When one is on, Attendance offers to take its register straight away, and students see it on their calendar." }' />
+<partial name="_PageHeader" model='new PageHeaderModel { Title = "Timetable", Subtitle = "Your weekly classes and any extra classes. When one is on, Attendance offers to take its register straight away, and students see it on their calendar." }' />
 
 <div class="row g-4">
     <div class="col-lg-7">
@@ -28,7 +28,7 @@
                             @foreach (var s in Model.Slots)
                             {
                                 <tr>
-                                    <td>@Timetable.Day(s.Day)</td>
+                                    <td>@Timetable.When(s)</td>
                                     <td class="text-nowrap">@Timetable.Times(s)</td>
                                     <td class="font-monospace">@s.Module?.Code</td>
                                     <td>@s.Venue</td>
@@ -85,6 +85,12 @@
                             <input id="EndTime" name="EndTime" type="time" class="form-control" value="@form.EndTime.ToString("HH:mm", CultureInfo.InvariantCulture)" required />
                             @Html.ValidationMessage("EndTime", new { @class = "text-danger small" })
                         </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="OnDate" class="form-label">Extra class on <span class="text-muted fw-normal">(optional)</span></label>
+                        <input id="OnDate" name="OnDate" type="date" class="form-control" value="@form.OnDate?.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)" aria-describedby="onDateHelp" />
+                        <div id="onDateHelp" class="form-text">Leave empty for a class every week. Pick a date for a one-off extra or catch-up class; the day above is then ignored.</div>
+                        @Html.ValidationMessage("OnDate", new { @class = "text-danger small" })
                     </div>
                     <div class="mb-3">
                         <label for="Venue" class="form-label">Venue</label>

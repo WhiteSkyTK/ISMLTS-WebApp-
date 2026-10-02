@@ -1,55 +1,158 @@
 @model CalendarPageModel
+@using System.Globalization
 @using ISMLTS_WebApp_.Services
 @{
     ViewData["Title"] = "Calendar";
     var isStudent = User.IsInRole(Roles.Student);
-    var subtitle = isStudent ? "Your classes and due dates for the next four weeks."
-        : User.IsInRole(Roles.Lecturer) ? "Your classes and your modules' due dates for the next four weeks."
-        : "Term dates and every module's due dates for the next four weeks.";
+    var today = DateTime.Today;
+    var monthKey = (DateTime d) => d.ToString("yyyy-MM", CultureInfo.InvariantCulture);
+    var monthEntries = Model.Entries.Where(e => e.Start.Month == Model.Month.Month || (e.LastDay ?? e.Start).Month == Model.Month.Month).ToList();
+    var notes = Model.Entries.Where(e => e.Kind == CalendarKind.Note && e.Start.Month == Model.Month.Month).ToList();
+    string Icon(CalendarEntry e) => e.Kind switch
+    {
+        CalendarKind.Class => "bi-easel",
+        CalendarKind.Due => "bi-journal-check",
+        CalendarKind.Closing => "bi-lock",
+        CalendarKind.Term => "bi-flag",
+        CalendarKind.College => "bi-calendar-event",
+        _ => e.Done ? "bi-check2-square" : "bi-square"
+    };
+    string Chip(CalendarEntry e) => $"cal-chip cal-{e.Kind.ToString().ToLowerInvariant()}{(e.Done ? " cal-done" : null)}";
+    string When(CalendarEntry e) => e.AllDay ? string.Empty : e.Start.ToString("HH:mm", CultureInfo.InvariantCulture) + " ";
 }
 
-<partial name="_PageHeader" model='new PageHeaderModel { Title = "Calendar", Subtitle = subtitle }' />
+<partial name="_PageHeader" model='new PageHeaderModel { Title = "Calendar", Subtitle = "Classes, due and closing dates, term and college dates, and your own notes and to-dos." }' />
+
+<div class="panel mb-4">
+    <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+        <a asp-action="Index" asp-route-month="@monthKey(Model.Month.AddMonths(-1))" class="btn btn-outline-secondary btn-sm"><i class="bi bi-chevron-left" aria-hidden="true"></i><span class="visually-hidden">Previous month</span></a>
+        <h2 class="h5 mb-0 cal-month">@Model.Month.ToString("MMMM yyyy")</h2>
+        <a asp-action="Index" asp-route-month="@monthKey(Model.Month.AddMonths(1))" class="btn btn-outline-secondary btn-sm"><i class="bi bi-chevron-right" aria-hidden="true"></i><span class="visually-hidden">Next month</span></a>
+        <a asp-action="Index" class="btn btn-outline-rosebank btn-sm">Today</a>
+    </div>
+
+    <div class="cal-grid d-none d-md-grid">
+        @foreach (var name in new[] { "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun" })
+        {
+            <div class="cal-head">@name</div>
+        }
+        @for (var day = Model.GridStart; day < Model.GridEnd; day = day.AddDays(1))
+        {
+            var current = day;
+            <div class="cal-cell @(current.Month != Model.Month.Month ? "cal-other" : null) @(current == today ? "cal-today" : null)">
+                <span class="cal-date">@current.Day</span>
+                @foreach (var e in Model.Entries.Where(x => x.IsOn(current)))
+                {
+                    <span class="@Chip(e)"><i class="bi @Icon(e)" aria-hidden="true"></i> @When(e)@e.Title</span>
+                }
+            </div>
+        }
+    </div>
+
+    <div class="d-md-none">
+        @if (monthEntries.Any())
+        {
+            @foreach (var group in monthEntries.GroupBy(e => e.Start.Date))
+            {
+                <h3 class="h6 agenda-day">@group.Key.ToString("ddd, dd MMM")</h3>
+                <ul class="agenda-list">
+                    @foreach (var e in group)
+                    {
+                        <li><span class="@Chip(e)"><i class="bi @Icon(e)" aria-hidden="true"></i> @When(e)@e.Title</span>@if (e.Location != null) {<span class="text-muted small">@e.Location</span>}</li>
+                    }
+                </ul>
+            }
+        }
+        else
+        {
+            <p class="text-muted mb-0">Nothing this month.</p>
+        }
+    </div>
+
+    <ul class="cal-key list-inline small text-muted mt-3 mb-0">
+        <li class="list-inline-item"><span class="cal-chip cal-class">Class</span></li>
+        <li class="list-inline-item"><span class="cal-chip cal-due">Due</span></li>
+        <li class="list-inline-item"><span class="cal-chip cal-closing">Closes</span></li>
+        <li class="list-inline-item"><span class="cal-chip cal-term">Term</span></li>
+        <li class="list-inline-item"><span class="cal-chip cal-college">Holiday, exams, assignment weeks</span></li>
+        <li class="list-inline-item"><span class="cal-chip cal-note">Your notes</span></li>
+    </ul>
+</div>
 
 <div class="row g-4">
-    <div class="@(isStudent ? "col-lg-8" : "col-12")">
-        <div class="panel">
-            @if (Model.Entries.Any())
+    <div class="col-lg-6">
+        <div class="panel form-panel">
+            <h2 class="h6 mb-3"><i class="bi bi-pencil-square" aria-hidden="true"></i> Add a note or to-do</h2>
+            <form asp-action="AddNote" method="post">
+                <div class="row g-3 mb-3">
+                    <div class="col-7">
+                        <label for="Date" class="form-label">Date</label>
+                        <input id="Date" name="Date" type="date" class="form-control" value="@Model.NewNote.Date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)" required />
+                    </div>
+                    <div class="col-5">
+                        <label for="Time" class="form-label">Time <span class="text-muted fw-normal">(optional)</span></label>
+                        <input id="Time" name="Time" type="time" class="form-control" value="@Model.NewNote.Time?.ToString("HH:mm", CultureInfo.InvariantCulture)" />
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="Title" class="form-label">What</label>
+                    <input id="Title" name="Title" class="form-control" value="@Model.NewNote.Title" maxlength="120" placeholder="e.g. Start the POE research" required />
+                    @Html.ValidationMessage("Title", new { @class = "text-danger small" })
+                </div>
+                <div class="mb-3">
+                    <label for="Details" class="form-label">Notes <span class="text-muted fw-normal">(optional)</span></label>
+                    <textarea id="Details" name="Details" class="form-control" rows="2" maxlength="500">@Model.NewNote.Details</textarea>
+                    @Html.ValidationMessage("Details", new { @class = "text-danger small" })
+                </div>
+                <div class="form-check mb-3">
+                    <input id="Remind" name="Remind" type="checkbox" class="form-check-input" value="true" checked="@Model.NewNote.Remind" />
+                    <label for="Remind" class="form-check-label">Remind me in the bell (at the time, or 07:00 on the day)</label>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-rosebank" data-loading="Adding…"><i class="bi bi-plus-lg" aria-hidden="true"></i> Add</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="panel mb-4">
+            <h2 class="h6 mb-3"><i class="bi bi-check2-square" aria-hidden="true"></i> Your notes and to-dos in @Model.Month.ToString("MMMM")</h2>
+            @if (notes.Any())
             {
-                @foreach (var day in Model.Entries.GroupBy(e => e.Start.Date))
-                {
-                    <h2 class="h6 agenda-day">@day.Key.ToString("dddd, dd MMMM") <span class="small text-muted fw-normal">@DueDates.Describe(day.Key, DateTime.Today)</span></h2>
-                    <ul class="agenda-list">
-                        @foreach (var e in day)
-                        {
-                            var icon = e.Kind switch { CalendarKind.Class => "bi-easel", CalendarKind.Due => "bi-journal-check", _ => "bi-flag" };
-                            <li>
-                                <i class="bi @icon" aria-hidden="true"></i>
-                                <span class="agenda-time">@(e.AllDay ? "All day" : $"{e.Start:HH:mm}–{e.End:HH:mm}")</span>
-                                <span class="fw-medium">@e.Title</span>
-                                @if (e.Location != null)
-                                {
-                                    <span class="text-muted">· @e.Location</span>
-                                }
-                            </li>
-                        }
-                    </ul>
-                }
+                <ul class="agenda-list">
+                    @foreach (var n in notes)
+                    {
+                        <li>
+                            <form asp-action="SetNoteDone" asp-route-id="@n.NoteId" method="post">
+                                <input type="hidden" name="done" value="@(n.Done ? "false" : "true")" />
+                                <button type="submit" class="btn btn-icon" data-bs-toggle="tooltip" data-bs-title="@(n.Done ? "Not done yet" : "Done")"><i class="bi @(n.Done ? "bi-check2-square" : "bi-square")" aria-hidden="true"></i><span class="visually-hidden">@(n.Done ? "Mark as not done: " : "Mark as done: ")@n.Title</span></button>
+                            </form>
+                            <span class="agenda-time">@n.Start.ToString("ddd dd") @When(n)</span>
+                            <span class="@(n.Done ? "cal-done" : "fw-medium")">@n.Title</span>
+                            @if (n.Details != null)
+                            {
+                                <span class="table-row-sub w-100">@n.Details</span>
+                            }
+                            <form asp-action="DeleteNote" asp-route-id="@n.NoteId" method="post" data-confirm="Delete this note?" class="ms-auto">
+                                <button type="submit" class="btn btn-icon btn-icon-danger" data-bs-toggle="tooltip" data-bs-title="Delete"><i class="bi bi-trash" aria-hidden="true"></i><span class="visually-hidden">Delete @n.Title</span></button>
+                            </form>
+                        </li>
+                    }
+                </ul>
             }
             else
             {
-                <partial name="_EmptyState" model='new EmptyStateModel { Icon = "bi-calendar3", Title = "Nothing in the next four weeks", Message = "Classes show here once your lecturers add them to the timetable, and due dates once assessments are set." }' />
+                <p class="text-muted mb-0">Nothing yet. Add reading, study sessions or anything you don't want to forget.</p>
             }
         </div>
-    </div>
-    @if (isStudent)
-    {
-        <div class="col-lg-4">
+        @if (isStudent)
+        {
             <div class="panel">
                 <h2 class="h6"><i class="bi bi-phone" aria-hidden="true"></i> On your phone</h2>
                 @if (Model.FeedUrl != null)
                 {
                     var webcal = "webcal://" + Model.FeedUrl[(Model.FeedUrl.IndexOf("://", StringComparison.Ordinal) + 3)..];
-                    <p class="small">Copy this link now: it is only shown once. Anyone with it can see your classes and due dates.</p>
+                    <p class="small">Copy this link now: it is only shown once. Anyone with it can see your calendar.</p>
                     <label for="feedUrl" class="form-label small">Calendar link</label>
                     <input id="feedUrl" class="form-control form-control-sm mb-2" value="@Model.FeedUrl" readonly />
                     <a href="@webcal" class="btn btn-rosebank btn-sm"><i class="bi bi-calendar-plus" aria-hidden="true"></i> Add to my calendar</a>
@@ -57,12 +160,12 @@
                 }
                 else
                 {
-                    <p class="small text-muted">Subscribe once and your phone's calendar keeps up with your classes and due dates by itself.</p>
+                    <p class="small text-muted">Subscribe once and your phone's calendar keeps up with your classes, due dates, college dates and notes by itself.</p>
                     <form asp-action="NewFeedLink" method="post" data-confirm="Make a new calendar link? Any link you made before stops working." data-confirm-tone="primary">
                         <button type="submit" class="btn btn-outline-rosebank btn-sm" data-loading="Making…"><i class="bi bi-link-45deg" aria-hidden="true"></i> Get my calendar link</button>
                     </form>
                 }
             </div>
-        </div>
-    }
+        }
+    </div>
 </div>

@@ -21,6 +21,10 @@ namespace ISMLTS_WebApp_.Models
         [Display(Name = "Ends")]
         public TimeOnly EndTime { get; set; }
 
+        // Set for a one-off extra class on that date; empty for a class every week
+        [DataType(DataType.Date)]
+        public DateTime? OnDate { get; set; }
+
         [Required, MaxLength(60)]
         public string Venue { get; set; } = string.Empty;
     }

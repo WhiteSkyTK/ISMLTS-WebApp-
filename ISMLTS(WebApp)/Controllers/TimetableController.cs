@@ -29,18 +29,20 @@ namespace ISMLTS_WebApp_.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ModuleId,Day,StartTime,EndTime,Venue")] TimetableSlot slot)
+        public async Task<IActionResult> Create([Bind("ModuleId,Day,StartTime,EndTime,Venue,OnDate")] TimetableSlot slot)
         {
             var module = await _modules.GetByIdAsync(slot.ModuleId);
             if (module == null || module.LecturerId != User.GetUserId()) return NotFound();
 
             slot.Venue = slot.Venue?.Trim() ?? string.Empty;
+            // An extra class happens once, on its own date
+            if (slot.OnDate is DateTime once) { slot.OnDate = once.Date; slot.Day = once.DayOfWeek; }
             if (Timetable.Problem(slot) is { } problem) ModelState.AddModelError(problem.Field, problem.Message);
             if (!ModelState.IsValid) return View(nameof(Index), await PageAsync(slot));
 
             await _slots.AddAsync(slot);
             await _slots.SaveChangesAsync();
-            this.Toast($"{module.Code} on {Timetable.Day(slot.Day)} {Timetable.Times(slot)} was added.");
+            this.Toast($"{module.Code} on {Timetable.When(slot)} {Timetable.Times(slot)} was added.");
             return RedirectToAction(nameof(Index));
         }
 
@@ -53,7 +55,7 @@ namespace ISMLTS_WebApp_.Controllers
 
             _slots.Delete(slot);
             await _slots.SaveChangesAsync();
-            this.Toast($"{slot.Module.Code} on {Timetable.Day(slot.Day)} {Timetable.Times(slot)} was removed.");
+            this.Toast($"{slot.Module.Code} on {Timetable.When(slot)} {Timetable.Times(slot)} was removed.");
             return RedirectToAction(nameof(Index));
         }
 

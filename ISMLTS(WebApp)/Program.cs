@@ -43,6 +43,9 @@ builder.Services.AddControllersWithViews(options => options.Filters.Add<AccountS
 // JSON API for the Android app (bearer tokens, /api/v1)
 var apiSigningKey = builder.AddStudentApi();
 
+// GET /health: "Healthy" (200) when the database answers, "Unhealthy" (503) when it doesn't; App Service's health check uses it
+builder.Services.AddHealthChecks().AddDbContextCheck<ApplicationDbContext>("database");
+
 // Slows password guessing on the login form. Campus Wi-Fi may put a whole class behind one IP,
 // so the limit is a setting that can be raised in App Service without a redeploy.
 var loginAttemptsPerMinute = builder.Configuration.GetValue("RateLimiting:LoginAttemptsPerMinute", 5);
@@ -151,7 +154,8 @@ else
 // Empty 400/404/405 responses (NotFound(), bad antiforgery tokens, unknown URLs) get a styled page; the API answers in JSON itself
 app.UseWhen(http => !ApiProblems.IsApiRequest(http), site => site.UseStatusCodePagesWithReExecute("/Status/{0}"));
 
-app.UseHttpsRedirection();
+// The health probe may come over plain http; a redirect would count as a failure
+app.UseWhen(http => !http.Request.Path.StartsWithSegments(HealthPath), site => site.UseHttpsRedirection());
 
 // Forces "." as the decimal separator for posted numbers (marks, GPS), whatever the server's regional settings.
 app.UseRequestLocalization("en-US");
@@ -165,6 +169,8 @@ app.UseRateLimiter();
 
 app.MapStaticAssets();
 
+app.MapHealthChecks(HealthPath).AllowAnonymous().DisableRateLimiting();
+
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}")
@@ -173,4 +179,7 @@ app.MapControllerRoute(
 await app.RunAsync();
 
 // Lets ISMLTS.Tests start the app with WebApplicationFactory<Program>
-public partial class Program;
+public partial class Program
+{
+    public const string HealthPath = "/health";
+}

@@ -76,6 +76,8 @@ namespace ISMLTS.Tests.Integration
                 services.AddDbContext<ApplicationDbContext>(options => options.UseSqlite(_connection));
                 services.AddAuthentication(options => options.DefaultAuthenticateScheme = TestAuthHandler.SchemeName)
                     .AddScheme<AuthenticationSchemeOptions, TestAuthHandler>(TestAuthHandler.SchemeName, _ => { });
+                // Like the live site: plain http requests get redirected to https
+                services.Configure<Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionOptions>(options => options.HttpsPort = 443);
             });
         }
 

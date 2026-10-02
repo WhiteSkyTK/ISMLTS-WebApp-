@@ -4,6 +4,7 @@ using ISMLTS_WebApp_.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ISMLTS_WebApp_.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20261002134910_Phase8Terms")]
+    partial class Phase8Terms
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -302,82 +305,6 @@ namespace ISMLTS_WebApp_.Migrations
                     b.HasIndex("ModuleId");
 
                     b.ToTable("AttendanceSessions");
-                });
-
-            modelBuilder.Entity("ISMLTS_WebApp_.Models.CalendarNote", b =>
-                {
-                    b.Property<int>("NoteId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("NoteId"));
-
-                    b.Property<DateTime>("Date")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Details")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<bool>("IsDone")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("Remind")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime?>("RemindedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Role")
-                        .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
-
-                    b.Property<TimeOnly?>("Time")
-                        .HasColumnType("time");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasMaxLength(120)
-                        .HasColumnType("nvarchar(120)");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("NoteId");
-
-                    b.HasIndex("Role", "UserId", "Date");
-
-                    b.ToTable("CalendarNotes");
-                });
-
-            modelBuilder.Entity("ISMLTS_WebApp_.Models.CollegeDate", b =>
-                {
-                    b.Property<int>("CollegeDateId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CollegeDateId"));
-
-                    b.Property<DateTime>("EndDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Kind")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<DateTime>("StartDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.HasKey("CollegeDateId");
-
-                    b.ToTable("CollegeDates");
                 });
 
             modelBuilder.Entity("ISMLTS_WebApp_.Models.Course", b =>
@@ -913,9 +840,6 @@ namespace ISMLTS_WebApp_.Migrations
 
                     b.Property<int>("ModuleId")
                         .HasColumnType("int");
-
-                    b.Property<DateTime?>("OnDate")
-                        .HasColumnType("datetime2");
 
                     b.Property<TimeOnly>("StartTime")
                         .HasColumnType("time");

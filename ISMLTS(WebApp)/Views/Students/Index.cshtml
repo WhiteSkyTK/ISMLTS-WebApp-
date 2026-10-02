@@ -30,8 +30,8 @@
                             <td>@(s.Programme ?? "—")</td>
                             <td>
                                 <div class="row-actions">
-                                    <a asp-action="Details" asp-route-id="@s.StudentId" class="btn btn-icon" data-bs-toggle="tooltip" data-bs-title="View" aria-label="View @s.FullName"><i class="bi bi-eye" aria-hidden="true"></i></a>
-                                    <a asp-action="Edit" asp-route-id="@s.StudentId" class="btn btn-icon" data-bs-toggle="tooltip" data-bs-title="Edit" aria-label="Edit @s.FullName"><i class="bi bi-pencil" aria-hidden="true"></i></a>
+                                    <a asp-action="Details" asp-route-id="@s.StudentId" class="btn btn-icon" data-bs-toggle="tooltip" data-bs-title="View"><i class="bi bi-eye" aria-hidden="true"></i><span class="visually-hidden">View @s.FullName</span></a>
+                                    <a asp-action="Edit" asp-route-id="@s.StudentId" class="btn btn-icon" data-bs-toggle="tooltip" data-bs-title="Edit"><i class="bi bi-pencil" aria-hidden="true"></i><span class="visually-hidden">Edit @s.FullName</span></a>
                                     <form asp-action="Delete" asp-route-id="@s.StudentId" method="post" data-confirm="Delete @s.FullName? Their marks, submissions, tickets and attendance are deleted too.">
                                         <button type="submit" class="btn btn-icon btn-icon-danger" data-bs-toggle="tooltip" data-bs-title="Delete" aria-label="Delete @s.FullName"><i class="bi bi-trash" aria-hidden="true"></i></button>
                                     </form>

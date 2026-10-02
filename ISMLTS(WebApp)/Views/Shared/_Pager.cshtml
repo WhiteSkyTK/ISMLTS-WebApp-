@@ -17,7 +17,7 @@
             <nav aria-label="Pages">
                 <ul class="pagination pagination-sm mb-0">
                     <li class="page-item @(Model.Page == 1 ? "disabled" : null)">
-                        <a class="page-link" asp-all-route-data="PageLink(Model.Page - 1)" aria-label="Previous page"><i class="bi bi-chevron-left" aria-hidden="true"></i></a>
+                        <a class="page-link" asp-all-route-data="PageLink(Model.Page - 1)"><i class="bi bi-chevron-left" aria-hidden="true"></i><span class="visually-hidden">Previous page</span></a>
                     </li>
                     @foreach (var number in Pagination.Window(Model.Page, Model.TotalPages))
                     {
@@ -26,7 +26,7 @@
                         </li>
                     }
                     <li class="page-item @(Model.Page == Model.TotalPages ? "disabled" : null)">
-                        <a class="page-link" asp-all-route-data="PageLink(Model.Page + 1)" aria-label="Next page"><i class="bi bi-chevron-right" aria-hidden="true"></i></a>
+                        <a class="page-link" asp-all-route-data="PageLink(Model.Page + 1)"><i class="bi bi-chevron-right" aria-hidden="true"></i><span class="visually-hidden">Next page</span></a>
                     </li>
                 </ul>
             </nav>

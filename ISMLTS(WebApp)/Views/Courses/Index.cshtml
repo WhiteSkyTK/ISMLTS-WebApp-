@@ -29,10 +29,10 @@
                             <td>@c.Modules.Count</td>
                             <td>
                                 <div class="row-actions">
-                                    <a asp-action="Enrol" asp-route-id="@c.CourseId" class="btn btn-icon" data-bs-toggle="tooltip" data-bs-title="Enrol students" aria-label="Enrol students in @c.Code"><i class="bi bi-person-plus" aria-hidden="true"></i></a>
-                                    <a asp-action="Modules" asp-route-id="@c.CourseId" class="btn btn-icon" data-bs-toggle="tooltip" data-bs-title="Add or remove modules" aria-label="Add or remove modules in @c.Code"><i class="bi bi-journal-plus" aria-hidden="true"></i></a>
-                                    <a asp-action="Details" asp-route-id="@c.CourseId" class="btn btn-icon" data-bs-toggle="tooltip" data-bs-title="View modules" aria-label="View modules in @c.Code"><i class="bi bi-eye" aria-hidden="true"></i></a>
-                                    <a asp-action="Edit" asp-route-id="@c.CourseId" class="btn btn-icon" data-bs-toggle="tooltip" data-bs-title="Edit" aria-label="Edit @c.Code"><i class="bi bi-pencil" aria-hidden="true"></i></a>
+                                    <a asp-action="Enrol" asp-route-id="@c.CourseId" class="btn btn-icon" data-bs-toggle="tooltip" data-bs-title="Enrol students"><i class="bi bi-person-plus" aria-hidden="true"></i><span class="visually-hidden">Enrol students in @c.Code</span></a>
+                                    <a asp-action="Modules" asp-route-id="@c.CourseId" class="btn btn-icon" data-bs-toggle="tooltip" data-bs-title="Add or remove modules"><i class="bi bi-journal-plus" aria-hidden="true"></i><span class="visually-hidden">Add or remove modules in @c.Code</span></a>
+                                    <a asp-action="Details" asp-route-id="@c.CourseId" class="btn btn-icon" data-bs-toggle="tooltip" data-bs-title="View modules"><i class="bi bi-eye" aria-hidden="true"></i><span class="visually-hidden">View modules in @c.Code</span></a>
+                                    <a asp-action="Edit" asp-route-id="@c.CourseId" class="btn btn-icon" data-bs-toggle="tooltip" data-bs-title="Edit"><i class="bi bi-pencil" aria-hidden="true"></i><span class="visually-hidden">Edit @c.Code</span></a>
                                     <form asp-action="Delete" asp-route-id="@c.CourseId" method="post" data-confirm="Delete @c.Code? Its modules stay, but won't belong to a course any more.">
                                         <button type="submit" class="btn btn-icon btn-icon-danger" data-bs-toggle="tooltip" data-bs-title="Delete" aria-label="Delete @c.Code"><i class="bi bi-trash" aria-hidden="true"></i></button>
                                     </form>

@@ -35,8 +35,8 @@
                             <td>@a.Role</td>
                             <td>
                                 <div class="row-actions">
-                                    <a asp-action="Details" asp-route-id="@a.AdminId" class="btn btn-icon" data-bs-toggle="tooltip" data-bs-title="View" aria-label="View @a.Username"><i class="bi bi-eye" aria-hidden="true"></i></a>
-                                    <a asp-action="Edit" asp-route-id="@a.AdminId" class="btn btn-icon" data-bs-toggle="tooltip" data-bs-title="Edit" aria-label="Edit @a.Username"><i class="bi bi-pencil" aria-hidden="true"></i></a>
+                                    <a asp-action="Details" asp-route-id="@a.AdminId" class="btn btn-icon" data-bs-toggle="tooltip" data-bs-title="View"><i class="bi bi-eye" aria-hidden="true"></i><span class="visually-hidden">View @a.Username</span></a>
+                                    <a asp-action="Edit" asp-route-id="@a.AdminId" class="btn btn-icon" data-bs-toggle="tooltip" data-bs-title="Edit"><i class="bi bi-pencil" aria-hidden="true"></i><span class="visually-hidden">Edit @a.Username</span></a>
                                     @if (a.AdminId != myId)
                                     {
                                         <form asp-action="Delete" asp-route-id="@a.AdminId" method="post" data-confirm="Delete admin @a.Username? They won't be able to log in any more.">

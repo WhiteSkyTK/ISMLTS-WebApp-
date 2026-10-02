@@ -32,7 +32,7 @@ namespace ISMLTS.Tests.Integration
 
             var firstPage = await Admin.GetStringAsync("/Students");
             Assert.Contains($"Showing 1–25 of {total}", firstPage);
-            Assert.Contains("aria-label=\"Next page\"", firstPage);
+            Assert.Contains("<span class=\"visually-hidden\">Next page</span>", firstPage);
 
             var secondPage = await Admin.GetStringAsync("/Students?page=2");
             Assert.Contains($"Showing 26–{total} of {total}", secondPage);

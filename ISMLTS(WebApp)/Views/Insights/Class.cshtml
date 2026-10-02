@@ -53,7 +53,7 @@
                                     <td>@s.Submitted of @s.DueSoFar</td>
                                     <td class="small">@string.Join("; ", s.RiskReasons)</td>
                                     <td class="text-end">
-                                        <a asp-controller="Marks" asp-action="Create" asp-route-moduleId="@m.ModuleId" asp-route-studentId="@s.StudentId" class="btn btn-icon" data-bs-toggle="tooltip" data-bs-title="Add a mark" aria-label="Add a mark for @s.FullName"><i class="bi bi-plus-lg" aria-hidden="true"></i></a>
+                                        <a asp-controller="Marks" asp-action="Create" asp-route-moduleId="@m.ModuleId" asp-route-studentId="@s.StudentId" class="btn btn-icon" data-bs-toggle="tooltip" data-bs-title="Add a mark"><i class="bi bi-plus-lg" aria-hidden="true"></i><span class="visually-hidden">Add a mark for @s.FullName</span></a>
                                     </td>
                                 </tr>
                             }

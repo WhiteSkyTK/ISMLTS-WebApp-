@@ -53,9 +53,9 @@
                             </td>
                             <td>
                                 <div class="row-actions">
-                                    <a asp-controller="Grading" asp-action="Gradebook" asp-route-id="@a.AssessmentId" class="btn btn-icon" data-bs-toggle="tooltip" data-bs-title="Gradebook" aria-label="Gradebook for @a.Name"><i class="bi bi-table" aria-hidden="true"></i></a>
-                                    <a asp-action="Submissions" asp-route-id="@a.AssessmentId" class="btn btn-icon" data-bs-toggle="tooltip" data-bs-title="Submissions" aria-label="Submissions for @a.Name"><i class="bi bi-inbox" aria-hidden="true"></i></a>
-                                    <a asp-action="Edit" asp-route-id="@a.AssessmentId" class="btn btn-icon" data-bs-toggle="tooltip" data-bs-title="Edit" aria-label="Edit @a.Name"><i class="bi bi-pencil" aria-hidden="true"></i></a>
+                                    <a asp-controller="Grading" asp-action="Gradebook" asp-route-id="@a.AssessmentId" class="btn btn-icon" data-bs-toggle="tooltip" data-bs-title="Gradebook"><i class="bi bi-table" aria-hidden="true"></i><span class="visually-hidden">Gradebook for @a.Name</span></a>
+                                    <a asp-action="Submissions" asp-route-id="@a.AssessmentId" class="btn btn-icon" data-bs-toggle="tooltip" data-bs-title="Submissions"><i class="bi bi-inbox" aria-hidden="true"></i><span class="visually-hidden">Submissions for @a.Name</span></a>
+                                    <a asp-action="Edit" asp-route-id="@a.AssessmentId" class="btn btn-icon" data-bs-toggle="tooltip" data-bs-title="Edit"><i class="bi bi-pencil" aria-hidden="true"></i><span class="visually-hidden">Edit @a.Name</span></a>
                                     <form asp-action="Delete" asp-route-id="@a.AssessmentId" method="post" data-confirm="Delete @a.Name? Its submissions are deleted too. Marks already captured are kept.">
                                         <button type="submit" class="btn btn-icon btn-icon-danger" data-bs-toggle="tooltip" data-bs-title="Delete" aria-label="Delete @a.Name"><i class="bi bi-trash" aria-hidden="true"></i></button>
                                     </form>

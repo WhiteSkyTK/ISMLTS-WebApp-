@@ -163,7 +163,7 @@ else
                                 {
                                     <a asp-action="Edit" asp-route-id="@other.MarkId" class="mark-chip"><span class="visually-hidden">Edit </span>@other.AssessmentName: @MarkRules.Format(other.Score)/@MarkRules.Format(other.MaxScore)</a>
                                 }
-                                <a asp-action="Create" asp-route-moduleId="@Model.ModuleId" asp-route-studentId="@row.StudentId" class="btn btn-icon" data-bs-toggle="tooltip" data-bs-title="Add a mark that isn't an assessment" aria-label="Add another mark for @row.FullName"><i class="bi bi-plus-lg" aria-hidden="true"></i></a>
+                                <a asp-action="Create" asp-route-moduleId="@Model.ModuleId" asp-route-studentId="@row.StudentId" class="btn btn-icon" data-bs-toggle="tooltip" data-bs-title="Add a mark that isn't an assessment"><i class="bi bi-plus-lg" aria-hidden="true"></i><span class="visually-hidden">Add another mark for @row.FullName</span></a>
                             </td>
                             <td data-sort-value="@Percent(row.AveragePercentage)">@(row.HasMarks ? $"{Percent(row.AveragePercentage)}%" : "—")</td>
                             <td>

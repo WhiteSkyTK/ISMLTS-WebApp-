@@ -51,9 +51,9 @@
                                 <div class="row-actions">
                                     @if (s.IsOpen)
                                     {
-                                        <a asp-action="Live" asp-route-id="@s.SessionId" class="btn btn-icon" data-bs-toggle="tooltip" data-bs-title="Show QR code" aria-label="Show the QR code"><i class="bi bi-qr-code" aria-hidden="true"></i></a>
+                                        <a asp-action="Live" asp-route-id="@s.SessionId" class="btn btn-icon" data-bs-toggle="tooltip" data-bs-title="Show QR code"><i class="bi bi-qr-code" aria-hidden="true"></i><span class="visually-hidden">Show the QR code</span></a>
                                     }
-                                    <a asp-action="Details" asp-route-id="@s.SessionId" class="btn btn-icon" data-bs-toggle="tooltip" data-bs-title="Register" aria-label="Open the register"><i class="bi bi-list-check" aria-hidden="true"></i></a>
+                                    <a asp-action="Details" asp-route-id="@s.SessionId" class="btn btn-icon" data-bs-toggle="tooltip" data-bs-title="Register"><i class="bi bi-list-check" aria-hidden="true"></i><span class="visually-hidden">Open the register</span></a>
                                 </div>
                             </td>
                         </tr>

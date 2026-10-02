@@ -11,7 +11,8 @@ namespace ISMLTS_WebApp_.Services
         string Status,
         string? Link,
         Mark? Mark,
-        bool WaitingForMarks);
+        bool WaitingForMarks,
+        SubmissionFile? File = null);
 
     public record PortfolioModule(int ModuleId, string Code, string Name, string Term, List<PortfolioEntry> Entries, decimal? Average);
 
@@ -48,7 +49,8 @@ namespace ISMLTS_WebApp_.Services
                             Submission.StatusFor(submission?.SubmittedAt, a.DueDate),
                             LinkValidator.IsWebLink(submission?.Link) ? submission!.Link : null,
                             mark,
-                            WaitingForMarks: mark == null && !a.MarksReleased);
+                            WaitingForMarks: mark == null && !a.MarksReleased,
+                            File: submission?.LatestFile);
                     })
                     .Concat(visibleMarks.Where(m => m.ModuleId == module.ModuleId && m.AssessmentId == null)
                         .Select(m => new PortfolioEntry(m.AssessmentName, "Other", null, null, "Not Submitted", null, m, WaitingForMarks: false)))

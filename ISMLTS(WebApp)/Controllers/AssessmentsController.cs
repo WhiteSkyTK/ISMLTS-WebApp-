@@ -17,6 +17,7 @@ namespace ISMLTS_WebApp_.Controllers
         private readonly IMarkRepository _markRepository;
         private readonly IMarkService _markService;
         private readonly IStudentPortalService _portal;
+        private readonly ISubmissionFileService _files;
 
         public AssessmentsController(
             IAssessmentRepository assessmentRepository,
@@ -25,9 +26,11 @@ namespace ISMLTS_WebApp_.Controllers
             INotificationService notifications,
             IMarkRepository markRepository,
             IMarkService markService,
-            IStudentPortalService portal)
+            IStudentPortalService portal,
+            ISubmissionFileService files)
         {
             _portal = portal;
+            _files = files;
             _assessmentRepository = assessmentRepository;
             _submissionRepository = submissionRepository;
             _moduleRepository = moduleRepository;
@@ -68,7 +71,7 @@ namespace ISMLTS_WebApp_.Controllers
         [Authorize(Roles = "Lecturer")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ModuleId,Name,Type,DueDate,Description,MaxScore")] Assessment assessment)
+        public async Task<IActionResult> Create([Bind("ModuleId,Name,Type,DueDate,Description,MaxScore,LateDays")] Assessment assessment)
         {
             var module = await GetOwnedModuleAsync(assessment.ModuleId);
             if (module == null) return NotFound();
@@ -96,7 +99,7 @@ namespace ISMLTS_WebApp_.Controllers
         [Authorize(Roles = "Lecturer")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("AssessmentId,ModuleId,Name,Type,DueDate,Description,MaxScore")] Assessment input)
+        public async Task<IActionResult> Edit(int id, [Bind("AssessmentId,ModuleId,Name,Type,DueDate,Description,MaxScore,LateDays")] Assessment input)
         {
             if (id != input.AssessmentId) return NotFound();
 
@@ -114,6 +117,7 @@ namespace ISMLTS_WebApp_.Controllers
             assessment.DueDate = input.DueDate;
             assessment.Description = input.Description;
             assessment.MaxScore = input.MaxScore;
+            assessment.LateDays = input.LateDays;
 
             _assessmentRepository.Update(assessment);
             await _assessmentRepository.SaveChangesAsync();
@@ -130,7 +134,9 @@ namespace ISMLTS_WebApp_.Controllers
             if (assessment == null) return NotFound();
 
             var moduleId = assessment.ModuleId;
+            var storedFiles = await _files.StoredNamesForAssessmentAsync(id);
             await _markService.DeleteAssessmentAsync(assessment);
+            await _files.RemoveStoredAsync(storedFiles);
             this.Toast($"{assessment.Name} and its submissions were deleted. Its marks were kept.");
             return RedirectToAction(nameof(ForModule), new { moduleId });
         }
@@ -173,6 +179,8 @@ namespace ISMLTS_WebApp_.Controllers
                     SubmissionId = sub?.SubmissionId,
                     SubmittedAt = sub?.SubmittedAt,
                     Link = LinkValidator.IsWebLink(sub?.Link) ? sub?.Link : null, // hides links saved before validation existed
+                    File = sub?.LatestFile,
+                    FileCount = sub?.Files.Count ?? 0,
                     Status = sub?.Status ?? "Not Submitted"
                 };
             }).ToList();
@@ -183,6 +191,7 @@ namespace ISMLTS_WebApp_.Controllers
                 ModuleId = module.ModuleId,
                 AssessmentDisplay = $"{assessment.Name} ({module.Code})",
                 DueDate = assessment.DueDate,
+                LateDays = assessment.LateDays,
                 Rows = rows
             });
         }
@@ -200,33 +209,37 @@ namespace ISMLTS_WebApp_.Controllers
         {
             if (User.GetUserId() is not int studentId) return Forbid();
 
-            var assessment = await _portal.EnrolledAssessmentAsync(studentId, id);
-            if (assessment == null) return NotFound();
-
-            var existing = await _submissionRepository.GetByAssessmentAndStudentAsync(id, studentId);
-
-            ViewBag.AssessmentDisplay = $"{assessment.Name} ({assessment.Module?.Code})";
-            ViewBag.DueDate = assessment.DueDate;
-            return View(new Submission { AssessmentId = id, StudentId = studentId, Link = existing?.Link });
+            var page = await _portal.SubmitPageAsync(studentId, id);
+            return page == null ? NotFound() : View(page);
         }
 
+        // A file, a link or both; the form posts multipart data, so the file arrives as IFormFile
         [Authorize(Roles = "Student")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Submit(int id, string? link)
+        public async Task<IActionResult> Submit(int id, string? link, IFormFile? file)
         {
             if (User.GetUserId() is not int studentId) return Forbid();
 
-            var result = await _portal.SubmitAsync(studentId, id, link);
+            var result = await _portal.SubmitAsync(studentId, id, link, file);
             if (result.Outcome == SubmitOutcome.NotFound || result.Assessment == null) return NotFound();
             var assessment = result.Assessment;
 
-            if (result.Outcome == SubmitOutcome.BadLink)
+            if (result.Outcome == SubmitOutcome.Closed)
             {
-                ModelState.AddModelError(nameof(Submission.Link), StudentPortalService.BadLinkMessage);
-                ViewBag.AssessmentDisplay = $"{assessment.Name} ({assessment.Module?.Code})";
-                ViewBag.DueDate = assessment.DueDate;
-                return View(new Submission { AssessmentId = id, StudentId = studentId, Link = link?.Trim() });
+                this.Toast(result.Message ?? "Submissions for this assessment are closed.", ToastTypes.Danger);
+                return RedirectToAction(nameof(Submit), new { id });
+            }
+            if (result.Outcome != SubmitOutcome.Saved)
+            {
+                if (result.Outcome == SubmitOutcome.BadLink)
+                    ModelState.AddModelError(nameof(SubmitViewModel.Link), StudentPortalService.BadLinkMessage);
+                else
+                    ModelState.AddModelError("file", result.Message ?? StudentPortalService.MissingMessage);
+                var page = await _portal.SubmitPageAsync(studentId, id);
+                if (page == null) return NotFound();
+                page.Link = link?.Trim();
+                return View(page);
             }
 
             this.Toast($"Your work for {assessment.Name} was submitted.");

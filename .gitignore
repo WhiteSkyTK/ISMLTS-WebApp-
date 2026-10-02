@@ -14,6 +14,9 @@ publish/
 **/Properties/PublishProfiles/
 **/Properties/ServiceDependencies/
 
+# Uploaded submissions saved on a PC without Blob Storage
+App_Data/
+
 # Local Claude Code preview settings
 .claude/launch.json
 .claude/settings.local.json

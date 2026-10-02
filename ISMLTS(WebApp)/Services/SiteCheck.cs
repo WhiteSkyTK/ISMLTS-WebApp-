@@ -27,7 +27,11 @@ namespace ISMLTS_WebApp_.Services
         bool DemoDataOn,
         bool AppInsightsConfigured,
         TimeSpan UtcOffset,
-        string TimeZone);
+        string TimeZone,
+        StorageFacts? Storage = null);
+
+    // Where uploaded submissions are kept, and whether the site can reach it
+    public record StorageFacts(bool IsCloud, bool Reachable, string Location);
 
     // The admin Site check page: whether this server's settings and connections are ready for real use
     public static class SiteCheck
@@ -46,6 +50,7 @@ namespace ISMLTS_WebApp_.Services
             };
             items.AddRange(Database(f.Database));
             items.AddRange(Network(f));
+            if (f.Storage != null) items.Add(Storage(f.Storage, f.Environment));
             items.Add(f.JwtKeyConfigured
                 ? new("Sign-in", "App token key", CheckState.Ok, "Jwt:SigningKey is set.")
                 : new("Sign-in", "App token key", CheckState.Warning, "Jwt:SigningKey is not set, so Android app sign-ins end whenever the site restarts. Set Jwt__SigningKey (32+ characters)."));
@@ -102,6 +107,19 @@ namespace ISMLTS_WebApp_.Services
                 : "Your address is not in Attendance:AllowedIpRanges. Check this from the campus Wi-Fi.");
         }
 
+        private static SiteCheckItem Storage(StorageFacts s, string environment)
+        {
+            if (!s.Reachable)
+                return new("Files", "Submission storage", CheckState.Problem, s.IsCloud
+                    ? "The site can't reach Azure Blob Storage, so uploads fail. Check Storage__ConnectionString."
+                    : "The site can't write to its uploads folder, so uploads fail. Check Storage__LocalFolder.");
+            if (s.IsCloud)
+                return new("Files", "Submission storage", CheckState.Ok, $"Uploads go to the private Blob Storage container {s.Location}.");
+            return environment == "Development"
+                ? new("Files", "Submission storage", CheckState.Ok, $"Uploads are saved in {s.Location} on this PC.")
+                : new("Files", "Submission storage", CheckState.Warning, "Uploads are saved on the web server's own disk. Set Storage__ConnectionString to an Azure Storage account so they live in Blob Storage.");
+        }
+
         private static SiteCheckItem Time(SiteFacts f)
         {
             var offset = f.UtcOffset.ToString(f.UtcOffset < TimeSpan.Zero ? @"\-hh\:mm" : @"\+hh\:mm", CultureInfo.InvariantCulture);
@@ -144,6 +162,7 @@ namespace ISMLTS_WebApp_.Services
         private readonly TwoFactorOptions _twoFactor;
         private readonly EmailOptions _email;
         private readonly ExternalLinksOptions _links;
+        private readonly IFileStore _store;
 
         public SiteCheckService(
             IDatabaseInfoRepository database,
@@ -153,7 +172,8 @@ namespace ISMLTS_WebApp_.Services
             ApiSigningKey signingKey,
             IOptions<TwoFactorOptions> twoFactor,
             IOptions<EmailOptions> email,
-            IOptions<ExternalLinksOptions> links)
+            IOptions<ExternalLinksOptions> links,
+            IFileStore store)
         {
             _database = database;
             _verifier = verifier;
@@ -163,6 +183,7 @@ namespace ISMLTS_WebApp_.Services
             _twoFactor = twoFactor.Value;
             _email = email.Value;
             _links = links.Value;
+            _store = store;
         }
 
         public async Task<List<SiteCheckItem>> RunAsync(HttpContext http)
@@ -189,7 +210,8 @@ namespace ISMLTS_WebApp_.Services
                 _configuration.GetValue<bool>("Seed:DemoData"),
                 !string.IsNullOrWhiteSpace(_configuration[Program.MonitoringConnectionSetting]),
                 TimeZoneInfo.Local.GetUtcOffset(DateTime.UtcNow),
-                TimeZoneInfo.Local.DisplayName));
+                TimeZoneInfo.Local.DisplayName,
+                new StorageFacts(_store.IsCloud, await _store.CanConnectAsync(http.RequestAborted), _store.Location)));
         }
     }
 }

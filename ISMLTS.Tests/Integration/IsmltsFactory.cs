@@ -27,6 +27,8 @@ namespace ISMLTS.Tests.Integration
     public class IsmltsFactory : WebApplicationFactory<Program>
     {
         private readonly SqliteConnection _connection = new("DataSource=:memory:");
+        // Uploaded files go to a folder of their own per test class, removed afterwards
+        public string UploadFolder { get; } = Path.Combine(Path.GetTempPath(), "ismlts-tests", Guid.NewGuid().ToString("N"));
         private SeedData? _data;
 
         public SeedData Data
@@ -78,6 +80,7 @@ namespace ISMLTS.Tests.Integration
                     .AddScheme<AuthenticationSchemeOptions, TestAuthHandler>(TestAuthHandler.SchemeName, _ => { });
                 // Like the live site: plain http requests get redirected to https
                 services.Configure<Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionOptions>(options => options.HttpsPort = 443);
+                services.AddSingleton<ISMLTS_WebApp_.Services.IFileStore>(new ISMLTS_WebApp_.Services.LocalFileStore(UploadFolder));
             });
         }
 
@@ -94,7 +97,9 @@ namespace ISMLTS.Tests.Integration
         protected override void Dispose(bool disposing)
         {
             base.Dispose(disposing);
-            if (disposing) _connection.Dispose();
+            if (!disposing) return;
+            _connection.Dispose();
+            if (Directory.Exists(UploadFolder)) Directory.Delete(UploadFolder, recursive: true);
         }
 
         private static SeedData Seed(ApplicationDbContext db)

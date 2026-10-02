@@ -18,17 +18,20 @@ namespace ISMLTS_WebApp_.Controllers
         private readonly ILecturerRepository _lecturerRepository;
         private readonly IStudentRepository _studentRepository;
         private readonly ICourseRepository _courseRepository;
+        private readonly ISubmissionFileService _files;
 
         public ModulesController(
             IModuleRepository moduleRepository,
             ILecturerRepository lecturerRepository,
             IStudentRepository studentRepository,
-            ICourseRepository courseRepository)
+            ICourseRepository courseRepository,
+            ISubmissionFileService files)
         {
             _moduleRepository = moduleRepository;
             _lecturerRepository = lecturerRepository;
             _studentRepository = studentRepository;
             _courseRepository = courseRepository;
+            _files = files;
         }
 
         public async Task<IActionResult> Index(string? q, int page = 1, string? sort = null, string? course = null, string? term = null, int? lecturer = null)
@@ -150,8 +153,10 @@ namespace ISMLTS_WebApp_.Controllers
             var module = await _moduleRepository.GetByIdAsync(id);
             if (module == null) return NotFound();
 
+            var storedFiles = await _files.StoredNamesForModuleAsync(id);
             _moduleRepository.Delete(module);
             await _moduleRepository.SaveChangesAsync();
+            await _files.RemoveStoredAsync(storedFiles);
             this.Toast($"{module.Code} was deleted.");
             return RedirectToAction(nameof(Index));
         }

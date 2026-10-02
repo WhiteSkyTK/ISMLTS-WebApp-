@@ -29,10 +29,16 @@
                     <dt class="col-sm-5">Marked out of</dt>
                     <dd class="col-sm-7 mb-0">@MarkRules.Format(assessment.MaxScore)</dd>
                 </dl>
-                @if (link != null)
-                {
-                    <a href="@link" target="_blank" rel="noopener noreferrer" class="btn btn-outline-rosebank"><i class="bi bi-box-arrow-up-right" aria-hidden="true"></i> Open the work</a>
-                }
+                <div class="d-flex flex-wrap gap-2">
+                    @if (current.LatestFile is SubmissionFile file)
+                    {
+                        <a asp-controller="SubmissionFiles" asp-action="Download" asp-route-id="@file.SubmissionFileId" class="btn btn-rosebank"><i class="bi @SubmissionFileRules.Icon(file.FileName)" aria-hidden="true"></i> Download @file.FileName</a>
+                    }
+                    @if (link != null)
+                    {
+                        <a href="@link" target="_blank" rel="noopener noreferrer" class="btn btn-outline-rosebank"><i class="bi bi-box-arrow-up-right" aria-hidden="true"></i> Open the work</a>
+                    }
+                </div>
             </div>
         </div>
         <div class="col-lg-7">

@@ -34,5 +34,10 @@ namespace ISMLTS_WebApp_.Models
         public bool MarksReleased { get; set; }
 
         public DateTime? MarksReleasedAt { get; set; }
+
+        // Days after the due date that work is still accepted: null keeps accepting, 0 closes at the end of the due date
+        [Range(0, 30)]
+        [Display(Name = "Late submissions")]
+        public int? LateDays { get; set; }
     }
 }

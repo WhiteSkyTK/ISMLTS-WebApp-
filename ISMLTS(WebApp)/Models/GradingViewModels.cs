@@ -16,6 +16,7 @@ namespace ISMLTS_WebApp_.Models
         public string FullName { get; set; } = string.Empty;
         public string SubmissionStatus { get; set; } = "Not Submitted";
         public string? Link { get; set; }
+        public SubmissionFile? File { get; set; }
         public bool HasMark { get; set; }
     }
 

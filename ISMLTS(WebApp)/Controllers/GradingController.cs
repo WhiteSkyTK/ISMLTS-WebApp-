@@ -260,7 +260,8 @@ namespace ISMLTS_WebApp_.Controllers
                         Feedback = postedRow != null ? postedRow.Feedback : mark?.Feedback,
                         HasMark = mark != null,
                         SubmissionStatus = submission?.Status ?? "Not Submitted",
-                        Link = LinkValidator.IsWebLink(submission?.Link) ? submission?.Link : null
+                        Link = LinkValidator.IsWebLink(submission?.Link) ? submission?.Link : null,
+                        File = submission?.LatestFile
                     };
                 }).ToList()
             };

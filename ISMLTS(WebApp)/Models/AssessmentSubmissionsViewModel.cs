@@ -1,4 +1,4 @@
-﻿namespace ISMLTS_WebApp_.Models
+namespace ISMLTS_WebApp_.Models
 {
     public class AssessmentSubmissionsViewModel
     {
@@ -6,6 +6,7 @@
         public int ModuleId { get; set; }
         public string AssessmentDisplay { get; set; } = string.Empty;
         public DateTime DueDate { get; set; }
+        public int? LateDays { get; set; }
         public List<SubmissionRow> Rows { get; set; } = new();
     }
 }

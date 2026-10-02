@@ -10,7 +10,7 @@
     };
     var submitted = Model.Rows.Count(r => r.Status != "Not Submitted");
     var late = Model.Rows.Count(r => r.Status == "Late");
-    var subtitle = $"Due {Model.DueDate:ddd, dd MMM yyyy} · {DueDates.Describe(Model.DueDate, DateTime.Today)}";
+    var subtitle = $"Due {Model.DueDate:ddd, dd MMM yyyy} · {DueDates.Describe(Model.DueDate, DateTime.Today)} · {SubmissionWindow.Short(Model.LateDays)}";
 }
 
 <partial name="_PageHeader" model='new PageHeaderModel { Title = Model.AssessmentDisplay, Subtitle = subtitle, BackUrl = Url.Action("ForModule", new { moduleId = Model.ModuleId }), BackText = "Assessments" }' />
@@ -30,6 +30,7 @@
                         <th scope="col" data-sort="text" aria-sort="ascending">Student</th>
                         <th scope="col" data-sort="text">Status</th>
                         <th scope="col" data-sort="number">Submitted</th>
+                        <th scope="col">File</th>
                         <th scope="col"><span class="visually-hidden">Link</span></th>
                     </tr>
                 </thead>
@@ -40,6 +41,17 @@
                             <td class="fw-medium">@row.FullName</td>
                             <td><partial name="_SubmissionStatus" model="row.Status" /></td>
                             <td data-sort-value="@(row.SubmittedAt?.Ticks.ToString(CultureInfo.InvariantCulture))">@(row.SubmittedAt?.ToLocalTime().ToString("dd MMM, HH:mm") ?? "—")</td>
+                            <td>
+                                @if (row.File != null)
+                                {
+                                    <partial name="_FileLink" model="row.File" />
+                                    <span class="table-row-sub">@SubmissionFileRules.Size(row.File.SizeBytes)@(row.FileCount > 1 ? $" · {row.FileCount - 1} earlier upload{(row.FileCount > 2 ? "s" : null)} kept" : null)</span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">—</span>
+                                }
+                            </td>
                             <td class="text-end">
                                 @if (!string.IsNullOrEmpty(row.Link))
                                 {

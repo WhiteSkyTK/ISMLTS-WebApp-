@@ -4,6 +4,7 @@ using ISMLTS_WebApp_.Models;
 using ISMLTS_WebApp_.Repositories;
 using ISMLTS_WebApp_.Services;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 
 namespace ISMLTS.Tests
@@ -11,8 +12,9 @@ namespace ISMLTS.Tests
     public class StudentPortalTests : IDisposable
     {
         private readonly SqliteTestDb _db = new();
+        private readonly string _uploads = Path.Combine(Path.GetTempPath(), "ismlts-tests", Guid.NewGuid().ToString("N"));
 
-        private static StudentPortalService Service(ApplicationDbContext context) => new(
+        private StudentPortalService Service(ApplicationDbContext context) => new(
             new StudentRepository(context),
             new AssessmentRepository(context),
             new SubmissionRepository(context),
@@ -22,6 +24,9 @@ namespace ISMLTS.Tests
             new NotificationService(new NotificationRepository(context), new NotificationSettingRepository(context),
                 new StudentRepository(context), new LecturerRepository(context), new NullEmailSender(), Options.Create(new EmailOptions())),
             new AttendanceVerifier(Options.Create(new AttendanceOptions { RadiusMeters = 200, AllowedIpRanges = { "10.0.0.0/8" } })),
+            new SubmissionFileService(new SubmissionFileRepository(context), new LocalFileStore(_uploads), TimeProvider.System,
+                NullLogger<SubmissionFileService>.Instance, Options.Create(new SubmissionFileOptions())),
+            TimeProvider.System,
             Options.Create(new RiskOptions()));
 
         private sealed record Seeded(int StudentId, int OutsiderId, int ModuleId, int AssessmentId, string OpenCode, string ClosedCode);
@@ -122,6 +127,91 @@ namespace ISMLTS.Tests
             Assert.Empty(theirs);
         }
 
-        public void Dispose() => _db.Dispose();
+        [Fact]
+        public async Task SubmitFile_KeepsEveryUpload_AndTheNewestCounts()
+        {
+            var data = await SeedAsync();
+            await using var context = _db.NewContext();
+            var portal = Service(context);
+
+            Assert.Equal(SubmitOutcome.Saved, (await portal.SubmitAsync(data.StudentId, data.AssessmentId, "https://github.com/me/ice", TestFiles.Upload(TestFiles.Pdf(), "draft.pdf"))).Outcome);
+            // The app's upload leaves the link alone
+            Assert.Equal(SubmitOutcome.Saved, (await portal.SubmitAsync(data.StudentId, data.AssessmentId, null, TestFiles.Upload(TestFiles.Docx(), "C:\\Users\\me\\final.docx"), keepLink: true)).Outcome);
+
+            await using var check = _db.NewContext();
+            var submission = await check.Submissions.Include(s => s.Files).SingleAsync();
+            Assert.Equal("https://github.com/me/ice", submission.Link);
+            Assert.Equal(2, submission.Files.Count);
+            Assert.Equal("final.docx", submission.LatestFile?.FileName);
+            Assert.All(submission.Files, f => Assert.True(File.Exists(Path.Combine(_uploads, f.StoredName))));
+
+            var row = Assert.Single(await Service(check).AssessmentsAsync(data.StudentId));
+            Assert.Equal(("final.docx", 2), (row.File?.FileName, row.FileCount));
+        }
+
+        [Fact]
+        public async Task SubmitFile_RejectsAFileThatIsntWhatItsNameSays_AndStoresNothing()
+        {
+            var data = await SeedAsync();
+            await using var context = _db.NewContext();
+
+            var result = await Service(context).SubmitAsync(data.StudentId, data.AssessmentId, null, TestFiles.Upload(TestFiles.Program(), "work.pdf"));
+
+            Assert.Equal(SubmitOutcome.BadFile, result.Outcome);
+            Assert.Contains("isn't a real PDF", result.Message);
+            await using var check = _db.NewContext();
+            Assert.False(await check.Submissions.AnyAsync());
+            Assert.False(Directory.Exists(_uploads) && Directory.EnumerateFiles(_uploads, "*", SearchOption.AllDirectories).Any());
+        }
+
+        [Fact]
+        public async Task Submit_NeedsAFileOrALink_AndAnEmptyLinkRemovesTheOldOne()
+        {
+            var data = await SeedAsync();
+            await using var context = _db.NewContext();
+            var portal = Service(context);
+
+            Assert.Equal(SubmitOutcome.Missing, (await portal.SubmitAsync(data.StudentId, data.AssessmentId, "  ")).Outcome);
+            Assert.Equal(SubmitOutcome.Missing, (await portal.SubmitAsync(data.StudentId, data.AssessmentId, null, null, keepLink: true)).Outcome);
+
+            await portal.SubmitAsync(data.StudentId, data.AssessmentId, "https://github.com/me/ice", TestFiles.Upload(TestFiles.Pdf(), "work.pdf"));
+            Assert.Equal(SubmitOutcome.Saved, (await portal.SubmitAsync(data.StudentId, data.AssessmentId, "")).Outcome);
+
+            await using var check = _db.NewContext();
+            var submission = await check.Submissions.Include(s => s.Files).SingleAsync();
+            Assert.Null(submission.Link);
+            Assert.Single(submission.Files);
+        }
+
+        [Theory]
+        [InlineData(null, -30, SubmitOutcome.Saved)]
+        [InlineData(0, 0, SubmitOutcome.Saved)]
+        [InlineData(0, -1, SubmitOutcome.Closed)]
+        [InlineData(2, -2, SubmitOutcome.Saved)]
+        [InlineData(2, -3, SubmitOutcome.Closed)]
+        public async Task Submit_FollowsTheAssessmentsLateWindow(int? lateDays, int dueInDays, SubmitOutcome expected)
+        {
+            var data = await SeedAsync();
+            int assessmentId;
+            await using (var setup = _db.NewContext())
+            {
+                var assessment = new Assessment { ModuleId = data.ModuleId, Name = "Late window", DueDate = DateTime.Today.AddDays(dueInDays), LateDays = lateDays };
+                setup.Add(assessment);
+                await setup.SaveChangesAsync();
+                assessmentId = assessment.AssessmentId;
+            }
+            await using var context = _db.NewContext();
+
+            var result = await Service(context).SubmitAsync(data.StudentId, assessmentId, "https://github.com/me/late");
+
+            Assert.Equal(expected, result.Outcome);
+            if (expected == SubmitOutcome.Closed) Assert.StartsWith("Submissions closed", result.Message);
+        }
+
+        public void Dispose()
+        {
+            _db.Dispose();
+            if (Directory.Exists(_uploads)) Directory.Delete(_uploads, recursive: true);
+        }
     }
 }

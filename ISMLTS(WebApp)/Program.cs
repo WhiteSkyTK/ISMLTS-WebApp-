@@ -46,6 +46,9 @@ builder.Services.AddControllersWithViews(options => options.Filters.Add<AccountS
 // JSON API for the Android app (bearer tokens, /api/v1)
 var apiSigningKey = builder.AddStudentApi();
 
+// Uploaded submissions: Azure Blob Storage when Storage:ConnectionString is set, otherwise a folder outside wwwroot
+builder.AddSubmissionStorage();
+
 // On Azure the client's address may arrive in X-Forwarded-For from App Service's front end. ForwardedHeaders:Enabled reads it
 // from there; the admin Site check page shows which address the site sees, so you can tell whether it's needed.
 var useForwardedHeaders = builder.Configuration.GetValue<bool>("ForwardedHeaders:Enabled");
@@ -110,6 +113,7 @@ builder.Services.AddScoped<ICourseRepository, CourseRepository>();
 builder.Services.AddScoped<IMarkRepository, MarkRepository>();
 builder.Services.AddScoped<IAssessmentRepository, AssessmentRepository>();
 builder.Services.AddScoped<ISubmissionRepository, SubmissionRepository>();
+builder.Services.AddScoped<ISubmissionFileRepository, SubmissionFileRepository>();
 builder.Services.AddScoped<ITicketRepository, TicketRepository>();
 builder.Services.AddScoped<IAttendanceRepository, AttendanceRepository>();
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();

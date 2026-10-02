@@ -36,6 +36,7 @@
                             <td data-sort-value="@a.DueDate.ToString("yyyyMMdd", CultureInfo.InvariantCulture)">
                                 @a.DueDate.ToString("ddd, dd MMM yyyy")
                                 <span class="table-row-sub @(DueDates.IsOverdue(a.DueDate, DateTime.Today) ? "text-danger" : null)">@DueDates.Describe(a.DueDate, DateTime.Today)</span>
+                                <span class="table-row-sub">@SubmissionWindow.Short(a.LateDays)</span>
                             </td>
                             <td data-sort-value="@marked">@marked of @enrolled</td>
                             <td>

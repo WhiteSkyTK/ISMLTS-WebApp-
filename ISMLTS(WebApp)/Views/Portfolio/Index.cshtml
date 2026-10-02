@@ -68,6 +68,10 @@
                                     {
                                         <partial name="~/Views/Assessments/_SubmissionStatus.cshtml" model="entry.Status" />
                                         <span class="table-row-sub">@submitted.ToLocalTime().ToString("dd MMM yyyy, HH:mm")</span>
+                                        @if (entry.File != null)
+                                        {
+                                            <span class="table-row-sub"><partial name="_FileLink" model="entry.File" /></span>
+                                        }
                                         @if (entry.Link != null)
                                         {
                                             <a href="@entry.Link" target="_blank" rel="noopener noreferrer" class="table-row-sub">Open work <i class="bi bi-box-arrow-up-right" aria-hidden="true"></i></a>

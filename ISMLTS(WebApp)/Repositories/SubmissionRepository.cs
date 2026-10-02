@@ -9,17 +9,18 @@ namespace ISMLTS_WebApp_.Repositories
         public SubmissionRepository(ApplicationDbContext context) : base(context) { }
 
         public async Task<IEnumerable<Submission>> GetByAssessmentAsync(int assessmentId) =>
-            await _dbSet.Include(s => s.Assessment).Where(s => s.AssessmentId == assessmentId).ToListAsync();
+            await _dbSet.Include(s => s.Assessment).Include(s => s.Files).Where(s => s.AssessmentId == assessmentId).ToListAsync();
 
         public async Task<Submission?> GetByAssessmentAndStudentAsync(int assessmentId, int studentId) =>
-            await _dbSet.Include(s => s.Assessment).FirstOrDefaultAsync(s => s.AssessmentId == assessmentId && s.StudentId == studentId);
+            await _dbSet.Include(s => s.Assessment).Include(s => s.Files).FirstOrDefaultAsync(s => s.AssessmentId == assessmentId && s.StudentId == studentId);
 
         public async Task<IEnumerable<Submission>> GetByStudentAsync(int studentId) =>
-            await _dbSet.Include(s => s.Assessment).Where(s => s.StudentId == studentId).ToListAsync();
+            await _dbSet.Include(s => s.Assessment).Include(s => s.Files).Where(s => s.StudentId == studentId).ToListAsync();
 
         public async Task<List<Submission>> GetByAssessmentsAsync(IReadOnlyCollection<int> assessmentIds) =>
             await _dbSet.AsNoTracking()
                 .Include(s => s.Student)
+                .Include(s => s.Files)
                 .Include(s => s.Assessment).ThenInclude(a => a!.Module)
                 .Where(s => assessmentIds.Contains(s.AssessmentId))
                 .ToListAsync();

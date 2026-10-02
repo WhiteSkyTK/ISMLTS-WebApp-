@@ -21,6 +21,12 @@ namespace ISMLTS_WebApp_.Models
         [MaxLength(300)]
         public string? Link { get; set; }
 
+        // Every file the student uploaded; earlier ones are kept, the latest counts
+        public List<SubmissionFile> Files { get; set; } = new();
+
+        [NotMapped]
+        public SubmissionFile? LatestFile => Files.OrderByDescending(f => f.UploadedAt).ThenByDescending(f => f.SubmissionFileId).FirstOrDefault();
+
         [NotMapped]
         public string Status => StatusFor(SubmittedAt, Assessment?.DueDate);
 

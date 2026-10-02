@@ -5,9 +5,10 @@ using ISMLTS_WebApp_.Repositories;
 
 namespace ISMLTS_WebApp_.Services
 {
-    public enum SubmitOutcome { NotFound, BadLink, Saved }
+    public enum SubmitOutcome { NotFound, Closed, BadLink, BadFile, Missing, Saved }
 
-    public record SubmitResult(SubmitOutcome Outcome, Assessment? Assessment);
+    // Message explains a Closed, BadFile or Missing outcome to the student
+    public record SubmitResult(SubmitOutcome Outcome, Assessment? Assessment, string? Message = null);
 
     public record TicketResult(Ticket? Ticket, string? Field, string? Error);
 
@@ -33,7 +34,8 @@ namespace ISMLTS_WebApp_.Services
         Task<MyProgressViewModel?> ProgressAsync(int studentId);
         Task<List<MyAttendanceRow>> AttendanceAsync(int studentId);
         Task<Assessment?> EnrolledAssessmentAsync(int studentId, int assessmentId);
-        Task<SubmitResult> SubmitAsync(int studentId, int assessmentId, string? link);
+        Task<SubmitViewModel?> SubmitPageAsync(int studentId, int assessmentId);
+        Task<SubmitResult> SubmitAsync(int studentId, int assessmentId, string? link, IFormFile? file = null, bool keepLink = false);
         Task<TicketResult> RaiseTicketAsync(int studentId, int moduleId, string? subject, string? description);
         Task<ScanResult> ScanAsync(int studentId, string? code, IPAddress? ip, double? latitude, double? longitude, double? accuracy);
     }
@@ -41,6 +43,8 @@ namespace ISMLTS_WebApp_.Services
     public class StudentPortalService : IStudentPortalService
     {
         public const string BadLinkMessage = "Paste the full link to your work, starting with https://";
+        public const string MissingMessage = "Upload your file or paste a link to your work.";
+        public const string MissingFileMessage = "Choose a PDF, Word (.docx) or ZIP file to upload.";
 
         private readonly IStudentRepository _students;
         private readonly IAssessmentRepository _assessments;
@@ -50,6 +54,8 @@ namespace ISMLTS_WebApp_.Services
         private readonly ITicketRepository _tickets;
         private readonly INotificationService _notifications;
         private readonly IAttendanceVerifier _verifier;
+        private readonly ISubmissionFileService _files;
+        private readonly TimeProvider _time;
         private readonly RiskOptions _risk;
 
         public StudentPortalService(
@@ -61,6 +67,8 @@ namespace ISMLTS_WebApp_.Services
             ITicketRepository tickets,
             INotificationService notifications,
             IAttendanceVerifier verifier,
+            ISubmissionFileService files,
+            TimeProvider time,
             IOptions<RiskOptions> risk)
         {
             _students = students;
@@ -71,6 +79,8 @@ namespace ISMLTS_WebApp_.Services
             _tickets = tickets;
             _notifications = notifications;
             _verifier = verifier;
+            _files = files;
+            _time = time;
             _risk = risk.Value;
         }
 
@@ -89,6 +99,7 @@ namespace ISMLTS_WebApp_.Services
                 .Where(m => m.AssessmentId != null && m.IsVisibleToStudent)
                 .GroupBy(m => m.AssessmentId!.Value)
                 .ToDictionary(g => g.Key, g => g.OrderByDescending(m => m.MarkId).First());
+            var today = Today;
 
             return (await _assessments.GetByModulesAsync(moduleIds)).Select(a =>
             {
@@ -107,6 +118,10 @@ namespace ISMLTS_WebApp_.Services
                     Status = Submission.StatusFor(sub?.SubmittedAt, a.DueDate),
                     SubmittedAt = sub?.SubmittedAt,
                     Link = sub?.Link,
+                    File = sub?.LatestFile,
+                    FileCount = sub?.Files.Count ?? 0,
+                    LastDay = SubmissionWindow.LastDay(a.DueDate, a.LateDays),
+                    SubmissionsOpen = SubmissionWindow.IsOpen(a, today),
                     Mark = mark,
                     MarksReleased = a.MarksReleased
                 };
@@ -172,29 +187,81 @@ namespace ISMLTS_WebApp_.Services
             return assessment != null && await _students.IsEnrolledAsync(studentId, assessment.ModuleId) ? assessment : null;
         }
 
-        // Hands in (or replaces) the link to the student's work; only http(s) links are accepted
-        public async Task<SubmitResult> SubmitAsync(int studentId, int assessmentId, string? link)
+        // What the hand-in page shows: the current link, every uploaded file (newest first) and whether it's still open
+        public async Task<SubmitViewModel?> SubmitPageAsync(int studentId, int assessmentId)
+        {
+            var assessment = await EnrolledAssessmentAsync(studentId, assessmentId);
+            if (assessment == null) return null;
+
+            var existing = await _submissions.GetByAssessmentAndStudentAsync(assessmentId, studentId);
+            return new SubmitViewModel
+            {
+                AssessmentId = assessmentId,
+                AssessmentDisplay = $"{assessment.Name} ({assessment.Module?.Code})",
+                DueDate = assessment.DueDate,
+                LateDays = assessment.LateDays,
+                IsOpen = SubmissionWindow.IsOpen(assessment, Today),
+                Link = existing?.Link,
+                SubmittedAt = existing?.SubmittedAt,
+                Files = existing?.Files.OrderByDescending(f => f.UploadedAt).ThenByDescending(f => f.SubmissionFileId).ToList() ?? new List<SubmissionFile>(),
+                MaxMegabytes = _files.MaxMegabytes
+            };
+        }
+
+        // Hands in work: a file (PDF, DOCX or ZIP, checked by its content), an http(s) link, or both.
+        // The link is replaced (an empty one removes it, as long as a file is handed in) unless keepLink is set,
+        // which the app's file upload uses. Earlier files are kept; the newest one counts.
+        public async Task<SubmitResult> SubmitAsync(int studentId, int assessmentId, string? link, IFormFile? file = null, bool keepLink = false)
         {
             var assessment = await EnrolledAssessmentAsync(studentId, assessmentId);
             if (assessment == null) return new SubmitResult(SubmitOutcome.NotFound, null);
+            if (!SubmissionWindow.IsOpen(assessment, Today))
+                return new SubmitResult(SubmitOutcome.Closed, assessment, SubmissionWindow.Describe(assessment.DueDate, assessment.LateDays, Today));
 
-            link = link?.Trim();
-            if (!LinkValidator.IsWebLink(link)) return new SubmitResult(SubmitOutcome.BadLink, assessment);
+            FileCheck? check = null;
+            if (file != null)
+            {
+                check = _files.Check(file);
+                if (!check.Ok) return new SubmitResult(SubmitOutcome.BadFile, assessment, check.Error);
+            }
+            else if (keepLink)
+            {
+                return new SubmitResult(SubmitOutcome.Missing, assessment, MissingFileMessage);
+            }
+
+            link = string.IsNullOrWhiteSpace(link) ? null : link.Trim();
+            if (!keepLink && link != null && !LinkValidator.IsWebLink(link)) return new SubmitResult(SubmitOutcome.BadLink, assessment);
 
             var existing = await _submissions.GetByAssessmentAndStudentAsync(assessmentId, studentId);
-            if (existing == null)
+            if (!keepLink && link == null && file == null && (existing == null || existing.Files.Count == 0))
+                return new SubmitResult(SubmitOutcome.Missing, assessment, MissingMessage);
+
+            var submission = existing ?? new Submission { AssessmentId = assessmentId, StudentId = studentId };
+            if (!keepLink) submission.Link = link;
+            submission.SubmittedAt = _time.GetUtcNow().UtcDateTime;
+
+            SubmissionFile? stored = null;
+            if (file != null)
             {
-                await _submissions.AddAsync(new Submission { AssessmentId = assessmentId, StudentId = studentId, Link = link, SubmittedAt = DateTime.UtcNow });
+                stored = await _files.StoreAsync(assessmentId, file, check!);
+                submission.Files.Add(stored);
             }
-            else
+            // An existing submission is already tracked, so its new file row is picked up as an insert
+            if (existing == null) await _submissions.AddAsync(submission);
+
+            try
             {
-                existing.Link = link;
-                existing.SubmittedAt = DateTime.UtcNow;
-                _submissions.Update(existing);
+                await _submissions.SaveChangesAsync();
             }
-            await _submissions.SaveChangesAsync();
+            catch
+            {
+                if (stored != null) await _files.RemoveStoredAsync([stored.StoredName]);
+                throw;
+            }
             return new SubmitResult(SubmitOutcome.Saved, assessment);
         }
+
+        private DateTime Today => _time.GetLocalNow().Date;
 
         public async Task<TicketResult> RaiseTicketAsync(int studentId, int moduleId, string? subject, string? description)
         {

@@ -14,6 +14,14 @@ namespace ISMLTS_WebApp_.Models
         public DateTime? SubmittedAt { get; set; }
         public string? Link { get; set; }
 
+        // The latest uploaded file (it's the one that counts) and how many were uploaded in all
+        public SubmissionFile? File { get; set; }
+        public int FileCount { get; set; }
+
+        // Null keeps accepting late work; otherwise the last day work is accepted
+        public DateTime? LastDay { get; set; }
+        public bool SubmissionsOpen { get; set; } = true;
+
         // Only set once the lecturer releases the assessment's marks
         public Mark? Mark { get; set; }
         public bool MarksReleased { get; set; }

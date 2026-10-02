@@ -1,25 +1,77 @@
-@model Submission
+@model SubmitViewModel
 @using ISMLTS_WebApp_.Services
 @{
     ViewData["Title"] = "Submit";
-    DateTime dueDate = ViewBag.DueDate;
-    string assessmentDisplay = ViewBag.AssessmentDisplay;
-    var subtitle = $"Due {dueDate:ddd, dd MMM yyyy} · {DueDates.Describe(dueDate, DateTime.Today)}";
+    var today = DateTime.Today;
+    var subtitle = $"Due {Model.DueDate:ddd, dd MMM yyyy} · {DueDates.Describe(Model.DueDate, today)}";
+    var window = SubmissionWindow.Describe(Model.DueDate, Model.LateDays, today);
 }
 
-<partial name="_PageHeader" model='new PageHeaderModel { Title = assessmentDisplay, Subtitle = subtitle, BackUrl = Url.Action("MyAssessments"), BackText = "My assessments" }' />
+<partial name="_PageHeader" model='new PageHeaderModel { Title = Model.AssessmentDisplay, Subtitle = subtitle, BackUrl = Url.Action("MyAssessments"), BackText = "My assessments" }' />
 
-<div class="panel form-panel">
-    <form asp-action="Submit" asp-route-id="@Model.AssessmentId" method="post">
-        <div class="mb-3">
-            <label for="link" class="form-label">Link to your work</label>
-            <input id="link" name="link" type="url" class="form-control" value="@Model.Link" placeholder="https://github.com/…" maxlength="300" required aria-describedby="linkHelp" />
-            <span asp-validation-for="Link" class="text-danger small"></span>
-            <div id="linkHelp" class="form-text">A GitHub repository, OneDrive or Google Drive link. Make sure your lecturer can open it. Submitting again replaces your link.</div>
+<div class="row g-4">
+    <div class="col-lg-7">
+        <div class="panel form-panel">
+            @if (Model.IsOpen)
+            {
+                <p class="small text-muted"><i class="bi bi-clock" aria-hidden="true"></i> @window</p>
+                <form asp-action="Submit" asp-route-id="@Model.AssessmentId" method="post" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label for="file" class="form-label">Upload your work</label>
+                        <input id="file" name="file" type="file" class="form-control" accept="@SubmissionFileRules.Accept" aria-describedby="fileHelp" />
+                        @Html.ValidationMessage("file", new { @class = "text-danger small" })
+                        <div id="fileHelp" class="form-text">A PDF, Word (.docx) or ZIP file of up to @Model.MaxMegabytes MB. Uploading again keeps your earlier files; the newest one is the one that counts.</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="link" class="form-label">Link to your work</label>
+                        <input id="link" name="link" type="url" class="form-control" value="@Model.Link" placeholder="https://github.com/…" maxlength="300" aria-describedby="linkHelp" />
+                        <span asp-validation-for="Link" class="text-danger small"></span>
+                        <div id="linkHelp" class="form-text">Optional when you upload a file. A GitHub repository, OneDrive or Google Drive link your lecturer can open. Clearing it removes your link.</div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-rosebank" data-loading="Submitting…"><i class="bi bi-upload" aria-hidden="true"></i> Submit</button>
+                        <a asp-action="MyAssessments" class="btn btn-outline-secondary">Cancel</a>
+                    </div>
+                </form>
+            }
+            else
+            {
+                <partial name="_EmptyState" model='new EmptyStateModel { Icon = "bi-lock", Title = "Submissions are closed", Message = window, ActionUrl = Url.Action("Create", "Tickets"), ActionText = "Ask your lecturer" }' />
+            }
         </div>
-        <div class="form-actions">
-            <button type="submit" class="btn btn-rosebank" data-loading="Submitting…"><i class="bi bi-upload" aria-hidden="true"></i> Submit</button>
-            <a asp-action="MyAssessments" class="btn btn-outline-secondary">Cancel</a>
+    </div>
+    <div class="col-lg-5">
+        <div class="panel">
+            <h2 class="h6 mb-3">What you handed in</h2>
+            @if (Model.SubmittedAt == null)
+            {
+                <p class="text-muted mb-0">Nothing yet.</p>
+            }
+            else
+            {
+                <p class="small text-muted">Last handed in @Model.SubmittedAt.Value.ToLocalTime().ToString("ddd, dd MMM, HH:mm").</p>
+                @if (LinkValidator.IsWebLink(Model.Link))
+                {
+                    <p><a href="@Model.Link" target="_blank" rel="noopener noreferrer">Your link <i class="bi bi-box-arrow-up-right" aria-hidden="true"></i></a></p>
+                }
+                @if (Model.Files.Any())
+                {
+                    <ul class="file-history">
+                        @for (var i = 0; i < Model.Files.Count; i++)
+                        {
+                            var f = Model.Files[i];
+                            <li>
+                                <partial name="_FileLink" model="f" />
+                                @if (i == 0)
+                                {
+                                    <span class="badge text-bg-success">Counts</span>
+                                }
+                                <span class="table-row-sub">@SubmissionFileRules.Size(f.SizeBytes) · uploaded @f.UploadedAt.ToLocalTime().ToString("ddd, dd MMM, HH:mm")</span>
+                            </li>
+                        }
+                    </ul>
+                }
+            }
         </div>
-    </form>
+    </div>
 </div>

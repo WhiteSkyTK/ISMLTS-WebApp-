@@ -1,4 +1,6 @@
 @model Assessment
+@using System.Globalization
+@using ISMLTS_WebApp_.Services
 
 <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
 <input type="hidden" asp-for="ModuleId" />
@@ -27,6 +29,17 @@
         <input asp-for="DueDate" class="form-control" type="date" />
         <span asp-validation-for="DueDate" class="text-danger small"></span>
     </div>
+</div>
+<div class="mb-3">
+    <label asp-for="LateDays" class="form-label"></label>
+    <select asp-for="LateDays" class="form-select" aria-describedby="lateDaysHelp">
+        @foreach (var (days, label) in SubmissionWindow.Choices)
+        {
+            <option value="@(days?.ToString(CultureInfo.InvariantCulture) ?? string.Empty)">@label</option>
+        }
+    </select>
+    <span asp-validation-for="LateDays" class="text-danger small"></span>
+    <div id="lateDaysHelp" class="form-text">Once it closes, students can no longer hand in or replace their work.</div>
 </div>
 <div class="mb-3">
     <label asp-for="Description" class="form-label"></label>

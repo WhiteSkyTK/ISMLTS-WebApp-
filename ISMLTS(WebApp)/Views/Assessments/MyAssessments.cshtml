@@ -51,6 +51,7 @@
                     {
                         var submitted = r.Status != "Not Submitted";
                         var overdue = !submitted && DueDates.IsOverdue(r.DueDate, DateTime.Today);
+                        var dueNote = !r.SubmissionsOpen ? "Closed" : DueDates.Describe(r.DueDate, DateTime.Today);
                         var state = $"{(submitted ? "submitted" : "to-do")}{(overdue ? " overdue" : null)}{(r.Mark != null ? " marked" : null)}";
                         <tr data-module="@r.ModuleCode" data-state="@state">
                             <td data-sort-value="@r.Name">
@@ -60,9 +61,19 @@
                             <td><span class="badge task-badge task-@r.Type.ToLowerInvariant()">@r.Type</span></td>
                             <td data-sort-value="@r.DueDate.ToString("yyyyMMdd", CultureInfo.InvariantCulture)">
                                 @r.DueDate.ToString("ddd, dd MMM")
-                                <span class="table-row-sub @(overdue ? "text-danger" : null)">@DueDates.Describe(r.DueDate, DateTime.Today)</span>
+                                <span class="table-row-sub @(overdue ? "text-danger" : null)">@dueNote</span>
+                                @if (r.SubmissionsOpen && r.LastDay is DateTime lastDay && lastDay > r.DueDate.Date)
+                                {
+                                    <span class="table-row-sub">Late work until @lastDay.ToString("dd MMM")</span>
+                                }
                             </td>
-                            <td><partial name="_SubmissionStatus" model="r.Status" /></td>
+                            <td>
+                                <partial name="_SubmissionStatus" model="r.Status" />
+                                @if (r.File != null)
+                                {
+                                    <span class="table-row-sub"><partial name="_FileLink" model="r.File" /></span>
+                                }
+                            </td>
                             <td data-sort-value="@(r.Mark?.Percentage.ToString(CultureInfo.InvariantCulture))">
                                 @if (r.Mark != null)
                                 {
@@ -86,7 +97,11 @@
                                 }
                             </td>
                             <td class="text-end">
-                                @if (r.Status == "Not Submitted")
+                                @if (!r.SubmissionsOpen)
+                                {
+                                    <a asp-action="Submit" asp-route-id="@r.AssessmentId" class="btn btn-outline-secondary btn-sm text-nowrap"><i class="bi bi-lock" aria-hidden="true"></i> Closed</a>
+                                }
+                                else if (r.Status == "Not Submitted")
                                 {
                                     <a asp-action="Submit" asp-route-id="@r.AssessmentId" class="btn btn-rosebank btn-sm text-nowrap"><i class="bi bi-upload" aria-hidden="true"></i> Submit</a>
                                 }

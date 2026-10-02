@@ -16,17 +16,20 @@ namespace ISMLTS_WebApp_.Controllers
         private readonly IStudentRepository _studentRepository;
         private readonly ILecturerRepository _lecturerRepository;
         private readonly ICourseRepository _courseRepository;
+        private readonly ISubmissionFileService _files;
         private readonly StudentOptions _studentOptions;
 
         public StudentsController(
             IStudentRepository studentRepository,
             ILecturerRepository lecturerRepository,
             ICourseRepository courseRepository,
+            ISubmissionFileService files,
             Microsoft.Extensions.Options.IOptions<StudentOptions> studentOptions)
         {
             _studentRepository = studentRepository;
             _lecturerRepository = lecturerRepository;
             _courseRepository = courseRepository;
+            _files = files;
             _studentOptions = studentOptions.Value;
         }
 
@@ -126,8 +129,10 @@ namespace ISMLTS_WebApp_.Controllers
             var student = await _studentRepository.GetByIdAsync(id);
             if (student == null) return NotFound();
 
+            var storedFiles = await _files.StoredNamesForStudentAsync(id);
             _studentRepository.Delete(student);
             await _studentRepository.SaveChangesAsync();
+            await _files.RemoveStoredAsync(storedFiles);
             this.Toast($"{student.FullName} was deleted.");
             return RedirectToAction(nameof(Index));
         }

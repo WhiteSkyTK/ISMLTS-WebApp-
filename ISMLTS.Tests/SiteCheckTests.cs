@@ -13,7 +13,8 @@ namespace ISMLTS.Tests
                 "Production", true, GoodDatabase, "41.13.20.5", "41.13.20.5:51234", false, false,
                 JwtKeyConfigured: true, TwoFactorRequiredForAdmins: true, EmailConfigured: false, EmailSiteUrlSet: false,
                 LibraryLinkSet: false, PortalLinkSet: false, DemoDataOn: false, AppInsightsConfigured: true,
-                TimeSpan.FromHours(2), "(UTC+02:00) Harare, Pretoria");
+                TimeSpan.FromHours(2), "(UTC+02:00) Harare, Pretoria",
+                new StorageFacts(IsCloud: true, Reachable: true, "ismltsfiles/submissions"));
             return change == null ? facts : change(facts);
         }
 
@@ -25,6 +26,19 @@ namespace ISMLTS.Tests
             var items = SiteCheck.Evaluate(Live());
 
             Assert.DoesNotContain(items, i => i.State is CheckState.Problem or CheckState.Warning);
+        }
+
+        [Theory]
+        [InlineData(true, true, "Production", CheckState.Ok)]
+        [InlineData(false, true, "Development", CheckState.Ok)]
+        [InlineData(false, true, "Production", CheckState.Warning)]
+        [InlineData(true, false, "Production", CheckState.Problem)]
+        [InlineData(false, false, "Development", CheckState.Problem)]
+        public void SubmissionStorage_ShouldBeBlobStorageOnTheLiveSite(bool cloud, bool reachable, string environment, CheckState expected)
+        {
+            var items = SiteCheck.Evaluate(Live(f => f with { Environment = environment, Storage = new StorageFacts(cloud, reachable, "somewhere") }));
+
+            Assert.Equal(expected, Find(items, "Submission storage").State);
         }
 
         [Fact]

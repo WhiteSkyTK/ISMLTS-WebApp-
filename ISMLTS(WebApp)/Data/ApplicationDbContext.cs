@@ -24,6 +24,7 @@ namespace ISMLTS_WebApp_.Data
         public DbSet<Announcement> Announcements => Set<Announcement>();
         public DbSet<MarkChange> MarkChanges => Set<MarkChange>();
         public DbSet<ApiRefreshToken> ApiRefreshTokens => Set<ApiRefreshToken>();
+        public DbSet<SubmissionFile> SubmissionFiles => Set<SubmissionFile>();
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             // Explicit precision for every decimal (the default is 18,2, which suits marks)
@@ -117,6 +118,12 @@ namespace ISMLTS_WebApp_.Data
             modelBuilder.Entity<Submission>()
                 .HasIndex(s => new { s.AssessmentId, s.StudentId })
                 .IsUnique();
+
+            modelBuilder.Entity<SubmissionFile>()
+                .HasOne(f => f.Submission).WithMany(s => s.Files).HasForeignKey(f => f.SubmissionId).OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<SubmissionFile>()
+                .HasIndex(f => f.StoredName).IsUnique();
 
             modelBuilder.Entity<Ticket>()
                 .HasOne(t => t.Student).WithMany().HasForeignKey(t => t.StudentId).OnDelete(DeleteBehavior.Cascade);

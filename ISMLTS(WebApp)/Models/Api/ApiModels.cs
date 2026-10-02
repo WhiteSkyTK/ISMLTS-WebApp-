@@ -34,7 +34,11 @@ namespace ISMLTS_WebApp_.Models.Api
 
     public record MarkDto(decimal Score, decimal MaxScore, decimal Percentage, string? Feedback);
 
-    // Status is "not_submitted", "submitted" or "late"; Mark is null until the lecturer releases the marks
+    // The newest uploaded file counts; download it from /api/v1/files/{fileId}
+    public record SubmissionFileDto(int FileId, string Name, long SizeBytes, DateTimeOffset UploadedAt);
+
+    // Status is "not_submitted", "submitted" or "late"; Mark is null until the lecturer releases the marks.
+    // LastDayToSubmit is null when late work is always accepted; SubmissionsOpen is false once it has passed.
     public record AssessmentDto(
         int AssessmentId,
         int ModuleId,
@@ -48,7 +52,11 @@ namespace ISMLTS_WebApp_.Models.Api
         DateTimeOffset? SubmittedAt,
         string? Link,
         bool MarksReleased,
-        MarkDto? Mark);
+        MarkDto? Mark,
+        SubmissionFileDto? File,
+        int FileCount,
+        DateOnly? LastDayToSubmit,
+        bool SubmissionsOpen);
 
     public record SubmissionRequest(string? Link);
 
@@ -92,7 +100,11 @@ namespace ISMLTS_WebApp_.Models.Api
 
         public static AssessmentDto Assessment(MyAssessmentRow r) => new(
             r.AssessmentId, r.ModuleId, r.ModuleCode, r.Name, r.Type, r.Description, DateOnly.FromDateTime(r.DueDate), r.MaxScore,
-            Status(r.Status), Utc(r.SubmittedAt), r.Link, r.MarksReleased, Mark(r.Mark));
+            Status(r.Status), Utc(r.SubmittedAt), r.Link, r.MarksReleased, Mark(r.Mark), File(r.File), r.FileCount,
+            r.LastDay is DateTime last ? DateOnly.FromDateTime(last) : null, r.SubmissionsOpen);
+
+        public static SubmissionFileDto? File(SubmissionFile? f) =>
+            f == null ? null : new SubmissionFileDto(f.SubmissionFileId, f.FileName, f.SizeBytes, Utc(f.UploadedAt));
 
         public static ModuleDto Module(ModuleProgress p, Module? m) => new(
             p.ModuleId, p.Code, p.Name, m?.Term == "Term2" ? "Term 2" : "Term 1", m?.Course?.Code, m?.Lecturer?.FullName,

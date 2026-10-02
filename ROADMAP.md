@@ -72,13 +72,15 @@ One phase per session: plan briefly, implement, add tests, run `dotnet build` an
 This is where everything built since Phase 1 reaches the live site and gets tested there instead of on localhost.
 - [x] The App Service site is created and running (published by hand; Phases 0–1 and later changes still to be published)
 - [ ] Publish Phases 2–5 to the live site: apply the migrations to Azure SQL, add the new App Service settings (`Jwt__SigningKey`, `ExternalLinks__*`, email if wanted), then work through each phase's manual test checklist on the live URL as every role, and point the Android app at the live API
-- [ ] GitHub Actions deploys to an App Service staging slot after the tests pass (OIDC login, no publish profile in the repo); swapping to production stays a manual step
-- [ ] `/health` endpoint that checks the database; the App Service health check uses it
-- [ ] Confirm on Azure that `RemoteIpAddress` is the student's IP (the login rate limit and the campus-network check both rely on it); add `UseForwardedHeaders` with the App Service proxy if it isn't
-- [ ] Application Insights for errors and slow requests, with no personal data in log messages
-- [ ] `.gitignore` covers `ISMLTS(WebApp)/bin`, `obj` and the test project's output; the tracked build output is removed from git
-- [ ] SonarCloud receives test coverage from CI (coverlet, OpenCover format)
-- [ ] Deployment runbook in README: required settings, first-run seeding, rollback
+- [x] GitHub Actions deploys to App Service after the tests pass (OIDC login, no publish profile in the repo): to the slot in `AZURE_WEBAPP_SLOT` (swap to production by hand) or straight to production on plans without slots; switches on once the Azure variables and secrets exist
+- [x] `/health` endpoint that checks the database; the App Service health check uses it
+- [ ] Confirm on Azure that `RemoteIpAddress` is the student's IP (the login rate limit and the campus-network check both rely on it): the `ForwardedHeaders:Enabled` switch and the Site check page are in place; open Site check on the live site and switch it on if it flags the proxy
+- [x] Application Insights for errors and slow requests, with no personal data in log messages (Azure Monitor OpenTelemetry, on when `APPLICATIONINSIGHTS_CONNECTION_STRING` is set)
+- [x] `.gitignore` covers `ISMLTS(WebApp)/bin`, `obj` and the test project's output; the tracked build output is removed from git
+- [x] SonarCloud receives test coverage from CI (coverlet, OpenCover format), once the `SONAR_TOKEN` secret is added and Automatic Analysis is switched off
+- [x] Deployment runbook in README: required settings, first-run seeding, rollback
+- [x] Admin Site check page: environment, https, time zone, database and migrations, the address the site sees, campus network, and which settings are missing
+- [x] Demo data can be added once to the live site (`Seed__DemoData`, `Seed__DemoPassword`), next to existing data, for live testing
 - [ ] Optional "Sign in with Microsoft" (OpenID Connect with Microsoft Entra ID, `Microsoft.AspNetCore.Authentication.OpenIdConnect`): the button only shows when `Authentication:Microsoft` is configured; it signs in an existing student or lecturer whose college email matches the verified Microsoft account and never creates accounts; password log-in stays. Check early whether the IIE tenant needs IT to approve (admin consent) the app registration
 
 ## Phase 7 — File submissions

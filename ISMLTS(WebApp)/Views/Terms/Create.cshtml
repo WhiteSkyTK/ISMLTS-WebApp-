@@ -1,0 +1,16 @@
+@model Term
+@{
+    ViewData["Title"] = "Add a term";
+}
+
+<partial name="_PageHeader" model='new PageHeaderModel { Title = "Add a term", BackUrl = Url.Action("Index"), BackText = "Terms" }' />
+
+<div class="panel form-panel">
+    <form asp-action="Create" method="post">
+        <partial name="_TermFields" model="Model" />
+        <div class="form-actions">
+            <button type="submit" class="btn btn-rosebank" data-loading="Saving…"><i class="bi bi-plus-lg" aria-hidden="true"></i> Add term</button>
+            <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+        </div>
+    </form>
+</div>

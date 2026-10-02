@@ -1,0 +1,31 @@
+@model Term
+@using ISMLTS_WebApp_.Services
+
+<div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+<div class="mb-3">
+    <label asp-for="Name" class="form-label"></label>
+    <input asp-for="Name" class="form-control" placeholder="e.g. 2026 Term 2" autocomplete="off" />
+    <span asp-validation-for="Name" class="text-danger small"></span>
+</div>
+<div class="mb-3">
+    <label asp-for="Code" class="form-label"></label>
+    <select asp-for="Code" class="form-select" aria-describedby="codeHelp">
+        <option value="@CourseTerms.Term1">Term 1 modules</option>
+        <option value="@CourseTerms.Term2">Term 2 modules</option>
+    </select>
+    <div id="codeHelp" class="form-text">Modules are set to Term 1 or Term 2. While this term is current, its modules are shown as current and the others as archived.</div>
+    <span asp-validation-for="Code" class="text-danger small"></span>
+</div>
+<div class="row g-3 mb-3">
+    <div class="col-sm-6">
+        <label asp-for="StartDate" class="form-label"></label>
+        <input asp-for="StartDate" class="form-control" type="date" />
+        <span asp-validation-for="StartDate" class="text-danger small"></span>
+    </div>
+    <div class="col-sm-6">
+        <label asp-for="EndDate" class="form-label"></label>
+        <input asp-for="EndDate" class="form-control" type="date" />
+        <span asp-validation-for="EndDate" class="text-danger small"></span>
+    </div>
+</div>
+<p class="small text-muted">Attendance percentages count only the classes held between these dates.</p>

@@ -16,6 +16,7 @@ namespace ISMLTS_WebApp_.Controllers
         private readonly IModuleRepository _moduleRepository;
         private readonly IAssessmentRepository _assessmentRepository;
         private readonly IAnnouncementRepository _announcementRepository;
+        private readonly ITermService _terms;
         private readonly ILogger<HomeController> _logger;
 
         public HomeController(
@@ -24,6 +25,7 @@ namespace ISMLTS_WebApp_.Controllers
             IModuleRepository moduleRepository,
             IAssessmentRepository assessmentRepository,
             IAnnouncementRepository announcementRepository,
+            ITermService terms,
             ILogger<HomeController> logger)
         {
             _studentRepository = studentRepository;
@@ -31,6 +33,7 @@ namespace ISMLTS_WebApp_.Controllers
             _moduleRepository = moduleRepository;
             _assessmentRepository = assessmentRepository;
             _announcementRepository = announcementRepository;
+            _terms = terms;
             _logger = logger;
         }
 
@@ -54,13 +57,14 @@ namespace ISMLTS_WebApp_.Controllers
             if (User.IsInRole("Student"))
             {
                 student = await _studentRepository.GetByIdWithModulesAsync(userId);
+                var currentTerm = await _terms.CurrentAsync();
 
                 model.Courses = student?.Modules.Select(m => new CourseCard
                 {
                     ModuleId = m.ModuleId,
                     Code = m.Code,
                     Name = m.Name,
-                    IsCurrentSemester = true
+                    IsCurrentSemester = Terms.IsCurrent(m.Term, currentTerm)
                 }).ToList() ?? new List<CourseCard>();
             }
 

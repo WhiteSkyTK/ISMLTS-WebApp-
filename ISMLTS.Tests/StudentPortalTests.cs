@@ -27,6 +27,7 @@ namespace ISMLTS.Tests
             new SubmissionFileService(new SubmissionFileRepository(context), new LocalFileStore(_uploads), TimeProvider.System,
                 NullLogger<SubmissionFileService>.Instance, Options.Create(new SubmissionFileOptions())),
             TimeProvider.System,
+            new TermService(new TermRepository(context), TimeProvider.System),
             Options.Create(new RiskOptions()));
 
         private sealed record Seeded(int StudentId, int OutsiderId, int ModuleId, int AssessmentId, string OpenCode, string ClosedCode);

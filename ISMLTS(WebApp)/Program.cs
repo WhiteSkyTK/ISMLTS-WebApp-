@@ -114,6 +114,8 @@ builder.Services.AddScoped<IMarkRepository, MarkRepository>();
 builder.Services.AddScoped<IAssessmentRepository, AssessmentRepository>();
 builder.Services.AddScoped<ISubmissionRepository, SubmissionRepository>();
 builder.Services.AddScoped<ISubmissionFileRepository, SubmissionFileRepository>();
+builder.Services.AddScoped<ITermRepository, TermRepository>();
+builder.Services.AddScoped<ITimetableRepository, TimetableRepository>();
 builder.Services.AddScoped<ITicketRepository, TicketRepository>();
 builder.Services.AddScoped<IAttendanceRepository, AttendanceRepository>();
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
@@ -138,6 +140,7 @@ builder.Services.AddScoped<IStudentPortalService, StudentPortalService>();
 builder.Services.AddScoped<ISiteCheckService, SiteCheckService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<IMarkService, MarkService>();
+builder.Services.AddScoped<ITermService, TermService>();
 
 // Email goes through Azure Communication Services only when Email:ConnectionString and Email:From are set
 var emailSection = builder.Configuration.GetSection("Email");

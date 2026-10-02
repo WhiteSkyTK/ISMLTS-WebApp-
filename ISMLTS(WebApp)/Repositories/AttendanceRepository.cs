@@ -40,20 +40,39 @@ namespace ISMLTS_WebApp_.Repositories
 
         public void RemoveRecord(AttendanceRecord record) => _records.Remove(record);
 
-        public async Task<IEnumerable<AttendanceRecord>> GetRecordsByStudentAsync(int studentId) =>
-            await _records.Include(r => r.Session)
-                .Where(r => r.StudentId == studentId)
+        public async Task<IEnumerable<AttendanceRecord>> GetRecordsByStudentAsync(int studentId, AttendancePeriods periods)
+        {
+            var counting = Counting(periods).Select(s => s.SessionId);
+            return await _records.Include(r => r.Session)
+                .Where(r => r.StudentId == studentId && counting.Contains(r.SessionId))
                 .ToListAsync();
+        }
 
-        public async Task<List<AttendanceRecord>> GetRecordsByModulesAsync(IReadOnlyCollection<int> moduleIds) =>
-            await _records.AsNoTracking().Include(r => r.Session)
-                .Where(r => r.Session != null && moduleIds.Contains(r.Session.ModuleId))
+        public async Task<List<AttendanceRecord>> GetRecordsByModulesAsync(IReadOnlyCollection<int> moduleIds, AttendancePeriods periods)
+        {
+            var counting = Counting(periods).Where(s => moduleIds.Contains(s.ModuleId)).Select(s => s.SessionId);
+            return await _records.AsNoTracking().Include(r => r.Session)
+                .Where(r => counting.Contains(r.SessionId))
                 .ToListAsync();
+        }
 
-        public async Task<Dictionary<int, int>> CountSessionsByModuleAsync(IReadOnlyCollection<int> moduleIds) =>
-            await _dbSet.Where(s => moduleIds.Contains(s.ModuleId))
+        public async Task<Dictionary<int, int>> CountSessionsByModuleAsync(IReadOnlyCollection<int> moduleIds, AttendancePeriods periods) =>
+            await Counting(periods).Where(s => moduleIds.Contains(s.ModuleId))
                 .GroupBy(s => s.ModuleId)
                 .Select(g => new { ModuleId = g.Key, Count = g.Count() })
                 .ToDictionaryAsync(x => x.ModuleId, x => x.Count);
+
+        // Sessions that count towards attendance: not cancelled, and inside the term window for their module's term code
+        private IQueryable<AttendanceSession> Counting(AttendancePeriods periods)
+        {
+            var sessions = _dbSet.Where(s => !s.IsCancelled);
+            foreach (var (code, window) in periods.Windows)
+            {
+                var from = window.FromUtc;
+                var to = window.ToUtc;
+                sessions = sessions.Where(s => s.Module!.Term != code || (s.StartedAt >= from && s.StartedAt < to));
+            }
+            return sessions;
+        }
     }
 }

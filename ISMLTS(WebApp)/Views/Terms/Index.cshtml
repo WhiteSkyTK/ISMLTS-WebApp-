@@ -1,0 +1,64 @@
+@model List<Term>
+@using ISMLTS_WebApp_.Services
+@{
+    ViewData["Title"] = "Terms";
+    int? currentId = ViewBag.CurrentTermId;
+    var today = DateTime.Today;
+}
+
+<partial name="_PageHeader" model='new PageHeaderModel { Title = "Terms", Subtitle = "The latest term that has started is the current one: it decides which modules are current and which classes count for attendance.", ActionUrl = Url.Action("Create"), ActionText = "Add a term" }' />
+
+<div class="panel">
+    @if (Model.Any())
+    {
+        <div class="table-scroll">
+            <table class="table align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th scope="col">Term</th>
+                        <th scope="col">Modules</th>
+                        <th scope="col">Dates</th>
+                        <th scope="col">Status</th>
+                        <th scope="col"><span class="visually-hidden">Actions</span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var t in Model)
+                    {
+                        <tr>
+                            <td class="fw-medium">@t.Name</td>
+                            <td>@Terms.Label(t.Code)</td>
+                            <td>@t.StartDate.ToString("dd MMM yyyy") – @t.EndDate.ToString("dd MMM yyyy")</td>
+                            <td>
+                                @if (t.TermId == currentId)
+                                {
+                                    <span class="badge text-bg-success">Current</span>
+                                }
+                                else if (t.StartDate.Date > today)
+                                {
+                                    <span class="badge text-bg-info">Upcoming</span>
+                                }
+                                else
+                                {
+                                    <span class="badge text-bg-secondary">Past</span>
+                                }
+                            </td>
+                            <td>
+                                <div class="row-actions">
+                                    <a asp-action="Edit" asp-route-id="@t.TermId" class="btn btn-icon" data-bs-toggle="tooltip" data-bs-title="Edit"><i class="bi bi-pencil" aria-hidden="true"></i><span class="visually-hidden">Edit @t.Name</span></a>
+                                    <form asp-action="Delete" asp-route-id="@t.TermId" method="post" data-confirm="Delete @t.Name? Attendance is then counted over all classes for its modules again.">
+                                        <button type="submit" class="btn btn-icon btn-icon-danger" data-bs-toggle="tooltip" data-bs-title="Delete"><i class="bi bi-trash" aria-hidden="true"></i><span class="visually-hidden">Delete @t.Name</span></button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <partial name="_EmptyState" model='new EmptyStateModel { Icon = "bi-calendar-range", Title = "No terms yet", Message = "Until you add one, every module counts as current and every class counts for attendance.", ActionUrl = Url.Action("Create"), ActionText = "Add a term" }' />
+    }
+</div>

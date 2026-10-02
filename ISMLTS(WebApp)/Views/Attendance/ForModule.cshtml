@@ -38,7 +38,11 @@
                             <td data-sort-value="@s.StartedAt.Ticks.ToString(CultureInfo.InvariantCulture)">@s.StartedAt.ToLocalTime().ToString("ddd, dd MMM yyyy HH:mm")</td>
                             <td>@s.Records.Count</td>
                             <td>
-                                @if (s.IsOpen)
+                                @if (s.IsCancelled)
+                                {
+                                    <span class="badge text-bg-warning">Cancelled class</span>
+                                }
+                                else if (s.IsOpen)
                                 {
                                     <span class="badge text-bg-success">Open</span>
                                 }
@@ -54,6 +58,10 @@
                                         <a asp-action="Live" asp-route-id="@s.SessionId" class="btn btn-icon" data-bs-toggle="tooltip" data-bs-title="Show QR code"><i class="bi bi-qr-code" aria-hidden="true"></i><span class="visually-hidden">Show the QR code</span></a>
                                     }
                                     <a asp-action="Details" asp-route-id="@s.SessionId" class="btn btn-icon" data-bs-toggle="tooltip" data-bs-title="Register"><i class="bi bi-list-check" aria-hidden="true"></i><span class="visually-hidden">Open the register</span></a>
+                                    <form asp-action="SetCancelled" asp-route-id="@s.SessionId" method="post" data-confirm="@(s.IsCancelled ? "Count this class towards attendance again?" : "Mark this as a cancelled class? It stops counting towards attendance; the scans are kept.")" data-confirm-tone="primary">
+                                        <input type="hidden" name="cancelled" value="@(s.IsCancelled ? "false" : "true")" />
+                                        <button type="submit" class="btn btn-icon" data-bs-toggle="tooltip" data-bs-title="@(s.IsCancelled ? "Count this class again" : "Cancelled class")"><i class="bi @(s.IsCancelled ? "bi-arrow-counterclockwise" : "bi-calendar-x")" aria-hidden="true"></i><span class="visually-hidden">@(s.IsCancelled ? "Count this class again" : "Mark as a cancelled class")</span></button>
+                                    </form>
                                 </div>
                             </td>
                         </tr>

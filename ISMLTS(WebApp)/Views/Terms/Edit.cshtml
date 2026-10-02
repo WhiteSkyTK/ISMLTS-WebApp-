@@ -1,0 +1,17 @@
+@model Term
+@{
+    ViewData["Title"] = "Edit term";
+}
+
+<partial name="_PageHeader" model='new PageHeaderModel { Title = "Edit term", Subtitle = Model.Name, BackUrl = Url.Action("Index"), BackText = "Terms" }' />
+
+<div class="panel form-panel">
+    <form asp-action="Edit" method="post">
+        <input type="hidden" asp-for="TermId" />
+        <partial name="_TermFields" model="Model" />
+        <div class="form-actions">
+            <button type="submit" class="btn btn-rosebank" data-loading="Saving…"><i class="bi bi-check-lg" aria-hidden="true"></i> Save changes</button>
+            <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+        </div>
+    </form>
+</div>

@@ -14,6 +14,7 @@ namespace ISMLTS_WebApp_.Controllers
     {
         private readonly IMarkRepository _markRepository;
         private readonly IAttendanceRepository _attendanceRepository;
+        private readonly ITermService _terms;
         private readonly IAssessmentRepository _assessmentRepository;
         private readonly ISubmissionRepository _submissionRepository;
         private readonly IModuleRepository _moduleRepository;
@@ -23,6 +24,7 @@ namespace ISMLTS_WebApp_.Controllers
         public InsightsController(
             IMarkRepository markRepository,
             IAttendanceRepository attendanceRepository,
+            ITermService terms,
             IAssessmentRepository assessmentRepository,
             ISubmissionRepository submissionRepository,
             IModuleRepository moduleRepository,
@@ -32,6 +34,7 @@ namespace ISMLTS_WebApp_.Controllers
             _portal = portal;
             _markRepository = markRepository;
             _attendanceRepository = attendanceRepository;
+            _terms = terms;
             _assessmentRepository = assessmentRepository;
             _submissionRepository = submissionRepository;
             _moduleRepository = moduleRepository;
@@ -53,8 +56,9 @@ namespace ISMLTS_WebApp_.Controllers
 
             var moduleIds = modules.Select(m => m.ModuleId).ToList();
             var marks = (await _markRepository.GetByModulesAsync(moduleIds)).ToList();
-            var records = await _attendanceRepository.GetRecordsByModulesAsync(moduleIds);
-            var sessions = await _attendanceRepository.CountSessionsByModuleAsync(moduleIds);
+            var periods = await _terms.AttendancePeriodsAsync();
+            var records = await _attendanceRepository.GetRecordsByModulesAsync(moduleIds, periods);
+            var sessions = await _attendanceRepository.CountSessionsByModuleAsync(moduleIds, periods);
             var assessments = await _assessmentRepository.GetByModulesAsync(moduleIds);
             var submissions = await _submissionRepository.GetByAssessmentsAsync(assessments.Select(a => a.AssessmentId).ToList());
 

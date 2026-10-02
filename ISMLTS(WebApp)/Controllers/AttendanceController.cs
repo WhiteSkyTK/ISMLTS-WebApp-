@@ -23,6 +23,7 @@ namespace ISMLTS_WebApp_.Controllers
         private readonly IQrCodeService _qrCodeService;
         private readonly AttendanceOptions _options;
         private readonly INotificationService _notifications;
+        private readonly ITimetableRepository _timetable;
 
         public AttendanceController(
             IAttendanceRepository attendanceRepository,
@@ -31,7 +32,8 @@ namespace ISMLTS_WebApp_.Controllers
             IStudentPortalService portal,
             IQrCodeService qrCodeService,
             IOptions<AttendanceOptions> options,
-            INotificationService notifications)
+            INotificationService notifications,
+            ITimetableRepository timetable)
         {
             _attendanceRepository = attendanceRepository;
             _moduleRepository = moduleRepository;
@@ -40,13 +42,19 @@ namespace ISMLTS_WebApp_.Controllers
             _qrCodeService = qrCodeService;
             _options = options.Value;
             _notifications = notifications;
+            _timetable = timetable;
         }
 
         // ---------- Lecturer ----------
 
         [Authorize(Roles = "Lecturer")]
-        public async Task<IActionResult> Index() =>
-            View(await _moduleRepository.GetByLecturerAsync(User.GetUserId() ?? 0));
+        public async Task<IActionResult> Index()
+        {
+            var modules = (await _moduleRepository.GetByLecturerAsync(User.GetUserId() ?? 0)).ToList();
+            // The class on now (from the timetable) gets a one-click "Take register"
+            ViewBag.NowSlot = Timetable.Now(await _timetable.GetByModulesAsync(modules.Select(m => m.ModuleId).ToList()), DateTime.Now);
+            return View(modules);
+        }
 
         [Authorize(Roles = "Lecturer")]
         public async Task<IActionResult> ForModule(int moduleId)
@@ -125,6 +133,24 @@ namespace ISMLTS_WebApp_.Controllers
             await _attendanceRepository.SaveChangesAsync();
             this.Toast("Session closed. Anyone who missed it can be marked present here.");
             return RedirectToAction(nameof(Details), new { id });
+        }
+
+        // A class that didn't happen after all stays on the list but stops counting towards anyone's attendance
+        [Authorize(Roles = "Lecturer")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SetCancelled(int id, bool cancelled)
+        {
+            var session = await GetOwnedSessionAsync(id);
+            if (session == null) return NotFound();
+
+            session.IsCancelled = cancelled;
+            if (cancelled) session.IsClosed = true;
+            await _attendanceRepository.SaveChangesAsync();
+            this.Toast(cancelled
+                ? "Marked as a cancelled class. It no longer counts towards attendance."
+                : "This class counts towards attendance again.", ToastTypes.Info);
+            return RedirectToAction(nameof(ForModule), new { moduleId = session.ModuleId });
         }
 
         [Authorize(Roles = "Lecturer")]

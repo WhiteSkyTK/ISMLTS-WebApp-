@@ -1,0 +1,105 @@
+@model TimetablePageModel
+@using System.Globalization
+@using ISMLTS_WebApp_.Services
+@{
+    ViewData["Title"] = "Timetable";
+    var form = Model.Form;
+}
+
+<partial name="_PageHeader" model='new PageHeaderModel { Title = "Timetable", Subtitle = "Your weekly classes. When one is on, Attendance offers to take its register straight away, and students see it on their calendar." }' />
+
+<div class="row g-4">
+    <div class="col-lg-7">
+        <div class="panel">
+            @if (Model.Slots.Any())
+            {
+                <div class="table-scroll">
+                    <table class="table align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th scope="col">Day</th>
+                                <th scope="col">Time</th>
+                                <th scope="col">Module</th>
+                                <th scope="col">Venue</th>
+                                <th scope="col"><span class="visually-hidden">Actions</span></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var s in Model.Slots)
+                            {
+                                <tr>
+                                    <td>@Timetable.Day(s.Day)</td>
+                                    <td class="text-nowrap">@Timetable.Times(s)</td>
+                                    <td class="font-monospace">@s.Module?.Code</td>
+                                    <td>@s.Venue</td>
+                                    <td>
+                                        <form asp-action="Delete" asp-route-id="@s.SlotId" method="post" data-confirm="Remove @s.Module?.Code on @Timetable.Day(s.Day) at @s.StartTime.ToString("HH:mm", CultureInfo.InvariantCulture)?">
+                                            <button type="submit" class="btn btn-icon btn-icon-danger" data-bs-toggle="tooltip" data-bs-title="Remove"><i class="bi bi-trash" aria-hidden="true"></i><span class="visually-hidden">Remove @s.Module?.Code on @Timetable.Day(s.Day)</span></button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <partial name="_EmptyState" model='new EmptyStateModel { Icon = "bi-clock", Title = "No classes yet", Message = "Add each weekly class with the form." }' />
+            }
+        </div>
+    </div>
+    <div class="col-lg-5">
+        <div class="panel form-panel">
+            <h2 class="h6 mb-3">Add a class</h2>
+            @if (Model.Modules.Any())
+            {
+                <form asp-action="Create" method="post">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+                    <div class="mb-3">
+                        <label for="ModuleId" class="form-label">Module</label>
+                        <select id="ModuleId" name="ModuleId" class="form-select">
+                            @foreach (var m in Model.Modules)
+                            {
+                                <option value="@m.ModuleId" selected="@(m.ModuleId == form.ModuleId)">@m.Code - @m.Name</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="Day" class="form-label">Day</label>
+                        <select id="Day" name="Day" class="form-select">
+                            @foreach (var day in Timetable.TeachingDays)
+                            {
+                                <option value="@day" selected="@(day == form.Day)">@Timetable.Day(day)</option>
+                            }
+                        </select>
+                        @Html.ValidationMessage("Day", new { @class = "text-danger small" })
+                    </div>
+                    <div class="row g-3 mb-3">
+                        <div class="col-6">
+                            <label for="StartTime" class="form-label">Starts</label>
+                            <input id="StartTime" name="StartTime" type="time" class="form-control" value="@form.StartTime.ToString("HH:mm", CultureInfo.InvariantCulture)" required />
+                        </div>
+                        <div class="col-6">
+                            <label for="EndTime" class="form-label">Ends</label>
+                            <input id="EndTime" name="EndTime" type="time" class="form-control" value="@form.EndTime.ToString("HH:mm", CultureInfo.InvariantCulture)" required />
+                            @Html.ValidationMessage("EndTime", new { @class = "text-danger small" })
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="Venue" class="form-label">Venue</label>
+                        <input id="Venue" name="Venue" class="form-control" value="@form.Venue" maxlength="60" placeholder="e.g. Room 3.12" required />
+                        @Html.ValidationMessage("Venue", new { @class = "text-danger small" })
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-rosebank" data-loading="Adding…"><i class="bi bi-plus-lg" aria-hidden="true"></i> Add class</button>
+                    </div>
+                </form>
+            }
+            else
+            {
+                <p class="text-muted mb-0">You don't teach any modules yet.</p>
+            }
+        </div>
+    </div>
+</div>

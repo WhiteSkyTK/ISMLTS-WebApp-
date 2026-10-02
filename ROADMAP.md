@@ -94,10 +94,11 @@ This is where everything built since Phase 1 reaches the live site and gets test
 - [ ] On the live site: create the Storage account, set `Storage__ConnectionString`, publish with the `Phase7Files` migration and try an upload and a download as a student and a lecturer
 
 ## Phase 8 — Terms and timetable
-- [ ] Term entity with start and end dates; "current term" drives the dashboards and the Archived filter (replaces the hard-coded `IsCurrentSemester = true`)
-- [ ] Timetable slots per module (day, time, venue); "Take register" goes straight to the class happening now
-- [ ] Attendance percentages count only the current term's sessions; cancelled classes can be excluded
-- [ ] Calendar page for each role with classes and due dates, plus an `.ics` feed students can subscribe to on their phone
+- [x] Term entity with start and end dates; "current term" drives the dashboards and the Archived filter (replaces the hard-coded `IsCurrentSemester = true`)
+- [x] Timetable slots per module (day, time, venue); "Take register" goes straight to the class happening now
+- [x] Attendance percentages count only the current term's sessions; cancelled classes can be excluded
+- [x] Calendar page for each role with classes and due dates, plus an `.ics` feed students can subscribe to on their phone
+- [ ] On the live site: publish with the `Phase8Terms` migration, add this year's terms (Admin → Terms) and each module's classes (Lecturer → Timetable), then check dashboards, attendance percentages and a phone subscription
 
 ## Phase 9 — Data care and accessibility
 - [ ] Retention job clears attendance IP and GPS details after the period stated in the POPIA notice (config setting); marks are kept

@@ -1232,3 +1232,33 @@ th[aria-sort] .sort-link {
             border-top: 0;
             padding-top: 0;
         }
+
+/* ===== Calendar: one heading per day, then its classes and due dates ===== */
+.agenda-day {
+    margin: 1.25rem 0 0.5rem;
+}
+
+    .agenda-day:first-child {
+        margin-top: 0;
+    }
+
+.agenda-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+    .agenda-list li {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: baseline;
+        gap: 0.5rem;
+        padding: 0.5rem 0;
+        border-top: 1px solid var(--rb-border);
+    }
+
+.agenda-time {
+    min-width: 6.5rem;
+    color: var(--rb-muted);
+    font-variant-numeric: tabular-nums;
+}

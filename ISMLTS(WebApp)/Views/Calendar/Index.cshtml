@@ -1,0 +1,68 @@
+@model CalendarPageModel
+@using ISMLTS_WebApp_.Services
+@{
+    ViewData["Title"] = "Calendar";
+    var isStudent = User.IsInRole(Roles.Student);
+    var subtitle = isStudent ? "Your classes and due dates for the next four weeks."
+        : User.IsInRole(Roles.Lecturer) ? "Your classes and your modules' due dates for the next four weeks."
+        : "Term dates and every module's due dates for the next four weeks.";
+}
+
+<partial name="_PageHeader" model='new PageHeaderModel { Title = "Calendar", Subtitle = subtitle }' />
+
+<div class="row g-4">
+    <div class="@(isStudent ? "col-lg-8" : "col-12")">
+        <div class="panel">
+            @if (Model.Entries.Any())
+            {
+                @foreach (var day in Model.Entries.GroupBy(e => e.Start.Date))
+                {
+                    <h2 class="h6 agenda-day">@day.Key.ToString("dddd, dd MMMM") <span class="small text-muted fw-normal">@DueDates.Describe(day.Key, DateTime.Today)</span></h2>
+                    <ul class="agenda-list">
+                        @foreach (var e in day)
+                        {
+                            var icon = e.Kind switch { CalendarKind.Class => "bi-easel", CalendarKind.Due => "bi-journal-check", _ => "bi-flag" };
+                            <li>
+                                <i class="bi @icon" aria-hidden="true"></i>
+                                <span class="agenda-time">@(e.AllDay ? "All day" : $"{e.Start:HH:mm}–{e.End:HH:mm}")</span>
+                                <span class="fw-medium">@e.Title</span>
+                                @if (e.Location != null)
+                                {
+                                    <span class="text-muted">· @e.Location</span>
+                                }
+                            </li>
+                        }
+                    </ul>
+                }
+            }
+            else
+            {
+                <partial name="_EmptyState" model='new EmptyStateModel { Icon = "bi-calendar3", Title = "Nothing in the next four weeks", Message = "Classes show here once your lecturers add them to the timetable, and due dates once assessments are set." }' />
+            }
+        </div>
+    </div>
+    @if (isStudent)
+    {
+        <div class="col-lg-4">
+            <div class="panel">
+                <h2 class="h6"><i class="bi bi-phone" aria-hidden="true"></i> On your phone</h2>
+                @if (Model.FeedUrl != null)
+                {
+                    var webcal = "webcal://" + Model.FeedUrl[(Model.FeedUrl.IndexOf("://", StringComparison.Ordinal) + 3)..];
+                    <p class="small">Copy this link now: it is only shown once. Anyone with it can see your classes and due dates.</p>
+                    <label for="feedUrl" class="form-label small">Calendar link</label>
+                    <input id="feedUrl" class="form-control form-control-sm mb-2" value="@Model.FeedUrl" readonly />
+                    <a href="@webcal" class="btn btn-rosebank btn-sm"><i class="bi bi-calendar-plus" aria-hidden="true"></i> Add to my calendar</a>
+                    <p class="small text-muted mt-2 mb-0">Google Calendar: Other calendars → From URL, then paste the link.</p>
+                }
+                else
+                {
+                    <p class="small text-muted">Subscribe once and your phone's calendar keeps up with your classes and due dates by itself.</p>
+                    <form asp-action="NewFeedLink" method="post" data-confirm="Make a new calendar link? Any link you made before stops working." data-confirm-tone="primary">
+                        <button type="submit" class="btn btn-outline-rosebank btn-sm" data-loading="Making…"><i class="bi bi-link-45deg" aria-hidden="true"></i> Get my calendar link</button>
+                    </form>
+                }
+            </div>
+        </div>
+    }
+</div>

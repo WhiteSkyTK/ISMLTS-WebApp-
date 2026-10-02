@@ -6,6 +6,7 @@ namespace ISMLTS_WebApp_.Repositories
     public interface IStudentRepository : IRepository<Student>
     {
         Task<Student?> GetByEmailAsync(string email);
+        Task<Student?> GetByCalendarTokenHashAsync(string tokenHash);
         Task<Student?> GetByIdWithModulesAsync(int id);
         Task<IEnumerable<Student>> GetByModuleAsync(int moduleId);
         Task<bool> IsEnrolledAsync(int studentId, int moduleId);

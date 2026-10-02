@@ -12,6 +12,9 @@ namespace ISMLTS_WebApp_.Repositories
         public async Task<Student?> GetByEmailAsync(string email) =>
             await _dbSet.FirstOrDefaultAsync(s => s.Email == email);
 
+        public async Task<Student?> GetByCalendarTokenHashAsync(string tokenHash) =>
+            await _dbSet.AsNoTracking().FirstOrDefaultAsync(s => s.CalendarTokenHash == tokenHash);
+
         public async Task<IEnumerable<Student>> GetByModuleAsync(int moduleId) =>
             await _dbSet.Where(s => s.Modules.Any(m => m.ModuleId == moduleId)).ToListAsync();
 

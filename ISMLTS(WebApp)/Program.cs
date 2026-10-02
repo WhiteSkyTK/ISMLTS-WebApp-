@@ -141,6 +141,7 @@ builder.Services.AddScoped<ISiteCheckService, SiteCheckService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<IMarkService, MarkService>();
 builder.Services.AddScoped<ITermService, TermService>();
+builder.Services.AddScoped<ICalendarService, CalendarService>();
 
 // Email goes through Azure Communication Services only when Email:ConnectionString and Email:From are set
 var emailSection = builder.Configuration.GetSection("Email");

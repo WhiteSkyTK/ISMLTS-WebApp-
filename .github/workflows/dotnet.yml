@@ -1,5 +1,8 @@
-name: WebApp - .NET Build & Test
+name: WebApp - build, test and deploy
 
+# Every push and pull request: build and run the tests (with coverage).
+# SonarCloud analysis runs once the SONAR_TOKEN secret exists.
+# Deploying runs on pushes to master once the Azure variables and secrets exist (see README, "Deploying to Azure").
 on:
   push:
     branches: [ main, master ]
@@ -7,22 +10,112 @@ on:
     branches: [ main, master ]
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # SonarCloud reads history to tell new code from old
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '9.0.x'
 
+      - name: Setup Java (SonarCloud scanner)
+        if: env.SONAR_TOKEN != ''
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
       - name: Restore dependencies
         run: dotnet restore
+
+      - name: Start SonarCloud analysis
+        if: env.SONAR_TOKEN != ''
+        run: |
+          dotnet tool install --global dotnet-sonarscanner
+          dotnet sonarscanner begin \
+            /k:"${{ vars.SONAR_PROJECT_KEY || 'WhiteSkyTK_ISMLTS-WebApp-' }}" \
+            /o:"${{ vars.SONAR_ORGANIZATION || 'whiteskytk' }}" \
+            /d:sonar.token="$SONAR_TOKEN" \
+            /d:sonar.host.url="https://sonarcloud.io" \
+            /d:sonar.cs.opencover.reportsPaths="**/TestResults/*/coverage.opencover.xml" \
+            /d:sonar.coverage.exclusions="**/Migrations/**,**/Program.cs,**/wwwroot/lib/**" \
+            /d:sonar.exclusions="**/Migrations/**"
 
       - name: Build
         run: dotnet build --no-restore --configuration Release
 
-      - name: Test
-        run: dotnet test --no-build --configuration Release --verbosity normal
+      - name: Test (with coverage)
+        run: >
+          dotnet test --no-build --configuration Release --verbosity normal
+          --collect:"XPlat Code Coverage"
+          -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
+
+      - name: Finish SonarCloud analysis
+        if: env.SONAR_TOKEN != ''
+        run: dotnet sonarscanner end /d:sonar.token="$SONAR_TOKEN"
+
+      - name: Publish the web app
+        if: github.event_name == 'push'
+        run: dotnet publish "ISMLTS(WebApp)/ISMLTS(WebApp).csproj" --no-build --configuration Release --output "${{ runner.temp }}/webapp"
+
+      - name: Keep the published app for the deploy job
+        if: github.event_name == 'push'
+        uses: actions/upload-artifact@v4
+        with:
+          name: webapp
+          path: ${{ runner.temp }}/webapp
+          retention-days: 7
+
+  deploy:
+    needs: build
+    # Only master, and only once the repository variable AZURE_WEBAPP_NAME is set
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master' && vars.AZURE_WEBAPP_NAME != ''
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write   # signs in to Azure with OpenID Connect; no publish profile or password is stored
+      contents: read
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: webapp
+          path: webapp
+
+      - name: Sign in to Azure
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      # AZURE_WEBAPP_SLOT = staging deploys to the staging slot (swap to production by hand in the portal);
+      # empty deploys straight to production (plans without slots, such as Free and Basic)
+      - name: Deploy to App Service
+        id: deploy
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: ${{ vars.AZURE_WEBAPP_NAME }}
+          slot-name: ${{ vars.AZURE_WEBAPP_SLOT || 'production' }}
+          package: webapp
+
+      # The site applies database migrations as it starts, so give it a moment, then ask /health
+      - name: Check the site answers
+        run: |
+          url="${{ steps.deploy.outputs.webapp-url }}/health"
+          for attempt in 1 2 3 4 5 6 7 8 9 10; do
+            status=$(curl -s -o /dev/null -w "%{http_code}" "$url" || true)
+            echo "Attempt $attempt: $url -> $status"
+            if [ "$status" = "200" ]; then exit 0; fi
+            sleep 15
+          done
+          echo "The site did not report Healthy. Check its log stream in the Azure portal."
+          exit 1

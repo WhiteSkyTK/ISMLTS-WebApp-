@@ -1,0 +1,62 @@
+@model List<ISMLTS_WebApp_.Services.SiteCheckItem>
+@using ISMLTS_WebApp_.Services
+@{
+    ViewData["Title"] = "Site Check";
+    var problems = Model.Count(i => i.State == CheckState.Problem);
+    var warnings = Model.Count(i => i.State == CheckState.Warning);
+    string Badge(CheckState state) => state switch
+    {
+        CheckState.Ok => "text-bg-success",
+        CheckState.Warning => "text-bg-warning",
+        CheckState.Problem => "text-bg-danger",
+        _ => "text-bg-secondary"
+    };
+    string Icon(CheckState state) => state switch
+    {
+        CheckState.Ok => "bi-check-circle",
+        CheckState.Warning => "bi-exclamation-triangle",
+        CheckState.Problem => "bi-x-octagon",
+        _ => "bi-info-circle"
+    };
+    string Label(CheckState state) => state switch
+    {
+        CheckState.Ok => "OK",
+        CheckState.Warning => "Check",
+        CheckState.Problem => "Problem",
+        _ => "Info"
+    };
+}
+
+<partial name="_PageHeader" model='new PageHeaderModel { Title = "Site check", Subtitle = "Settings and connections as this server sees them. Run it after every deploy." }' />
+
+<div class="panel">
+    <div class="stat-inline">
+        <div><strong>@problems</strong><span class="small text-muted">@(problems == 1 ? "problem" : "problems")</span></div>
+        <div><strong>@warnings</strong><span class="small text-muted">@(warnings == 1 ? "thing" : "things") to check</span></div>
+        <div><strong>@Model.Count(i => i.State == CheckState.Ok)</strong><span class="small text-muted">OK</span></div>
+    </div>
+    <div class="table-scroll">
+        <table class="table align-middle mb-0">
+            <thead>
+                <tr>
+                    <th scope="col">Area</th>
+                    <th scope="col">Check</th>
+                    <th scope="col">Result</th>
+                    <th scope="col">Details</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td class="text-muted small">@item.Area</td>
+                        <td class="fw-medium">@item.Name</td>
+                        <td><span class="badge @Badge(item.State)"><i class="bi @Icon(item.State)" aria-hidden="true"></i> @Label(item.State)</span></td>
+                        <td class="small">@item.Detail</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <p class="small text-muted mt-3 mb-0"><i class="bi bi-shield-lock" aria-hidden="true"></i> Only admins see this page. It shows whether settings are present, never their values. The health check for App Service is at <code>@Program.HealthPath</code>.</p>
+</div>

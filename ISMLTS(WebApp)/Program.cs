@@ -107,6 +107,7 @@ builder.Services.AddScoped<INotificationSettingRepository, NotificationSettingRe
 builder.Services.AddScoped<IAnnouncementRepository, AnnouncementRepository>();
 builder.Services.AddScoped<IMarkChangeRepository, MarkChangeRepository>();
 builder.Services.AddScoped<IApiRefreshTokenRepository, ApiRefreshTokenRepository>();
+builder.Services.AddScoped<IDatabaseInfoRepository, DatabaseInfoRepository>();
 
 builder.Services.Configure<AttendanceOptions>(builder.Configuration.GetSection("Attendance"));
 builder.Services.Configure<RiskOptions>(builder.Configuration.GetSection("Risk"));
@@ -120,6 +121,7 @@ builder.Services.AddScoped<ICourseService, CourseService>();
 builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<IUserImportService, UserImportService>();
 builder.Services.AddScoped<IStudentPortalService, StudentPortalService>();
+builder.Services.AddScoped<ISiteCheckService, SiteCheckService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<IMarkService, MarkService>();
 

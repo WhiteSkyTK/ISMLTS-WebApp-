@@ -12,6 +12,9 @@ namespace ISMLTS_WebApp_.Services
     public interface IAttendanceVerifier
     {
         AttendanceCheck Verify(AttendanceSession session, IPAddress? ip, double? latitude, double? longitude);
+
+        // Whether the address is in Attendance:AllowedIpRanges (the campus network)
+        bool IsOnCampus(IPAddress? ip);
     }
 
     public class AttendanceVerifier : IAttendanceVerifier
@@ -34,8 +37,7 @@ namespace ISMLTS_WebApp_.Services
 
         public AttendanceCheck Verify(AttendanceSession session, IPAddress? ip, double? latitude, double? longitude)
         {
-            var address = ip is { IsIPv4MappedToIPv6: true } ? ip.MapToIPv4() : ip;
-            var onCampus = address != null && _campusNetworks.Exists(n => n.Contains(address));
+            var onCampus = IsOnCampus(ip);
 
             double? distance = null;
             if (session.Latitude is double classLat && session.Longitude is double classLon
@@ -46,6 +48,12 @@ namespace ISMLTS_WebApp_.Services
             }
 
             return new AttendanceCheck(onCampus, distance, distance <= _radiusMeters);
+        }
+
+        public bool IsOnCampus(IPAddress? ip)
+        {
+            var address = ip is { IsIPv4MappedToIPv6: true } ? ip.MapToIPv4() : ip;
+            return address != null && _campusNetworks.Exists(n => n.Contains(address));
         }
 
         private static bool IsValid(double latitude, double longitude) =>

@@ -1,6 +1,7 @@
 using System.Globalization;
 using Microsoft.EntityFrameworkCore;
 using ISMLTS_WebApp_.Models;
+using ISMLTS_WebApp_.Services;
 
 namespace ISMLTS_WebApp_.Data
 {
@@ -57,12 +58,17 @@ namespace ISMLTS_WebApp_.Data
         private const string CodeAlphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
         private const int SessionsPerModule = 6;
 
-        public static bool IsEnabled(IConfiguration configuration) =>
-            configuration.GetValue<bool>("Seed:DemoData") && !string.IsNullOrWhiteSpace(configuration["Seed:DemoPassword"]);
+        // The first extra course doubles as the marker that the demo data is already in
+        public static string MarkerCourseCode => ExtraCourses[0].Code;
 
+        public static bool IsEnabled(IConfiguration configuration) =>
+            configuration.GetValue<bool>("Seed:DemoData") && PasswordRules.IsLongEnough(configuration["Seed:DemoPassword"]);
+
+        // Runs once per database, also next to real data (the live site): accounts, emails, module codes and
+        // attendance codes that already exist are left alone rather than added twice
         public static async Task SeedAsync(ApplicationDbContext context, IConfiguration configuration)
         {
-            if (!IsEnabled(configuration) || await context.Students.AnyAsync()) return;
+            if (!IsEnabled(configuration) || await context.Courses.AnyAsync(c => c.Code == MarkerCourseCode)) return;
 
             // One hash for every demo account keeps the first start quick
             var hash = BCrypt.Net.BCrypt.HashPassword(configuration["Seed:DemoPassword"]);
@@ -81,19 +87,22 @@ namespace ISMLTS_WebApp_.Data
             // The ADAD0701 curriculum needs a lecturer before its modules can be added
             await DataSeeder.SeedDataAsync(context, configuration);
 
-            var lecturers = await AddLecturersAsync(context, hash);
-            var courses = await AddCoursesAsync(context, lecturers);
-            var students = AddStudents(context, courses, hash);
+            var team = await AddLecturersAsync(context, hash);
+            var courses = await AddCoursesAsync(context, team);
+            var students = await AddStudentsAsync(context, courses, hash);
             await context.SaveChangesAsync();
 
-            var lecturerNames = lecturers.ToDictionary(l => l.LecturerId, l => l.FullName);
+            var lecturerNames = await context.Lecturers.ToDictionaryAsync(l => l.LecturerId, l => l.FullName);
+            var usedCodes = (await context.AttendanceSessions.Select(s => s.Code).ToListAsync()).ToHashSet();
+            var created = students.OfType<Student>().ToList();
             var modules = courses.SelectMany(c => c.Modules).OrderBy(m => m.ModuleId).ToList();
             var marks = new List<Mark>();
-            for (var m = 0; m < modules.Count; m++)
+            foreach (var module in modules)
             {
-                var enrolled = students.Where(s => s.Modules.Contains(modules[m])).ToList();
-                marks.AddRange(AddAssessmentsAndMarks(context, modules[m], enrolled, today));
-                AddAttendance(context, modules[m], enrolled, today, m);
+                var enrolled = created.Where(s => s.Modules.Contains(module)).ToList();
+                if (enrolled.Count == 0) continue;
+                marks.AddRange(AddAssessmentsAndMarks(context, module, enrolled, today));
+                AddAttendance(context, module, enrolled, today, usedCodes);
             }
             await context.SaveChangesAsync();
 
@@ -103,27 +112,34 @@ namespace ISMLTS_WebApp_.Data
             await context.SaveChangesAsync();
         }
 
+        // The demo teaching team: the first lecturer on the site, then the three demo lecturers (found by email, added if missing)
         private static async Task<List<Lecturer>> AddLecturersAsync(ApplicationDbContext context, string hash)
         {
-            var lecturers = await context.Lecturers.OrderBy(l => l.LecturerId).ToListAsync();
+            var existing = await context.Lecturers.OrderBy(l => l.LecturerId).ToListAsync();
+            var team = new List<Lecturer> { existing[0] };
             foreach (var (name, email) in ExtraLecturers)
             {
-                if (lecturers.Exists(l => l.Email == email)) continue;
-                var lecturer = new Lecturer { FullName = name, Email = email, PasswordHash = hash };
-                context.Lecturers.Add(lecturer);
-                lecturers.Add(lecturer);
+                var lecturer = existing.Find(l => string.Equals(l.Email, email, StringComparison.OrdinalIgnoreCase));
+                if (lecturer == null)
+                {
+                    lecturer = new Lecturer { FullName = name, Email = email, PasswordHash = hash };
+                    context.Lecturers.Add(lecturer);
+                }
+                team.Add(lecturer);
             }
             await context.SaveChangesAsync();
-            return lecturers;
+            return team;
         }
 
-        private static async Task<List<Course>> AddCoursesAsync(ApplicationDbContext context, List<Lecturer> lecturers)
+        private static async Task<List<Course>> AddCoursesAsync(ApplicationDbContext context, List<Lecturer> team)
         {
             var existingCodes = await context.Modules.Select(m => m.Code).ToListAsync();
             var adad = await context.Courses.Include(c => c.Modules).FirstAsync(c => c.Code == DataSeeder.CourseCode);
             foreach (var module in adad.Modules)
             {
-                if (CurriculumLecturers.TryGetValue(module.Code, out var index)) module.LecturerId = lecturers[index].LecturerId;
+                // Only modules still with the default lecturer; a lecturer an admin chose stays
+                if (CurriculumLecturers.TryGetValue(module.Code, out var index) && module.LecturerId == team[0].LecturerId)
+                    module.LecturerId = team[index].LecturerId;
             }
 
             var courses = new List<Course> { adad };
@@ -138,7 +154,7 @@ namespace ISMLTS_WebApp_.Data
                 foreach (var (moduleCode, moduleName, term, lecturer) in modules)
                 {
                     if (existingCodes.Contains(moduleCode)) continue;
-                    course.Modules.Add(new Module { Code = moduleCode, Name = moduleName, Term = term, LecturerId = lecturers[lecturer].LecturerId });
+                    course.Modules.Add(new Module { Code = moduleCode, Name = moduleName, Term = term, LecturerId = team[lecturer].LecturerId });
                 }
                 courses.Add(course);
             }
@@ -146,25 +162,26 @@ namespace ISMLTS_WebApp_.Data
             return courses;
         }
 
-        // Student numbers look like the college's: st10000001@rcconnect.edu.za
-        private static List<Student> AddStudents(ApplicationDbContext context, List<Course> courses, string hash)
+        // Student numbers look like the college's: st10000001@rcconnect.edu.za. One slot per demo student, in a fixed
+        // order; a slot stays empty when that email already belongs to someone.
+        private static async Task<Student?[]> AddStudentsAsync(ApplicationDbContext context, List<Course> courses, string hash)
         {
-            var students = new List<Student>();
+            var taken = (await context.Students.Select(s => s.Email).ToListAsync())
+                .Concat(await context.Lecturers.Select(l => l.Email).ToListAsync())
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+            var students = new Student?[StudentNames.Length];
+            var slot = 0;
             for (var c = 0; c < courses.Count; c++)
             {
-                for (var i = 0; i < StudentsPerCourse[c]; i++)
+                for (var i = 0; i < StudentsPerCourse[c]; i++, slot++)
                 {
-                    var number = 10000001 + students.Count;
-                    var student = new Student
-                    {
-                        FullName = StudentNames[students.Count],
-                        Email = $"st{number.ToString(CultureInfo.InvariantCulture)}@rcconnect.edu.za",
-                        Programme = courses[c].Name,
-                        PasswordHash = hash
-                    };
+                    var email = $"st{(10000001 + slot).ToString(CultureInfo.InvariantCulture)}@rcconnect.edu.za";
+                    if (taken.Contains(email)) continue;
+
+                    var student = new Student { FullName = StudentNames[slot], Email = email, Programme = courses[c].Name, PasswordHash = hash };
                     foreach (var module in courses[c].Modules) student.Modules.Add(module);
                     context.Students.Add(student);
-                    students.Add(student);
+                    students[slot] = student;
                 }
             }
             return students;
@@ -263,7 +280,7 @@ namespace ISMLTS_WebApp_.Data
         }
 
         // Weekly sessions over the last six weeks; most students attend nearly all, about one in five misses half
-        private static void AddAttendance(ApplicationDbContext context, Module module, List<Student> enrolled, DateTime today, int moduleNumber)
+        private static void AddAttendance(ApplicationDbContext context, Module module, List<Student> enrolled, DateTime today, HashSet<string> usedCodes)
         {
             for (var week = SessionsPerModule; week >= 1; week--)
             {
@@ -271,7 +288,7 @@ namespace ISMLTS_WebApp_.Data
                 var session = new AttendanceSession
                 {
                     Module = module,
-                    Code = SessionCode(moduleNumber * SessionsPerModule + week),
+                    Code = NextFreeCode(usedCodes),
                     StartedAt = started,
                     ExpiresAt = started.AddMinutes(15),
                     IsClosed = true,
@@ -319,6 +336,18 @@ namespace ISMLTS_WebApp_.Data
             return new string(code);
         }
 
+        // Session codes must be unique; skips any already in the database (or handed out earlier in this seed)
+        private static string NextFreeCode(HashSet<string> usedCodes)
+        {
+            var number = usedCodes.Count;
+            string code;
+            do
+            {
+                code = SessionCode(number++);
+            } while (!usedCodes.Add(code));
+            return code;
+        }
+
         // Mark history needs the saved MarkId; students get a bell notification for each released mark
         private static void AddMarkHistoryAndNotifications(ApplicationDbContext context, List<Mark> marks, Dictionary<int, string> lecturerNames)
         {
@@ -356,7 +385,7 @@ namespace ISMLTS_WebApp_.Data
             }
         }
 
-        private static void AddTickets(ApplicationDbContext context, List<Student> students, DateTime today)
+        private static void AddTickets(ApplicationDbContext context, Student?[] students, DateTime today)
         {
             // Which student, which of their modules, subject, question, status, lecturer reply
             (int Student, int Module, string Subject, string Question, string Status, string? Reply)[] tickets =
@@ -371,10 +400,15 @@ namespace ISMLTS_WebApp_.Data
             };
             foreach (var (student, module, subject, question, status, reply) in tickets)
             {
+                // Skipped when that demo student wasn't added (their email was taken) or has fewer modules
+                var asker = students[student];
+                var modules = asker?.Modules.OrderBy(m => m.ModuleId).ToList();
+                if (asker == null || modules == null || module >= modules.Count) continue;
+
                 context.Tickets.Add(new Ticket
                 {
-                    Student = students[student],
-                    Module = students[student].Modules.OrderBy(m => m.ModuleId).ElementAt(module),
+                    Student = asker,
+                    Module = modules[module],
                     Subject = subject,
                     Description = question,
                     Status = status,

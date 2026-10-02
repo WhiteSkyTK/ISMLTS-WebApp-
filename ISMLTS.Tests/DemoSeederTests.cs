@@ -152,22 +152,83 @@ namespace ISMLTS.Tests
         }
 
         [Fact]
-        public async Task ADatabaseWithStudents_IsLeftAlone()
+        public async Task OnALiveDatabase_RealAccountsAreKept_AndTakenEmailsSkipped()
+        {
+            int realLecturerId;
+            await using (var setup = _db.NewContext())
+            {
+                var realLecturer = new Lecturer { FullName = "Real Lecturer", Email = "real.lecturer@rosebank.iie.ac.za", PasswordHash = "real-hash" };
+                setup.Lecturers.Add(realLecturer);
+                setup.Admins.Add(new Admin { Username = "realadmin", PasswordHash = "real-hash" });
+                setup.Students.Add(new Student { FullName = "Real Student", Email = "real@rcconnect.edu.za", PasswordHash = "real-hash" });
+                // Someone already owns the first demo student number
+                setup.Students.Add(new Student { FullName = "Owner Of St1", Email = "st10000001@rcconnect.edu.za", PasswordHash = "real-hash" });
+                await setup.SaveChangesAsync();
+                realLecturerId = realLecturer.LecturerId;
+            }
+
+            await SeedAsync();
+
+            await using var check = _db.NewContext();
+            Assert.Equal(31, await check.Students.CountAsync());
+            Assert.Equal("Owner Of St1", (await check.Students.SingleAsync(s => s.Email == "st10000001@rcconnect.edu.za")).FullName);
+            Assert.True(await check.Students.Where(s => s.Email == "real@rcconnect.edu.za").Select(s => s.PasswordHash == "real-hash").SingleAsync());
+            Assert.Equal(1, await check.Admins.CountAsync());
+            // The demo teaching team is the real first lecturer plus the three demo lecturers
+            Assert.Equal(4, await check.Lecturers.CountAsync());
+            Assert.True(await check.Modules.AnyAsync(m => m.LecturerId == realLecturerId));
+        }
+
+        [Fact]
+        public async Task AnAdminsChoiceOfLecturer_IsKept()
         {
             await using (var setup = _db.NewContext())
             {
-                setup.Students.Add(new Student { FullName = "Real Student", Email = "real@rcconnect.edu.za", PasswordHash = "x" });
+                var hash = BCrypt.Net.BCrypt.HashPassword("x", workFactor: 4);
+                var first = new Lecturer { FullName = "First", Email = "first@rosebank.iie.ac.za", PasswordHash = hash };
+                var chosen = new Lecturer { FullName = "Chosen", Email = "chosen@rosebank.iie.ac.za", PasswordHash = hash };
+                setup.Lecturers.AddRange(first, chosen);
+                setup.Modules.Add(new Module { Code = "APDS7311", Name = "Security", Term = "Term1", Lecturer = chosen });
                 await setup.SaveChangesAsync();
             }
 
-            await using (var context = _db.NewContext())
-            {
-                await DemoSeeder.SeedAsync(context, Config());
-            }
+            await SeedAsync();
 
             await using var check = _db.NewContext();
-            Assert.Equal(1, await check.Students.CountAsync());
-            Assert.Equal(0, await check.Lecturers.CountAsync());
+            var apds = await check.Modules.Include(m => m.Lecturer).SingleAsync(m => m.Code == "APDS7311");
+            Assert.Equal("Chosen", apds.Lecturer!.FullName);
+        }
+
+        [Fact]
+        public async Task ExistingAttendanceCodes_AreNotReused()
+        {
+            await using (var setup = _db.NewContext())
+            {
+                var lecturer = new Lecturer { FullName = "First", Email = "first@rosebank.iie.ac.za", PasswordHash = "x" };
+                var module = new Module { Code = "REAL1234", Name = "Real", Lecturer = lecturer };
+                setup.AttendanceSessions.Add(new AttendanceSession { Module = module, Code = DemoSeeder.SessionCode(1), StartedAt = DateTime.UtcNow, ExpiresAt = DateTime.UtcNow });
+                await setup.SaveChangesAsync();
+            }
+
+            await SeedAsync();
+
+            await using var check = _db.NewContext();
+            var codes = await check.AttendanceSessions.Select(s => s.Code).ToListAsync();
+            Assert.Equal(codes.Count, codes.Distinct().Count());
+        }
+
+        [Theory]
+        [InlineData("1234567")]
+        [InlineData("")]
+        public void AShortDemoPassword_SwitchesTheSeedOff(string password)
+        {
+            var config = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                ["Seed:DemoData"] = "true",
+                ["Seed:DemoPassword"] = password
+            }).Build();
+
+            Assert.False(DemoSeeder.IsEnabled(config));
         }
 
         [Fact]

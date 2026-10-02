@@ -7,6 +7,7 @@ using ISMLTS_WebApp_.Filters;
 using ISMLTS_WebApp_.Repositories;
 using ISMLTS_WebApp_.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.EntityFrameworkCore;
@@ -42,6 +43,22 @@ builder.Services.AddControllersWithViews(options => options.Filters.Add<AccountS
 
 // JSON API for the Android app (bearer tokens, /api/v1)
 var apiSigningKey = builder.AddStudentApi();
+
+// On Azure the client's address may arrive in X-Forwarded-For from App Service's front end. ForwardedHeaders:Enabled reads it
+// from there; the admin Site check page shows which address the site sees, so you can tell whether it's needed.
+var useForwardedHeaders = builder.Configuration.GetValue<bool>("ForwardedHeaders:Enabled");
+if (useForwardedHeaders)
+{
+    builder.Services.Configure<ForwardedHeadersOptions>(options =>
+    {
+        options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+        // The front ends have no fixed addresses, and the site can only be reached through them; trust only
+        // the last hop they add, so a client can't fake its address with an X-Forwarded-For of its own
+        options.KnownNetworks.Clear();
+        options.KnownProxies.Clear();
+        options.ForwardLimit = 1;
+    });
+}
 
 // GET /health: "Healthy" (200) when the database answers, "Unhealthy" (503) when it doesn't; App Service's health check uses it
 builder.Services.AddHealthChecks().AddDbContextCheck<ApplicationDbContext>("database");
@@ -124,6 +141,11 @@ if (!isTesting)
 }
 
 var app = builder.Build();
+
+if (useForwardedHeaders)
+{
+    app.UseForwardedHeaders();
+}
 
 if (!isTesting)
 {

@@ -91,7 +91,7 @@ jobs:
           path: webapp
 
       - name: Sign in to Azure
-        uses: azure/login@v2
+        uses: azure/login@7184910d9eb2b1c5e48f7073824a90609bb9b6d6 # v2.3.1
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
@@ -101,7 +101,7 @@ jobs:
       # empty deploys straight to production (plans without slots, such as Free and Basic)
       - name: Deploy to App Service
         id: deploy
-        uses: azure/webapps-deploy@v3
+        uses: azure/webapps-deploy@02a81bead70021f5284939794bcec79c271ab383 # v3.0.8
         with:
           app-name: ${{ vars.AZURE_WEBAPP_NAME }}
           slot-name: ${{ vars.AZURE_WEBAPP_SLOT || 'production' }}

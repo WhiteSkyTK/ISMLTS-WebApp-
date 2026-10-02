@@ -84,12 +84,14 @@ This is where everything built since Phase 1 reaches the live site and gets test
 - [ ] Optional "Sign in with Microsoft" (OpenID Connect with Microsoft Entra ID, `Microsoft.AspNetCore.Authentication.OpenIdConnect`): the button only shows when `Authentication:Microsoft` is configured; it signs in an existing student or lecturer whose college email matches the verified Microsoft account and never creates accounts; password log-in stays. Check early whether the IIE tenant needs IT to approve (admin consent) the app registration
 
 ## Phase 7 — File submissions
-- [ ] Students can upload a file (PDF, DOCX, ZIP; size limit from config) as well as, or instead of, a link; files go to a private Azure Blob container (Azurite locally), never under wwwroot
-- [ ] Lecturers download through short-lived SAS links, after the usual module ownership check
-- [ ] File type checked from the file's content, not only its extension; stored names are generated, not taken from the upload
-- [ ] Per assessment, the lecturer can close submissions at the due date or allow a late window
-- [ ] Earlier uploads are kept as history; the latest one counts
-- [ ] Unit tests for the file checks; integration tests that nobody else can download a student's file
+- [x] Students can upload a file (PDF, DOCX, ZIP; size limit from config) as well as, or instead of, a link; files go to a private Azure Blob container (Azurite locally), never under wwwroot
+- [x] Lecturers download through short-lived SAS links, after the usual module ownership check
+- [x] File type checked from the file's content, not only its extension; stored names are generated, not taken from the upload
+- [x] Per assessment, the lecturer can close submissions at the due date or allow a late window
+- [x] Earlier uploads are kept as history; the latest one counts
+- [x] Unit tests for the file checks; integration tests that nobody else can download a student's file
+- [x] The Android app uploads and downloads through `/api/v1` (`docs/API.md`); Site check shows where files are stored; files go when their student, module or assessment is deleted
+- [ ] On the live site: create the Storage account, set `Storage__ConnectionString`, publish with the `Phase7Files` migration and try an upload and a download as a student and a lecturer
 
 ## Phase 8 — Terms and timetable
 - [ ] Term entity with start and end dates; "current term" drives the dashboards and the Archived filter (replaces the hard-coded `IsCurrentSemester = true`)

@@ -31,6 +31,10 @@ The Android app is built separately and calls the API described in `docs/API.md`
 
 Other things you can open: `/swagger` (the API, Development only) and `/health` (database check).
 
+Uploaded files are saved in `ISMLTS(WebApp)/App_Data/submissions` on your PC (ignored by git). To try Azure Blob
+Storage locally instead, run [Azurite](https://learn.microsoft.com/azure/storage/common/storage-use-azurite) and set
+`Storage__ConnectionString` to `UseDevelopmentStorage=true`.
+
 Run the tests with `dotnet test` from the repository folder.
 
 ## Deploying to Azure
@@ -50,9 +54,15 @@ The live site is an Azure App Service (Windows, .NET 9) with an Azure SQL databa
 | `ExternalLinks__IieLibrary`, `ExternalLinks__StudentPortal` | https addresses for the shortcut row | Optional |
 | `APPLICATIONINSIGHTS_CONNECTION_STRING` | From an Application Insights resource (paste it here rather than using the portal's codeless switch) | Optional |
 | `Seed__DemoData`, `Seed__DemoPassword` | `true` and a password of 8+ characters (not `12345678`) to add the demo data once, for testing | Optional |
+| `Storage__ConnectionString` | An Azure Storage account's connection string (Access keys → Connection string). Uploaded submissions go to its private `submissions` container; without it they are saved on the web server's disk | Yes, for uploads |
+| `Submissions__MaxFileMegabytes` | Largest upload in MB (default 20, at most 25) | Optional |
 
 General settings: **HTTPS Only** on, **Always On** on (Basic tier or higher; the Monday digest needs it), and
 **Health check** path `/health`. On the Azure SQL server, allow Azure services to connect.
+
+For uploaded submissions, create a **Storage account** (Standard, LRS, same region) and leave anonymous blob access
+off. Copy its connection string into `Storage__ConnectionString`; the site creates the private `submissions`
+container on the first upload and hands files out through download links that expire after 5 minutes.
 
 ### 2. Publish
 

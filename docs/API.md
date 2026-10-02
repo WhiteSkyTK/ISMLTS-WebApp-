@@ -78,6 +78,9 @@ student; `code` is a fixed word to switch on.
 | 401 | `invalid_refresh_token` | The refresh token is unknown, used, expired or revoked | Go to the login screen |
 | 404 | `not_found` | Not one of the student's records | Show the message |
 | 400 | `invalid_link` | Submission link isn't http(s) | Show the message |
+| 400 | `invalid_file` | The upload isn't a real PDF, DOCX or ZIP, is empty, or is too big | Show the message |
+| 400 | `missing_file` | The upload had no `file` part | Pick a file first |
+| 409 | `submissions_closed` | The assessment's late window has passed | Show the message; hide the hand-in button (see `submissionsOpen`) |
 | 400 | `invalid_module`, `invalid_subject`, `invalid_description` | Bad ticket | Show the message by the field |
 | 404 / 400 / 403 / 409 | Scan codes (see Attendance) | Scan didn't count | Show the message |
 | 500 | `server_error` | Something broke on the server | Ask them to try again later |
@@ -139,18 +142,32 @@ student; `code` is a fixed word to switch on.
 | `GET /assessments?moduleId=8` | (`moduleId` is optional) | Assessments, soonest first |
 | `GET /assessments/{id}` | | One assessment |
 | `PUT /assessments/{id}/submission` | `{ "link": "https://github.com/me/poe" }` | The updated assessment |
+| `POST /assessments/{id}/files` | `multipart/form-data` with one part named `file` (PDF, DOCX or ZIP) | The updated assessment |
+| `GET /files/{fileId}` | | The file (see below) |
 
 ```json
 {
   "assessmentId": 24, "moduleId": 8, "moduleCode": "XADAD7112", "name": "POE Part 1", "type": "POE",
   "description": "First part of the portfolio of evidence.", "dueDate": "2026-10-10", "maxScore": 100,
   "status": "submitted", "submittedAt": "2026-10-01T09:00:00+00:00", "link": "https://github.com/me/poe",
-  "marksReleased": false, "mark": null
+  "marksReleased": false, "mark": null,
+  "file": { "fileId": 31, "name": "POE Part 1.pdf", "sizeBytes": 482113, "uploadedAt": "2026-10-01T09:00:00+00:00" },
+  "fileCount": 2, "lastDayToSubmit": "2026-10-13", "submissionsOpen": true
 }
 ```
 
 - `mark` is `null` until the lecturer releases the marks; then it is `{ score, maxScore, percentage, feedback }`.
 - Handing in again replaces the link. Work handed in after the due date shows as `late`.
+- **Files:** a PDF, Word (.docx) or ZIP file of up to 20 MB (the live site's `Submissions__MaxFileMegabytes`). The site
+  reads the file's first bytes, so a renamed file is refused with `invalid_file`. Uploading again keeps the earlier
+  files; `file` is always the newest one, the one that counts, and `fileCount` says how many there are. Uploading
+  doesn't change the link, and the link endpoint doesn't touch the files.
+- **Late window:** `lastDayToSubmit` is the last day work is accepted (`null` means late work is always accepted,
+  marked `late`). Once `submissionsOpen` is `false`, both hand-in endpoints answer `409 submissions_closed`.
+- **Downloading:** `GET /files/{fileId}` with the Bearer token. On Azure it answers `302` with a link to Azure Storage
+  that works for 5 minutes; OkHttp follows it and drops the `Authorization` header because the host changes. Without
+  Azure Storage it sends the file itself. Either way the response is the file, with its name in `Content-Disposition`.
+  Only the student's own files open; anything else is `404 not_found`.
 
 ### Attendance (Bearer token)
 
@@ -203,7 +220,9 @@ data class TokenResponse(val accessToken: String, val accessTokenExpiresAt: Stri
 data class MarkDto(val score: Double, val maxScore: Double, val percentage: Double, val feedback: String?)
 data class AssessmentDto(val assessmentId: Int, val moduleId: Int, val moduleCode: String, val name: String, val type: String,
                          val description: String?, val dueDate: String, val maxScore: Double, val status: String,
-                         val submittedAt: String?, val link: String?, val marksReleased: Boolean, val mark: MarkDto?)
+                         val submittedAt: String?, val link: String?, val marksReleased: Boolean, val mark: MarkDto?,
+                         val file: SubmissionFileDto?, val fileCount: Int, val lastDayToSubmit: String?, val submissionsOpen: Boolean)
+data class SubmissionFileDto(val fileId: Int, val name: String, val sizeBytes: Long, val uploadedAt: String)
 data class SubmissionRequest(val link: String)
 data class ScanRequest(val code: String, val latitude: Double?, val longitude: Double?, val accuracy: Double?)
 data class ScanResponse(val result: String, val message: String, val moduleCode: String?)
@@ -216,6 +235,8 @@ interface IsmltsApi {
     @GET("me") suspend fun me(): StudentDto
     @GET("assessments") suspend fun assessments(@Query("moduleId") moduleId: Int? = null): List<AssessmentDto>
     @PUT("assessments/{id}/submission") suspend fun submit(@Path("id") id: Int, @Body body: SubmissionRequest): Response<AssessmentDto>
+    @Multipart @POST("assessments/{id}/files") suspend fun upload(@Path("id") id: Int, @Part file: MultipartBody.Part): Response<AssessmentDto>
+    @Streaming @GET("files/{fileId}") suspend fun download(@Path("fileId") fileId: Int): Response<ResponseBody>
     @POST("attendance/scan") suspend fun scan(@Body body: ScanRequest): Response<ScanResponse>
 }
 
@@ -288,6 +309,25 @@ else when (response.problem()?.code) {
     else -> showMessage(response.problem()?.title ?: "Couldn't log in.")
 }
 ```
+
+Handing in a file the student picked (`ActivityResultContracts.OpenDocument` with the types
+`application/pdf`, `application/vnd.openxmlformats-officedocument.wordprocessingml.document` and `application/zip`):
+
+```kotlin
+suspend fun uploadWork(context: Context, api: IsmltsApi, assessmentId: Int, uri: Uri): String {
+    val resolver = context.contentResolver
+    val name = resolver.query(uri, arrayOf(OpenableColumns.DISPLAY_NAME), null, null, null)?.use {
+        if (it.moveToFirst()) it.getString(0) else null
+    } ?: "work.pdf"
+    val bytes = resolver.openInputStream(uri)!!.use { it.readBytes() }   // files are 20 MB at most
+    val part = MultipartBody.Part.createFormData("file", name, bytes.toRequestBody("application/octet-stream".toMediaType()))
+    val response = api.upload(assessmentId, part)
+    return if (response.isSuccessful) "Handed in ${response.body()?.file?.name}."
+           else response.problem()?.title ?: "Couldn't upload the file."   // invalid_file, submissions_closed, ...
+}
+```
+
+Use `withContext(Dispatchers.IO)` around the reading, and keep the file's own name: it is what the lecturer downloads.
 
 ## Running against your PC
 

@@ -79,6 +79,28 @@ namespace ISMLTS_WebApp_.Models.Api
 
     public record AnnouncementDto(int AnnouncementId, string Title, string Body, string? ModuleCode, string AuthorName, DateTimeOffset CreatedAt);
 
+    // Kind is "class", "due", "closing", "term", "college" or "note". All-day entries have Date (and LastDate when they run
+    // over several days); timed ones have Start and End. CollegeKind says what a college date is ("Holiday", "Exams", ...).
+    public record CalendarEntryDto(
+        string Id,
+        string Kind,
+        bool AllDay,
+        DateOnly Date,
+        DateOnly? LastDate,
+        DateTimeOffset? Start,
+        DateTimeOffset? End,
+        string Title,
+        string? Location,
+        string? Details,
+        string? CollegeKind,
+        int? NoteId,
+        bool Done);
+
+    // Time is "HH:mm" or left out for an all-day note; Remind sends a notification at that time (or 07:00)
+    public record NoteRequest(DateOnly? Date, TimeOnly? Time, string? Title, string? Details, bool Remind);
+
+    public record NoteDoneRequest(bool Done);
+
     public static class ApiMap
     {
         // Times are stored in UTC but read back from SQL Server without a kind
@@ -124,5 +146,16 @@ namespace ISMLTS_WebApp_.Models.Api
         public static NotificationDto Notification(Notification n) => new(n.NotificationId, n.Title, n.Message, n.Url, Utc(n.CreatedAt), n.IsRead);
 
         public static AnnouncementDto Announcement(Announcement a) => new(a.AnnouncementId, a.Title, a.Body, a.Module?.Code, a.AuthorName, Utc(a.CreatedAt));
+
+        public static CalendarEntryDto CalendarEntry(CalendarEntry e) => new(
+            e.Uid, e.Kind.ToString().ToLowerInvariant(), e.AllDay, DateOnly.FromDateTime(e.Start),
+            e.LastDay is DateTime last ? DateOnly.FromDateTime(last) : null,
+            e.AllDay ? null : Utc(DateTime.SpecifyKind(e.Start, DateTimeKind.Local).ToUniversalTime()),
+            e.End is DateTime end ? Utc(DateTime.SpecifyKind(end, DateTimeKind.Local).ToUniversalTime()) : null,
+            e.Title, e.Location, e.Details, e.Badge, e.NoteId, e.Done);
+
+        // A note just saved, as the calendar shows it
+        public static CalendarEntry NoteEntry(CalendarNote n) =>
+            CalendarBuilder.Build(new CalendarSources([], [], [], [], [], [n]), n.Date.Date, n.Date.Date.AddDays(1)).Single();
     }
 }

@@ -197,6 +197,31 @@ student; `code` is a fixed word to switch on.
 
 Subject is up to 150 characters, description up to 1000, and `moduleId` must be one of the student's modules.
 
+### Calendar and notes (Bearer token)
+
+| Method and path | Body | Returns |
+| --- | --- | --- |
+| `GET /calendar?from=2026-10-01&to=2026-11-01` | (both optional: four weeks from today; at most 92 days, `to` not included) | Entries in date order |
+| `POST /calendar/notes` | `{ "date": "2026-10-07", "time": "18:30", "title": "Study group", "details": "Library", "remind": true }` | `201` and the note as an entry |
+| `PUT /calendar/notes/{noteId}/done` | `{ "done": true }` | The note as an entry |
+| `DELETE /calendar/notes/{noteId}` | | `204` |
+
+```json
+[
+  { "id": "college-3", "kind": "college", "allDay": true, "date": "2026-10-12", "lastDate": "2026-10-16", "start": null, "end": null,
+    "title": "Term 2 assignment week", "location": null, "details": null, "collegeKind": "Assignments", "noteId": null, "done": false },
+  { "id": "class-7-20261005", "kind": "class", "allDay": false, "date": "2026-10-05", "lastDate": null,
+    "start": "2026-10-05T07:00:00+00:00", "end": "2026-10-05T08:30:00+00:00", "title": "XADAD7112 class", "location": "Room 3.12",
+    "details": null, "collegeKind": null, "noteId": null, "done": false }
+]
+```
+
+- `kind` is `class`, `due`, `closing` (last day of an assessment's late window), `term`, `college` (holidays, exam and
+  assignment weeks, breaks, closing dates; `collegeKind` says which) or `note` (the student's own).
+- All-day entries have `date` and, when they run over several days, `lastDate`; timed ones also have `start` and `end` (UTC).
+- `time` in a note is optional (`"HH:mm"`). With `remind`, the student gets a notification at that time (or 07:00 that day).
+- Errors: `400 invalid_range`, `400 invalid_note` (the message names what to fix), `404 not_found` for someone else's note.
+
 ### Notifications (Bearer token)
 
 | Method and path | Returns |
@@ -223,6 +248,11 @@ data class AssessmentDto(val assessmentId: Int, val moduleId: Int, val moduleCod
                          val submittedAt: String?, val link: String?, val marksReleased: Boolean, val mark: MarkDto?,
                          val file: SubmissionFileDto?, val fileCount: Int, val lastDayToSubmit: String?, val submissionsOpen: Boolean)
 data class SubmissionFileDto(val fileId: Int, val name: String, val sizeBytes: Long, val uploadedAt: String)
+data class CalendarEntryDto(val id: String, val kind: String, val allDay: Boolean, val date: String, val lastDate: String?,
+                            val start: String?, val end: String?, val title: String, val location: String?, val details: String?,
+                            val collegeKind: String?, val noteId: Int?, val done: Boolean)
+data class NoteRequest(val date: String, val time: String?, val title: String, val details: String?, val remind: Boolean)
+data class NoteDoneRequest(val done: Boolean)
 data class SubmissionRequest(val link: String)
 data class ScanRequest(val code: String, val latitude: Double?, val longitude: Double?, val accuracy: Double?)
 data class ScanResponse(val result: String, val message: String, val moduleCode: String?)
@@ -237,6 +267,10 @@ interface IsmltsApi {
     @PUT("assessments/{id}/submission") suspend fun submit(@Path("id") id: Int, @Body body: SubmissionRequest): Response<AssessmentDto>
     @Multipart @POST("assessments/{id}/files") suspend fun upload(@Path("id") id: Int, @Part file: MultipartBody.Part): Response<AssessmentDto>
     @Streaming @GET("files/{fileId}") suspend fun download(@Path("fileId") fileId: Int): Response<ResponseBody>
+    @GET("calendar") suspend fun calendar(@Query("from") from: String? = null, @Query("to") to: String? = null): List<CalendarEntryDto>
+    @POST("calendar/notes") suspend fun addNote(@Body body: NoteRequest): Response<CalendarEntryDto>
+    @PUT("calendar/notes/{id}/done") suspend fun setNoteDone(@Path("id") id: Int, @Body body: NoteDoneRequest): Response<CalendarEntryDto>
+    @DELETE("calendar/notes/{id}") suspend fun deleteNote(@Path("id") id: Int): Response<Unit>
     @POST("attendance/scan") suspend fun scan(@Body body: ScanRequest): Response<ScanResponse>
 }
 

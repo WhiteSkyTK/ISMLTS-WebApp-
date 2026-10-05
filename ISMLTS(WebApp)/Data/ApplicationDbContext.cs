@@ -29,6 +29,7 @@ namespace ISMLTS_WebApp_.Data
         public DbSet<TimetableSlot> TimetableSlots => Set<TimetableSlot>();
         public DbSet<CollegeDate> CollegeDates => Set<CollegeDate>();
         public DbSet<CalendarNote> CalendarNotes => Set<CalendarNote>();
+        public DbSet<AuditEntry> AuditEntries => Set<AuditEntry>();
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             // Explicit precision for every decimal (the default is 18,2, which suits marks)
@@ -131,6 +132,8 @@ namespace ISMLTS_WebApp_.Data
 
             modelBuilder.Entity<TimetableSlot>()
                 .HasOne(s => s.Module).WithMany().HasForeignKey(s => s.ModuleId).OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<AuditEntry>().HasIndex(e => e.At);
 
             modelBuilder.Entity<CalendarNote>().HasIndex(n => new { n.Role, n.UserId, n.Date });
 

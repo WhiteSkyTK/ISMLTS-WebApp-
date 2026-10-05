@@ -19,13 +19,16 @@ namespace ISMLTS_WebApp_.Controllers
         private readonly ISubmissionFileService _files;
         private readonly StudentOptions _studentOptions;
 
+        private readonly IAuditLog _audit;
+
         public StudentsController(
             IStudentRepository studentRepository,
             ILecturerRepository lecturerRepository,
             ICourseRepository courseRepository,
             ISubmissionFileService files,
-            Microsoft.Extensions.Options.IOptions<StudentOptions> studentOptions)
+            Microsoft.Extensions.Options.IOptions<StudentOptions> studentOptions, IAuditLog audit)
         {
+            _audit = audit;
             _studentRepository = studentRepository;
             _lecturerRepository = lecturerRepository;
             _courseRepository = courseRepository;
@@ -78,6 +81,7 @@ namespace ISMLTS_WebApp_.Controllers
                 if (await TrySaveAsync(student.Email, 0))
                 {
                     this.Toast($"{student.FullName} was added.");
+                    await _audit.RecordAsync(User, AuditActions.AccountCreated, $"Student {student.FullName} ({student.Email})");
                     return RedirectToAction(nameof(Index));
                 }
             }
@@ -134,6 +138,7 @@ namespace ISMLTS_WebApp_.Controllers
             await _studentRepository.SaveChangesAsync();
             await _files.RemoveStoredAsync(storedFiles);
             this.Toast($"{student.FullName} was deleted.");
+            await _audit.RecordAsync(User, AuditActions.AccountDeleted, $"Student {student.FullName} ({student.Email})");
             return RedirectToAction(nameof(Index));
         }
 

@@ -111,3 +111,12 @@
         <a asp-action="TwoFactor" class="btn btn-rosebank"><i class="bi bi-shield-lock" aria-hidden="true"></i> Set up two-factor sign-in</a>
     }
 </section>
+
+@if (User.IsInRole(Roles.Student))
+{
+    <section class="panel mt-4" aria-labelledby="myDataTitle">
+        <h2 id="myDataTitle" class="h5">Your data</h2>
+        <p class="mb-3">Download everything ISMLTS holds about you as spreadsheet (CSV) files in one ZIP: your details, released marks, submissions, attendance scans, tickets and calendar notes.</p>
+        <a asp-controller="MyData" asp-action="Download" class="btn btn-outline-rosebank"><i class="bi bi-download" aria-hidden="true"></i> Download my data</a>
+    </section>
+}

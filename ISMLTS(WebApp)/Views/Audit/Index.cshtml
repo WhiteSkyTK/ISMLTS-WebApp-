@@ -1,0 +1,44 @@
+@model PagedList<AuditEntry>
+@using ISMLTS_WebApp_.Services
+@{
+    ViewData["Title"] = "Audit log";
+}
+
+<partial name="_PageHeader" model='new PageHeaderModel { Title = "Audit log", Subtitle = "Accounts created and deleted, password resets, two-factor switched off and enrolment changes, newest first." }' />
+
+<div class="panel">
+    <partial name="_ListSearch" model="Model" />
+    @if (Model.Items.Any())
+    {
+        <div class="table-scroll">
+            <table class="table align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th scope="col">When</th>
+                        <th scope="col">Who</th>
+                        <th scope="col">Action</th>
+                        <th scope="col">Account or module</th>
+                        <th scope="col">Details</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var e in Model.Items)
+                    {
+                        <tr>
+                            <td class="text-nowrap">@e.At.ToLocalTime().ToString("dd MMM yyyy, HH:mm")</td>
+                            <td>@e.ActorName <span class="table-row-sub">@e.ActorRole</span></td>
+                            <td><span class="badge text-bg-secondary">@e.Action</span></td>
+                            <td>@e.Target</td>
+                            <td class="small text-muted">@e.Details</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <partial name="_Pager" model="Model" />
+    }
+    else
+    {
+        <partial name="_EmptyState" model='new EmptyStateModel { Icon = "bi-journal-text", Title = "Nothing recorded yet", Message = "Admin actions on accounts and enrolments are listed here as they happen." }' />
+    }
+</div>

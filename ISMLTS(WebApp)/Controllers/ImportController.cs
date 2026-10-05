@@ -19,8 +19,11 @@ namespace ISMLTS_WebApp_.Controllers
         private readonly ICourseRepository _courseRepository;
         private readonly StudentOptions _studentOptions;
 
-        public ImportController(IUserImportService importService, ICourseRepository courseRepository, IOptions<StudentOptions> studentOptions)
+        private readonly IAuditLog _audit;
+
+        public ImportController(IUserImportService importService, ICourseRepository courseRepository, IOptions<StudentOptions> studentOptions, IAuditLog audit)
         {
+            _audit = audit;
             _importService = importService;
             _courseRepository = courseRepository;
             _studentOptions = studentOptions.Value;
@@ -78,6 +81,8 @@ namespace ISMLTS_WebApp_.Controllers
             }
 
             var accounts = await _importService.ImportAsync(result, students, course, term);
+            await _audit.RecordAsync(User, AuditActions.AccountsImported, students ? "Students (CSV import)" : "Lecturers (CSV import)",
+                $"{accounts.Count} added{(course != null ? $", enrolled in {course.Code}" : null)}");
             var skipped = result.Rows.Count - result.ValidCount;
             return View("Imported", new UserImportDoneViewModel
             {

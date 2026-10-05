@@ -62,6 +62,22 @@ namespace ISMLTS_WebApp_.Repositories
                 .Select(g => new { ModuleId = g.Key, Count = g.Count() })
                 .ToDictionaryAsync(x => x.ModuleId, x => x.Count);
 
+        public async Task<List<AttendanceRecord>> GetAllRecordsForStudentAsync(int studentId) =>
+            await _records.AsNoTracking().Include(r => r.Session).ThenInclude(s => s!.Module)
+                .Where(r => r.StudentId == studentId)
+                .OrderBy(r => r.ScannedAt)
+                .ToListAsync();
+
+        public async Task<int> ClearScanDetailsAsync(DateTime beforeUtc) =>
+            await _records
+                .Where(r => r.ScannedAt < beforeUtc && (r.IpAddress != null || r.Latitude != null || r.Longitude != null || r.AccuracyMeters != null || r.DistanceMeters != null))
+                .ExecuteUpdateAsync(r => r
+                    .SetProperty(x => x.IpAddress, (string?)null)
+                    .SetProperty(x => x.Latitude, (double?)null)
+                    .SetProperty(x => x.Longitude, (double?)null)
+                    .SetProperty(x => x.AccuracyMeters, (double?)null)
+                    .SetProperty(x => x.DistanceMeters, (double?)null));
+
         // Sessions that count towards attendance: not cancelled, and inside the term window for their module's term code
         private IQueryable<AttendanceSession> Counting(AttendancePeriods periods)
         {

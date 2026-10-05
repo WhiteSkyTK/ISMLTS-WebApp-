@@ -1,5 +1,9 @@
+@using Microsoft.Extensions.Options
+@using ISMLTS_WebApp_.Services
+@inject IOptions<PrivacyOptions> PrivacySettings
 @{
     ViewData["Title"] = "Privacy";
+    var scanDays = PrivacySettings.Value.Days;
 }
 
 <partial name="_PageHeader" model='new PageHeaderModel { Title = "Privacy notice", Subtitle = "How ISMLTS uses your personal information, as the Protection of Personal Information Act (POPIA) requires." }' />
@@ -35,13 +39,14 @@
     <p>Your information is not sold or shared with anyone else.</p>
 
     <h2 class="h5">How long we keep it</h2>
+    <p>The IP address and location saved with an attendance scan are deleted after @scanDays days. After that only the result is kept: that you were present, and whether the scan came from the campus network or close to the classroom.</p>
     <p>Your records are kept while your account exists. When an admin deletes a student's account, that student's marks, submissions and uploaded files, tickets and attendance scans (including the IP addresses and locations) are deleted with it. The college decides when the accounts of students who have finished are removed.</p>
 
     <h2 class="h5">How it is protected</h2>
     <p>The site only works over a secure connection, passwords are hashed, every page checks your role before it shows anything, and two-factor sign-in is available to everyone and required for admins.</p>
 
     <h2 class="h5">Your rights</h2>
-    <p>Under POPIA you can ask what information we hold about you, ask for it to be corrected or deleted, and object to how it is used. Ask the admin office. If you are not happy with the answer, you can complain to the Information Regulator of South Africa (inforegulator.org.za).</p>
+    <p>Under POPIA you can ask what information we hold about you, ask for it to be corrected or deleted, and object to how it is used. Students can download their own data from their Profile page at any time. For anything else, ask the admin office. If you are not happy with the answer, you can complain to the Information Regulator of South Africa (inforegulator.org.za).</p>
 
     <p class="small text-muted mb-0">Last updated: October 2026.</p>
 </div>

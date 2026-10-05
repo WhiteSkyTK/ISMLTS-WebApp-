@@ -16,5 +16,11 @@ namespace ISMLTS_WebApp_.Repositories
         Task<IEnumerable<AttendanceRecord>> GetRecordsByStudentAsync(int studentId, AttendancePeriods periods);
         Task<List<AttendanceRecord>> GetRecordsByModulesAsync(IReadOnlyCollection<int> moduleIds, AttendancePeriods periods);
         Task<Dictionary<int, int>> CountSessionsByModuleAsync(IReadOnlyCollection<int> moduleIds, AttendancePeriods periods);
+
+        // Every scan of the student, with its session and module, cancelled classes included (for their data download)
+        Task<List<AttendanceRecord>> GetAllRecordsForStudentAsync(int studentId);
+
+        // Blanks the IP address and location of scans made before this time; returns how many were cleared
+        Task<int> ClearScanDetailsAsync(DateTime beforeUtc);
     }
 }

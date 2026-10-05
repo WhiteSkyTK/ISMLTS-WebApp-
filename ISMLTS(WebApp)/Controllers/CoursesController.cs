@@ -18,12 +18,15 @@ namespace ISMLTS_WebApp_.Controllers
         private readonly IStudentRepository _studentRepository;
         private readonly ICourseService _courseService;
 
+        private readonly IAuditLog _audit;
+
         public CoursesController(
             ICourseRepository courseRepository,
             IModuleRepository moduleRepository,
             IStudentRepository studentRepository,
-            ICourseService courseService)
+            ICourseService courseService, IAuditLog audit)
         {
+            _audit = audit;
             _courseRepository = courseRepository;
             _moduleRepository = moduleRepository;
             _studentRepository = studentRepository;
@@ -121,11 +124,13 @@ namespace ISMLTS_WebApp_.Controllers
             if (mode == "remove")
             {
                 var removed = await _courseService.UnenrolAsync(course, selectedStudentIds, term);
+                await _audit.RecordAsync(User, AuditActions.EnrolmentChanged, $"Course {course.Code}", $"Removed {removed.Students} student(s) from {removed.Modules} {termText}module(s)");
                 this.Toast($"Removed {removed.Students} student(s) from {removed.Modules} {termText}module(s) in {course.Code}.", ToastTypes.Info);
             }
             else
             {
                 var added = await _courseService.EnrolAsync(course, selectedStudentIds, term);
+                await _audit.RecordAsync(User, AuditActions.EnrolmentChanged, $"Course {course.Code}", $"Enrolled {added.Students} student(s) in {added.Modules} {termText}module(s), {added.Changes} new enrolments");
                 this.Toast($"Enrolled {added.Students} student(s) in {added.Modules} {termText}module(s) of {course.Code} ({added.Changes} new enrolments).");
             }
             return RedirectToAction(nameof(Enrol), new { id });

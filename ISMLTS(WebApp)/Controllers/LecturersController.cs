@@ -17,8 +17,11 @@ namespace ISMLTS_WebApp_.Controllers
         private readonly IStudentRepository _studentRepository;
         private readonly IModuleRepository _moduleRepository;
 
-        public LecturersController(ILecturerRepository lecturerRepository, IStudentRepository studentRepository, IModuleRepository moduleRepository)
+        private readonly IAuditLog _audit;
+
+        public LecturersController(ILecturerRepository lecturerRepository, IStudentRepository studentRepository, IModuleRepository moduleRepository, IAuditLog audit)
         {
+            _audit = audit;
             _lecturerRepository = lecturerRepository;
             _studentRepository = studentRepository;
             _moduleRepository = moduleRepository;
@@ -52,6 +55,7 @@ namespace ISMLTS_WebApp_.Controllers
             if (!await TrySaveAsync(lecturer.Email, 0)) return View(lecturer);
 
             this.Toast($"{lecturer.FullName} was added.");
+            await _audit.RecordAsync(User, AuditActions.AccountCreated, $"Lecturer {lecturer.FullName} ({lecturer.Email})");
             return RedirectToAction(nameof(Index));
         }
 
@@ -100,6 +104,7 @@ namespace ISMLTS_WebApp_.Controllers
             _lecturerRepository.Delete(lecturer);
             await _lecturerRepository.SaveChangesAsync();
             this.Toast($"{lecturer.FullName} was deleted.");
+            await _audit.RecordAsync(User, AuditActions.AccountDeleted, $"Lecturer {lecturer.FullName} ({lecturer.Email})");
             return RedirectToAction(nameof(Index));
         }
 

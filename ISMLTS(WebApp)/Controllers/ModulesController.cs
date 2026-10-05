@@ -20,13 +20,16 @@ namespace ISMLTS_WebApp_.Controllers
         private readonly ICourseRepository _courseRepository;
         private readonly ISubmissionFileService _files;
 
+        private readonly IAuditLog _audit;
+
         public ModulesController(
             IModuleRepository moduleRepository,
             ILecturerRepository lecturerRepository,
             IStudentRepository studentRepository,
             ICourseRepository courseRepository,
-            ISubmissionFileService files)
+            ISubmissionFileService files, IAuditLog audit)
         {
+            _audit = audit;
             _moduleRepository = moduleRepository;
             _lecturerRepository = lecturerRepository;
             _studentRepository = studentRepository;
@@ -192,6 +195,7 @@ namespace ISMLTS_WebApp_.Controllers
             if (module == null) return NotFound();
 
             selectedStudentIds ??= new List<int>();
+            var before = module.Students.Select(s => s.StudentId).ToHashSet();
             module.Students.Clear();
             foreach (var sid in selectedStudentIds)
             {
@@ -201,6 +205,9 @@ namespace ISMLTS_WebApp_.Controllers
 
             _moduleRepository.Update(module);
             await _moduleRepository.SaveChangesAsync();
+            var after = module.Students.Select(s => s.StudentId).ToHashSet();
+            await _audit.RecordAsync(User, AuditActions.EnrolmentChanged, $"Module {module.Code}",
+                $"{after.Except(before).Count()} added, {before.Except(after).Count()} removed, {after.Count} enrolled now");
             this.Toast($"{module.Students.Count} student(s) are now enrolled in {module.Code}.");
             return RedirectToAction(nameof(Index));
         }

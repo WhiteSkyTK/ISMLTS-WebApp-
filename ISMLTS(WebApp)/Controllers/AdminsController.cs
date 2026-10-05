@@ -15,8 +15,11 @@ namespace ISMLTS_WebApp_.Controllers
 
         private readonly IAdminRepository _adminRepository;
 
-        public AdminsController(IAdminRepository adminRepository)
+        private readonly IAuditLog _audit;
+
+        public AdminsController(IAdminRepository adminRepository, IAuditLog audit)
         {
+            _audit = audit;
             _adminRepository = adminRepository;
         }
 
@@ -47,6 +50,7 @@ namespace ISMLTS_WebApp_.Controllers
             if (!await TrySaveAsync(admin.Username, 0)) return View(admin);
 
             this.Toast($"Admin {admin.Username} was added.");
+            await _audit.RecordAsync(User, AuditActions.AccountCreated, $"Admin {admin.Username}");
             return RedirectToAction(nameof(Index));
         }
 
@@ -95,6 +99,7 @@ namespace ISMLTS_WebApp_.Controllers
             _adminRepository.Delete(admin);
             await _adminRepository.SaveChangesAsync();
             this.Toast($"Admin {admin.Username} was deleted.");
+            await _audit.RecordAsync(User, AuditActions.AccountDeleted, $"Admin {admin.Username}");
             return RedirectToAction(nameof(Index));
         }
 

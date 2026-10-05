@@ -91,7 +91,7 @@ This is where everything built since Phase 1 reaches the live site and gets test
 - [x] Earlier uploads are kept as history; the latest one counts
 - [x] Unit tests for the file checks; integration tests that nobody else can download a student's file
 - [x] The Android app uploads and downloads through `/api/v1` (`docs/API.md`); Site check shows where files are stored; files go when their student, module or assessment is deleted
-- [ ] On the live site: create the Storage account, set `Storage__ConnectionString`, publish with the `Phase7Files` migration and try an upload and a download as a student and a lecturer
+- [x] On the live site: create the Storage account, set `Storage__ConnectionString`, publish with the `Phase7Files` migration and try an upload and a download as a student and a lecturer
 
 ## Phase 8 — Terms and timetable
 - [x] Term entity with start and end dates; "current term" drives the dashboards and the Archived filter (replaces the hard-coded `IsCurrentSemester = true`)
@@ -99,7 +99,7 @@ This is where everything built since Phase 1 reaches the live site and gets test
 - [x] Attendance percentages count only the current term's sessions; cancelled classes can be excluded
 - [x] Calendar page for each role with classes and due dates, plus an `.ics` feed students can subscribe to on their phone
 - [x] Month view with college dates (holidays, exam and assignment weeks, breaks, closing dates; Admin → Terms), assessment closing dates, one-off extra classes, and personal notes and to-dos with bell reminders; demo data seeds terms, timetables and the college year
-- [ ] On the live site: publish with the `Phase8Terms` migration, add this year's terms (Admin → Terms) and each module's classes (Lecturer → Timetable), then check dashboards, attendance percentages and a phone subscription
+- [x] On the live site: publish with the `Phase8Terms` migration, add this year's terms (Admin → Terms) and each module's classes (Lecturer → Timetable), then check dashboards, attendance percentages and a phone subscription
 
 ## Phase 9 — Data care and accessibility
 - [x] Retention job clears attendance IP and GPS details after the period stated in the POPIA notice (config setting); marks are kept
@@ -108,4 +108,4 @@ This is where everything built since Phase 1 reaches the live site and gets test
 - [x] Accessibility pass to WCAG 2.1 AA: contrast check of the palette, focus handling in dialogs, automated checks of the HTML-checkable axe rules on 48 pages in CI (a browser-based axe run would need a browser and SQL Server in CI); the keyboard-only walk-through is a manual checklist in `docs/ACCESSIBILITY.md`
 - [x] README for GitHub: what ISMLTS is and who it's for, features per role with screenshots, the tech stack, running it locally step by step (LocalDB, migrations, demo data and demo accounts), every configuration setting, running the tests, the Android API (link to `docs/API.md`), deploying to Azure, and the team and module details
 - [x] Things that were missing: the Android API gained the calendar and calendar notes; `docs/LIVE-TESTING.md` is the step-by-step live test for every phase and role
-- [ ] Screenshots for the README (`docs/screenshots/*.png`, names listed in README) and the keyboard walk-through on the live site
+- [x] Screenshots for the README (`docs/screenshots/*.png`, names listed in README) and the keyboard walk-through on the live site

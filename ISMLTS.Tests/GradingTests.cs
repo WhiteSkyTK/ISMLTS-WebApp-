@@ -32,13 +32,23 @@ namespace ISMLTS.Tests
                 new() { StudentId = 3, Score = 10, Feedback = new string('x', 1001) }
             };
 
-            var errors = Grading.ValidateGradebook(rows, Enrolled, 50);
+            var errors = Grading.ValidateGradebook(rows, new HashSet<int> { 1, 2, 3, 4, 5 }, 50);
 
             Assert.Equal("The score can't be more than 50.", errors[0]);
             Assert.Equal("Enter a score to save feedback.", errors[1]);
             Assert.Equal("This student isn't enrolled in the module.", errors[2]);
             Assert.Equal("This student appears twice.", errors[3]);
             Assert.Equal("Keep feedback to 1000 characters.", errors[4]);
+        }
+
+        [Fact]
+        public void ValidateGradebook_RefusesMoreRowsThanStudents_WithoutCheckingThem()
+        {
+            var rows = Enumerable.Range(0, 10_000).Select(i => new GradebookEntry { StudentId = 1, Score = 1 }).ToList();
+
+            var errors = Grading.ValidateGradebook(rows, Enrolled, 50);
+
+            Assert.Equal(Grading.WholeForm, Assert.Single(errors).Key);
         }
 
         [Fact]

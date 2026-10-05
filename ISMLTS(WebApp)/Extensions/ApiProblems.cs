@@ -23,7 +23,7 @@ namespace ISMLTS_WebApp_.Extensions
         public static Task WriteAsync(HttpContext http, int status, string code, string message)
         {
             http.Response.StatusCode = status;
-            return http.Response.WriteAsJsonAsync(Problem(status, code, message), options: null, contentType: ContentType);
+            return http.Response.WriteAsJsonAsync(Problem(status, code, message), options: null, contentType: ContentType, cancellationToken: http.RequestAborted);
         }
     }
 }

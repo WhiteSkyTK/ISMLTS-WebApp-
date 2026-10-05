@@ -59,6 +59,8 @@ namespace ISMLTS_WebApp_.Data
         private const int SessionsPerModule = 6;
         private const double DemoLatitude = -26.1455;
         private const double DemoLongitude = 28.0436;
+        // About 10 metres: positions are compared within a range rather than for exact equality
+        private const double PositionTolerance = 0.0001;
 
         // The first extra course doubles as the marker that the demo data is already in
         public static string MarkerCourseCode => ExtraCourses[0].Code;
@@ -84,7 +86,8 @@ namespace ISMLTS_WebApp_.Data
                 // campus position) back inside Term 1, so those modules keep their attendance once terms count
                 var cutoff = DateTime.SpecifyKind(term1End, DateTimeKind.Local).ToUniversalTime();
                 var late = await context.AttendanceSessions
-                    .Where(s => s.Module!.Term == CourseTerms.Term1 && s.StartedAt > cutoff && s.Latitude == DemoLatitude && s.Longitude == DemoLongitude)
+                    .Where(s => s.Module!.Term == CourseTerms.Term1 && s.StartedAt > cutoff && s.Latitude > DemoLatitude - PositionTolerance && s.Latitude < DemoLatitude + PositionTolerance
+                        && s.Longitude > DemoLongitude - PositionTolerance && s.Longitude < DemoLongitude + PositionTolerance)
                     .ToListAsync();
                 if (late.Count > 0)
                 {

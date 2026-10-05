@@ -4,12 +4,22 @@ namespace ISMLTS_WebApp_.Services
 {
     public static class Grading
     {
+        // The error key for a problem with the whole form rather than one row
+        public const int WholeForm = -1;
+
         // Per-row problems for a gradebook save, keyed by row index. Blank scores are allowed (that row is skipped).
         public static Dictionary<int, string> ValidateGradebook(IReadOnlyList<GradebookEntry> rows, IReadOnlySet<int> enrolledStudentIds, decimal outOf)
         {
             var errors = new Dictionary<int, string>();
             var seen = new HashSet<int>();
-            for (var i = 0; i < rows.Count; i++)
+            // The form has one row per enrolled student; a longer list didn't come from it, so it is refused before any looping
+            if (rows.Count > enrolledStudentIds.Count)
+            {
+                errors[WholeForm] = "There are more rows than students in this module. Reload the gradebook and try again.";
+                return errors;
+            }
+            var count = Math.Min(rows.Count, enrolledStudentIds.Count);
+            for (var i = 0; i < count; i++)
             {
                 var row = rows[i];
                 var error = !enrolledStudentIds.Contains(row.StudentId) ? "This student isn't enrolled in the module."

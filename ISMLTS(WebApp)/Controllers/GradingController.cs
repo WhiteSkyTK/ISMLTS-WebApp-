@@ -53,7 +53,7 @@ namespace ISMLTS_WebApp_.Controllers
             var enrolled = module.Students.Select(s => s.StudentId).ToHashSet();
             foreach (var (index, error) in Grading.ValidateGradebook(rows, enrolled, assessment.MaxScore))
             {
-                ModelState.AddModelError($"Rows[{index}].Score", error);
+                ModelState.AddModelError(index == Grading.WholeForm ? string.Empty : $"Rows[{index}].Score", error);
             }
 
             // All or nothing: one bad row means nothing is saved, so the lecturer fixes it and saves again

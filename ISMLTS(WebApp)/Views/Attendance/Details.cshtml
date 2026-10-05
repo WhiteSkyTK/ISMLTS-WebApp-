@@ -23,13 +23,13 @@
 <div class="row g-4">
     <div class="col-lg-8">
         <div class="panel">
-            <h5><i class="bi bi-check2-circle" aria-hidden="true"></i> Present (@present)</h5>
+            <h2 class="h5"><i class="bi bi-check2-circle" aria-hidden="true"></i> Present (@present)</h2>
             <partial name="_Records" model="Model.Session" />
         </div>
     </div>
     <div class="col-lg-4">
         <div class="panel">
-            <h5><i class="bi bi-person-x" aria-hidden="true"></i> Absent (@Model.Absent.Count)</h5>
+            <h2 class="h5"><i class="bi bi-person-x" aria-hidden="true"></i> Absent (@Model.Absent.Count)</h2>
             @if (!Model.Absent.Any())
             {
                 <p class="text-muted mb-0"><i class="bi bi-emoji-smile" aria-hidden="true"></i> Everyone is here.</p>

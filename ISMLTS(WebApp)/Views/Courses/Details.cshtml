@@ -18,7 +18,7 @@
             var termModules = Model.Modules.Where(m => m.Term == term).OrderBy(m => m.Code).ToList();
             <div class="col-lg-6">
                 <div class="panel h-100">
-                    <h5><i class="bi bi-calendar3" aria-hidden="true"></i> @(term == "Term2" ? "Term 2" : "Term 1") <span class="small text-muted fw-normal">(@termModules.Count)</span></h5>
+                    <h2 class="h5"><i class="bi bi-calendar3" aria-hidden="true"></i> @(term == "Term2" ? "Term 2" : "Term 1") <span class="small text-muted fw-normal">(@termModules.Count)</span></h2>
                     @if (termModules.Any())
                     {
                         <ul class="list-unstyled mb-0">

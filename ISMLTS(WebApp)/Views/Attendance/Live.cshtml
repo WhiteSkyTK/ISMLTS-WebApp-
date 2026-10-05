@@ -26,7 +26,7 @@
     </div>
     <div class="col-lg-7">
         <div class="panel">
-            <h5><i class="bi bi-people" aria-hidden="true"></i> Present <span class="small text-muted fw-normal">(updates every 10 seconds)</span></h5>
+            <h2 class="h5"><i class="bi bi-people" aria-hidden="true"></i> Present <span class="small text-muted fw-normal">(updates every 10 seconds)</span></h2>
             <div data-refresh-url="@Url.Action("Records", new { id = Model.Session.SessionId })">
                 <partial name="_Records" model="Model.Session" />
             </div>

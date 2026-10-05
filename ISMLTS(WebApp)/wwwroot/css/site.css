@@ -296,7 +296,8 @@ footer {
     margin-top: 1rem;
 }
 
-    .panel h5 {
+    .panel h5,
+    .panel h2.h5 {
         display: flex;
         align-items: center;
         gap: 0.5rem;

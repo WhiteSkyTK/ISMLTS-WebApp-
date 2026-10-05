@@ -30,8 +30,10 @@
         const icon = confirmElement.querySelector('[data-confirm-icon]');
         let pendingForm = null;
         let pendingSubmitter = null;
+        let returnFocusTo = null;
 
         const ask = (source) => {
+            returnFocusTo = document.activeElement instanceof HTMLElement ? document.activeElement : null;
             message.textContent = source.dataset.confirm;
             okButton.textContent = source.dataset.confirmLabel || 'Delete';
             const primary = source.dataset.confirmTone === 'primary';
@@ -56,6 +58,11 @@
             ask(source);
         }, true);
 
+        // Start on Cancel, so pressing Enter by accident never deletes anything
+        confirmElement.addEventListener('shown.bs.modal', () => {
+            confirmElement.querySelector('[data-bs-dismiss="modal"].btn-outline-secondary')?.focus();
+        });
+
         okButton.addEventListener('click', () => {
             if (!pendingForm) {
                 return;
@@ -68,6 +75,8 @@
         confirmElement.addEventListener('hidden.bs.modal', () => {
             if (pendingForm?.dataset.confirmed !== 'true') {
                 pendingForm = null;
+                // Cancelled: keyboard users carry on from the button they pressed
+                returnFocusTo?.focus();
             }
         });
     }

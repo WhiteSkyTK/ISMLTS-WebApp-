@@ -1,12 +1,12 @@
 @* One shared dialog for every form marked data-confirm="…"; site.js fills in the message, and data-confirm-tone="primary" makes it a non-destructive question *@
-<div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalTitle" aria-hidden="true">
+<div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalTitle" aria-describedby="confirmModalMessage" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
                 <h2 class="modal-title fs-5" id="confirmModalTitle"><i class="bi bi-exclamation-triangle text-danger" aria-hidden="true" data-confirm-icon></i> Are you sure?</h2>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body" data-confirm-message></div>
+            <div class="modal-body" id="confirmModalMessage" data-confirm-message></div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
                 <button type="button" class="btn btn-danger" data-confirm-ok>Delete</button>

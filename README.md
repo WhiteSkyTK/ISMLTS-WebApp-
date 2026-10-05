@@ -60,10 +60,18 @@ Put the images in `docs/screenshots/` with these names and they appear below.
 
 | | |
 | --- | --- |
-| ![Log-in page](docs/screenshots/login.png) | ![Student dashboard](docs/screenshots/student-dashboard.png) |
-| ![Submitting work](docs/screenshots/submit.png) | ![Calendar](docs/screenshots/calendar.png) |
-| ![Lecturer markbook](docs/screenshots/markbook.png) | ![Attendance QR code](docs/screenshots/attendance.png) |
-| ![Class insights](docs/screenshots/insights.png) | ![Admin site check](docs/screenshots/site-check.png) |
+| ![Log-in page]<img width="1920" height="1080" alt="Screenshot 2026-10-05 124003" src="https://github.com/user-attachments/assets/5886038d-39a6-48cd-af66-b1289c317265" />
+) | ![Student dashboard](<img width="1920" height="1080" alt="Screenshot 2026-10-05 124211" src="https://github.com/user-attachments/assets/c082e5ae-edf9-4fd5-82ff-dfb8ffd9f8c3" />
+) |
+| ![Submitting work](<img width="1920" height="1080" alt="Screenshot 2026-10-05 124442" src="https://github.com/user-attachments/assets/850799d6-3e91-40ce-b242-51c75afae770" />
+) | ![Calendar](<img width="1920" height="1080" alt="Screenshot 2026-10-05 124506" src="https://github.com/user-attachments/assets/88ef3b7c-a871-495b-aad3-8747edde5fdb" />
+) |
+| ![Lecturer markbook](<img width="1920" height="1080" alt="Screenshot 2026-10-05 124554" src="https://github.com/user-attachments/assets/589cc4ae-8b82-4245-896d-413d5b11988a" />
+) | ![Attendance QR code](<img width="1920" height="1080" alt="Screenshot 2026-10-05 124638" src="https://github.com/user-attachments/assets/494dc31f-6d88-4d0b-8711-10a248178def" />
+) |
+| ![Class insights](<img width="1920" height="1080" alt="Screenshot 2026-10-05 124818" src="https://github.com/user-attachments/assets/5e73ca39-9ebb-4fe2-a5a3-7dd0a5391679" />
+) | ![Admin site check](<img width="1920" height="1080" alt="Screenshot 2026-10-05 124918" src="https://github.com/user-attachments/assets/a4276d04-3b66-4a2c-9294-63e25659c8d7" />
+) |
 
 ## Tech stack
 

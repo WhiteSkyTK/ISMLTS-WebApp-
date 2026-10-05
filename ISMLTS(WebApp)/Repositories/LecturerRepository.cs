@@ -9,8 +9,9 @@ namespace ISMLTS_WebApp_.Repositories
     {
         public LecturerRepository(ApplicationDbContext context) : base(context) { }
 
+        // Emails match whatever their case (SQL Server ignores case anyway; SQLite in the tests doesn't)
         public async Task<Lecturer?> GetByEmailAsync(string email) =>
-            await _dbSet.FirstOrDefaultAsync(l => l.Email == email);
+            await _dbSet.FirstOrDefaultAsync(l => l.Email.ToLower() == email.ToLower());
 
         public async Task<bool> EmailExistsAsync(string email, int exceptLecturerId = 0) =>
             await _dbSet.AnyAsync(l => l.Email == email && l.LecturerId != exceptLecturerId);

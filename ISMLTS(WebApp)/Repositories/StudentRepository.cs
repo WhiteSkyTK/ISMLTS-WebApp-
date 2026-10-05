@@ -9,8 +9,9 @@ namespace ISMLTS_WebApp_.Repositories
     {
         public StudentRepository(ApplicationDbContext context) : base(context) { }
 
+        // Emails match whatever their case (SQL Server ignores case anyway; SQLite in the tests doesn't)
         public async Task<Student?> GetByEmailAsync(string email) =>
-            await _dbSet.FirstOrDefaultAsync(s => s.Email == email);
+            await _dbSet.FirstOrDefaultAsync(s => s.Email.ToLower() == email.ToLower());
 
         public async Task<Student?> GetByCalendarTokenHashAsync(string tokenHash) =>
             await _dbSet.AsNoTracking().FirstOrDefaultAsync(s => s.CalendarTokenHash == tokenHash);

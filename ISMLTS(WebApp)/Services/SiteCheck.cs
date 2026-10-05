@@ -28,7 +28,8 @@ namespace ISMLTS_WebApp_.Services
         bool AppInsightsConfigured,
         TimeSpan UtcOffset,
         string TimeZone,
-        StorageFacts? Storage = null);
+        StorageFacts? Storage = null,
+        bool MicrosoftSignInOn = false);
 
     // Where uploaded submissions are kept, and whether the site can reach it
     public record StorageFacts(bool IsCloud, bool Reachable, string Location);
@@ -57,6 +58,9 @@ namespace ISMLTS_WebApp_.Services
             items.Add(f.TwoFactorRequiredForAdmins
                 ? new("Sign-in", "Two-factor for admins", CheckState.Ok, "Admins must use an authenticator app.")
                 : new("Sign-in", "Two-factor for admins", CheckState.Warning, "TwoFactor:RequiredForAdmins is off, so admins can sign in with a password alone."));
+            items.Add(new("Sign-in", "Sign in with Microsoft", CheckState.Info, f.MicrosoftSignInOn
+                ? "On: students and lecturers can sign in with their college Microsoft account."
+                : "Off (Authentication:Microsoft is not set). Password log-in works either way."));
             items.Add(Email(f));
             items.Add(new("Links", "IIE Library", CheckState.Info, f.LibraryLinkSet ? "Shown in the shortcut row." : "Not set, so the shortcut is hidden."));
             items.Add(new("Links", "Student Portal", CheckState.Info, f.PortalLinkSet ? "Shown in the shortcut row." : "Not set, so the shortcut is hidden."));
@@ -163,6 +167,7 @@ namespace ISMLTS_WebApp_.Services
         private readonly EmailOptions _email;
         private readonly ExternalLinksOptions _links;
         private readonly IFileStore _store;
+        private readonly ISMLTS_WebApp_.Extensions.MicrosoftSignInOptions _microsoft;
 
         public SiteCheckService(
             IDatabaseInfoRepository database,
@@ -173,7 +178,8 @@ namespace ISMLTS_WebApp_.Services
             IOptions<TwoFactorOptions> twoFactor,
             IOptions<EmailOptions> email,
             IOptions<ExternalLinksOptions> links,
-            IFileStore store)
+            IFileStore store,
+            IOptions<ISMLTS_WebApp_.Extensions.MicrosoftSignInOptions> microsoft)
         {
             _database = database;
             _verifier = verifier;
@@ -184,6 +190,7 @@ namespace ISMLTS_WebApp_.Services
             _email = email.Value;
             _links = links.Value;
             _store = store;
+            _microsoft = microsoft.Value;
         }
 
         public async Task<List<SiteCheckItem>> RunAsync(HttpContext http)
@@ -211,7 +218,8 @@ namespace ISMLTS_WebApp_.Services
                 !string.IsNullOrWhiteSpace(_configuration[Program.MonitoringConnectionSetting]),
                 TimeZoneInfo.Local.GetUtcOffset(DateTime.UtcNow),
                 TimeZoneInfo.Local.DisplayName,
-                new StorageFacts(_store.IsCloud, await _store.CanConnectAsync(http.RequestAborted), _store.Location)));
+                new StorageFacts(_store.IsCloud, await _store.CanConnectAsync(http.RequestAborted), _store.Location),
+                _microsoft.IsConfigured));
         }
     }
 }

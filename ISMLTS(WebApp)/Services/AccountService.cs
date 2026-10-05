@@ -15,6 +15,8 @@ namespace ISMLTS_WebApp_.Services
         // Admins sign in with a username, lecturers and students with their email
         Task<UserAccount?> SignInAsync(string login, string password);
         Task<UserAccount?> FindAsync(string role, int id);
+        // "Sign in with Microsoft": the lecturer or student with this college email (never an admin)
+        Task<UserAccount?> FindByCollegeEmailAsync(string? email);
         Task SaveAsync(UserAccount account);
         Task<PasswordChangeError?> ChangePasswordAsync(UserAccount account, string currentPassword, string newPassword);
         Task ResetPasswordAsync(UserAccount account, string newPassword);
@@ -71,6 +73,14 @@ namespace ISMLTS_WebApp_.Services
             if (student != null && PasswordMatches(password, student.PasswordHash)) return ForStudent(student);
 
             return null;
+        }
+
+        public async Task<UserAccount?> FindByCollegeEmailAsync(string? email)
+        {
+            if (string.IsNullOrWhiteSpace(email)) return null;
+            email = email.Trim();
+            if (await _lecturers.GetByEmailAsync(email) is { } lecturer) return ForLecturer(lecturer);
+            return await _students.GetByEmailAsync(email) is { } student ? ForStudent(student) : null;
         }
 
         public async Task<UserAccount?> FindAsync(string role, int id) => role switch

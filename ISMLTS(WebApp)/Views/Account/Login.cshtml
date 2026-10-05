@@ -1,4 +1,7 @@
 @model LoginViewModel
+@using Microsoft.Extensions.Options
+@using ISMLTS_WebApp_.Extensions
+@inject IOptions<MicrosoftSignInOptions> MicrosoftSettings
 @{
     ViewData["Title"] = "Log In";
     var returnUrl = ViewData["ReturnUrl"] as string;
@@ -54,6 +57,14 @@
                 </div>
                 <button type="submit" class="btn btn-rosebank btn-lg w-100 mt-2" data-loading="Logging in…"><i class="bi bi-box-arrow-in-right" aria-hidden="true"></i> Log in</button>
             </form>
+            @if (MicrosoftSettings.Value.IsConfigured)
+            {
+                <p class="text-center text-muted small my-3">or</p>
+                <form asp-action="MicrosoftLogin" asp-route-returnUrl="@returnUrl" method="post">
+                    <button type="submit" class="btn btn-outline-secondary btn-lg w-100" data-loading="Opening Microsoft…"><i class="bi bi-microsoft" aria-hidden="true"></i> Sign in with Microsoft</button>
+                </form>
+                <p class="small text-muted mt-2 mb-0">Students and lecturers: use your college Microsoft account.</p>
+            }
 
             <p class="auth-footnote"><i class="bi bi-question-circle" aria-hidden="true"></i> Forgot your password? The admin office can reset it for you.</p>
         </div>

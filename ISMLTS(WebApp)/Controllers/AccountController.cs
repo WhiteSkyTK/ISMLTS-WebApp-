@@ -20,11 +20,13 @@ namespace ISMLTS_WebApp_.Controllers
 
         private readonly IAccountService _accountService;
         private readonly IQrCodeService _qrCodeService;
+        private readonly MicrosoftSignInOptions _microsoft;
 
-        public AccountController(IAccountService accountService, IQrCodeService qrCodeService)
+        public AccountController(IAccountService accountService, IQrCodeService qrCodeService, Microsoft.Extensions.Options.IOptions<MicrosoftSignInOptions> microsoft)
         {
             _accountService = accountService;
             _qrCodeService = qrCodeService;
+            _microsoft = microsoft.Value;
         }
 
         [AllowAnonymous]
@@ -32,6 +34,8 @@ namespace ISMLTS_WebApp_.Controllers
         public IActionResult Login(string? returnUrl = null)
         {
             ViewData["ReturnUrl"] = returnUrl;
+            if (Request.Query.ContainsKey(MicrosoftSignIn.FailedQuery))
+                ModelState.AddModelError(string.Empty, "Signing in with Microsoft didn't finish. Try again, or log in with your password.");
             return View();
         }
 
@@ -62,6 +66,47 @@ namespace ISMLTS_WebApp_.Controllers
                 return RedirectToAction(nameof(SetUpTwoFactor), new { returnUrl });
             }
 
+            await SignInAsync(account, passedTwoFactor: false);
+            return RedirectAfterSignIn(returnUrl);
+        }
+
+        // Off to Microsoft; it comes back to MicrosoftDone. Only shown and allowed when Authentication:Microsoft is set.
+        [AllowAnonymous]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [EnableRateLimiting(LoginRateLimitPolicy)]
+        public IActionResult MicrosoftLogin(string? returnUrl = null)
+        {
+            if (!_microsoft.IsConfigured) return NotFound();
+            var properties = new AuthenticationProperties { RedirectUri = Url.Action(nameof(MicrosoftDone), new { returnUrl = SafeReturnUrl(returnUrl) }) };
+            return Challenge(properties, MicrosoftSignIn.Scheme);
+        }
+
+        // Microsoft vouched for the person; sign in the student or lecturer with that college email. Accounts with an
+        // authenticator app still enter their code, exactly as after a password.
+        [AllowAnonymous]
+        [HttpGet]
+        public async Task<IActionResult> MicrosoftDone(string? returnUrl = null)
+        {
+            if (!_microsoft.IsConfigured) return NotFound();
+            var external = await HttpContext.AuthenticateAsync(MicrosoftSignIn.ExternalScheme);
+            await HttpContext.SignOutAsync(MicrosoftSignIn.ExternalScheme);
+            if (!external.Succeeded) return RedirectToAction(nameof(Login), new { returnUrl, microsoft = "failed" });
+
+            var login = MicrosoftSignIn.Login(external.Principal);
+            var account = await _accountService.FindByCollegeEmailAsync(login);
+            if (account == null)
+            {
+                ViewData["ReturnUrl"] = returnUrl;
+                ModelState.AddModelError(string.Empty, $"No student or lecturer account in ISMLTS uses {login ?? "that Microsoft account"}. Log in with your password, or ask the admin office.");
+                return View(nameof(Login), new LoginViewModel());
+            }
+
+            if (account.Entity.TwoFactorEnabled)
+            {
+                await StartPendingSignInAsync(account);
+                return RedirectToAction(nameof(TwoFactor), new { returnUrl });
+            }
             await SignInAsync(account, passedTwoFactor: false);
             return RedirectAfterSignIn(returnUrl);
         }

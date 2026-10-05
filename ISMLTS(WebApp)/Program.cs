@@ -46,6 +46,9 @@ builder.Services.AddControllersWithViews(options => options.Filters.Add<AccountS
 // JSON API for the Android app (bearer tokens, /api/v1)
 var apiSigningKey = builder.AddStudentApi();
 
+// Optional "Sign in with Microsoft" when Authentication:Microsoft (ClientId, ClientSecret, TenantId) is set
+builder.AddMicrosoftSignIn();
+
 // Uploaded submissions: Azure Blob Storage when Storage:ConnectionString is set, otherwise a folder outside wwwroot
 builder.AddSubmissionStorage();
 

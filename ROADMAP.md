@@ -81,7 +81,7 @@ This is where everything built since Phase 1 reaches the live site and gets test
 - [x] Deployment runbook in README: required settings, first-run seeding, rollback
 - [x] Admin Site check page: environment, https, time zone, database and migrations, the address the site sees, campus network, and which settings are missing
 - [x] Demo data can be added once to the live site (`Seed__DemoData`, `Seed__DemoPassword`), next to existing data, for live testing
-- [ ] Optional "Sign in with Microsoft" (OpenID Connect with Microsoft Entra ID, `Microsoft.AspNetCore.Authentication.OpenIdConnect`): the button only shows when `Authentication:Microsoft` is configured; it signs in an existing student or lecturer whose college email matches the verified Microsoft account and never creates accounts; password log-in stays. Check early whether the IIE tenant needs IT to approve (admin consent) the app registration
+- [x] Optional "Sign in with Microsoft" (OpenID Connect with Microsoft Entra ID, `Microsoft.AspNetCore.Authentication.OpenIdConnect`): the button only shows when `Authentication:Microsoft` is configured; it signs in an existing student or lecturer whose college email matches the verified Microsoft account and never creates accounts; password log-in stays. Check early whether the IIE tenant needs IT to approve (admin consent) the app registration (done in Phase 9; set it up with README step 3)
 
 ## Phase 7 — File submissions
 - [x] Students can upload a file (PDF, DOCX, ZIP; size limit from config) as well as, or instead of, a link; files go to a private Azure Blob container (Azurite locally), never under wwwroot
@@ -102,8 +102,10 @@ This is where everything built since Phase 1 reaches the live site and gets test
 - [ ] On the live site: publish with the `Phase8Terms` migration, add this year's terms (Admin → Terms) and each module's classes (Lecturer → Timetable), then check dashboards, attendance percentages and a phone subscription
 
 ## Phase 9 — Data care and accessibility
-- [ ] Retention job clears attendance IP and GPS details after the period stated in the POPIA notice (config setting); marks are kept
-- [ ] Students can download their own data (marks, submissions, attendance) as CSV
-- [ ] Audit log of admin actions: accounts created or deleted, password resets, enrolment changes
-- [ ] Accessibility pass to WCAG 2.1 AA: keyboard-only walk-through of every role, contrast check of the palette, focus handling in dialogs, automated axe checks in CI
-- [ ] README for GitHub: what ISMLTS is and who it's for, features per role with screenshots, the tech stack, running it locally step by step (LocalDB, migrations, demo data and demo accounts), every configuration setting, running the tests, the Android API (link to `docs/API.md`), deploying to Azure, and the team and module details
+- [x] Retention job clears attendance IP and GPS details after the period stated in the POPIA notice (config setting); marks are kept
+- [x] Students can download their own data (marks, submissions, attendance) as CSV
+- [x] Audit log of admin actions: accounts created or deleted, password resets, enrolment changes
+- [x] Accessibility pass to WCAG 2.1 AA: contrast check of the palette, focus handling in dialogs, automated checks of the HTML-checkable axe rules on 48 pages in CI (a browser-based axe run would need a browser and SQL Server in CI); the keyboard-only walk-through is a manual checklist in `docs/ACCESSIBILITY.md`
+- [x] README for GitHub: what ISMLTS is and who it's for, features per role with screenshots, the tech stack, running it locally step by step (LocalDB, migrations, demo data and demo accounts), every configuration setting, running the tests, the Android API (link to `docs/API.md`), deploying to Azure, and the team and module details
+- [x] Things that were missing: the Android API gained the calendar and calendar notes; `docs/LIVE-TESTING.md` is the step-by-step live test for every phase and role
+- [ ] Screenshots for the README (`docs/screenshots/*.png`, names listed in README) and the keyboard walk-through on the live site
